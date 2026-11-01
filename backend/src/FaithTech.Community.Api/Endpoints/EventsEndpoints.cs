@@ -90,6 +90,13 @@ public static class EventsEndpoints
             .Validate<SaveEventHubCommand>();
 
         // Publishing (L2-164, ADR 0039): refuses nothing; every status change is audited.
+        // Applies a starting point: a template, Blank or a copy of another hub (L2-169 AC3, L2-170 AC4, ADR 0041).
+        events.MapPost("/{id:guid}/hub/start", async (Guid id, StartEventHubCommand command, StartEventHubHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, hub) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(hub));
+        });
+
         events.MapPost("/{id:guid}/hub/publish", async (Guid id, PublishEventHubHandler handler, CancellationToken cancellationToken) =>
             (await handler.PublishAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
@@ -154,6 +161,19 @@ public static class EventsEndpoints
             await handler.ForMemberAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
 
         // The share link and guest RSVP are for anonymous visitors, public events only (L2-023).
+        // Starting points for a new hub (L2-169, L2-170, ADR 0041).
+        var hubs = app.MapGroup("/api/event-hubs");
+        hubs.MapGet(string.Empty, async (string? search, Guid? excludeEventId, ListEventHubsHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, list) = await handler.HandleAsync(search, excludeEventId, cancellationToken);
+            return result.ToHttp(() => Results.Ok(list));
+        });
+        hubs.MapGet("/templates", async (ListHubTemplatesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, templates) = await handler.HandleAsync(cancellationToken);
+            return result.ToHttp(() => Results.Ok(templates));
+        });
+
         var publicEvents = app.MapGroup("/api/public/events").AllowAnonymous();
 
         publicEvents.MapGet("/{id:guid}", async (Guid id, PublicEventsHandler handler, CancellationToken cancellationToken) =>

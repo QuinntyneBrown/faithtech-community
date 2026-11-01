@@ -76,6 +76,8 @@ public interface IApplicationDbContext
 
     DbSet<HubSection> HubSections { get; }
 
+    DbSet<HubTemplate> HubTemplates { get; }
+
     DbSet<Announcement> Announcements { get; }
 
     DbSet<Resource> Resources { get; }

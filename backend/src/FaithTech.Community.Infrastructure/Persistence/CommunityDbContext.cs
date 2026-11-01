@@ -112,6 +112,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<HubSection> HubSections => Set<HubSection>();
 
+    public DbSet<HubTemplate> HubTemplates => Set<HubTemplate>();
+
     public DbSet<Announcement> Announcements => Set<Announcement>();
 
     public DbSet<Resource> Resources => Set<Resource>();
@@ -495,6 +497,17 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             section.Property(s => s.Kind).HasConversion<string>().HasMaxLength(32);
             section.Property(s => s.Content).HasColumnType("jsonb");
             section.HasIndex(s => new { s.EventHubId, s.Kind }).IsUnique();
+        });
+
+        // Hub templates (L2-171, ADR 0041): organisation rows with their sections as one JSON array.
+        builder.Entity<HubTemplate>(template =>
+        {
+            template.ToTable("HubTemplates");
+            template.Property(t => t.Id).ValueGeneratedNever();
+            template.Property(t => t.Name).HasMaxLength(HubTemplate.NameMaxLength);
+            template.Property(t => t.Description).HasMaxLength(HubTemplate.DescriptionMaxLength);
+            template.Property(t => t.Sections).HasColumnType("jsonb");
+            template.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(HubTemplate.SortOrder));
         });
 
         builder.Entity<Rsvp>(rsvp =>

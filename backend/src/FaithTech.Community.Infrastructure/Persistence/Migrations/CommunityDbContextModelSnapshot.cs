@@ -691,6 +691,40 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("HubSections", (string)null);
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.HubTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Sections")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("OrganisationId", "SortOrder");
+
+                    b.ToTable("HubTemplates", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2585,6 +2619,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.HubTemplate", b =>
+                {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
                         .WithMany()
                         .HasForeignKey("OrganisationId")
