@@ -1,0 +1,81 @@
+@switch (state()) {
+  @case ('loading') {
+    <div class="hub-page" role="status" aria-busy="true" aria-label="Loading the hub">
+      @for (card of [1, 2, 3]; track card) {
+        <ft-card>
+          <ft-stack>
+            <ft-skeleton shape="title" />
+            <ft-skeleton />
+            <ft-skeleton />
+          </ft-stack>
+        </ft-card>
+      }
+    </div>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      [headingLevel]="1"
+      heading="We couldn’t load the hub"
+      text="Check your connection and try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('unavailable') {
+    <ft-empty-state
+      [headingLevel]="1"
+      heading="This hub isn’t available"
+      text="It may not be published yet, or the link may be wrong."
+    />
+  }
+  @case ('loaded') {
+    @if (hub(); as h) {
+      <div class="hub-page">
+        <h1 class="visually-hidden">{{ h.event.title }} hub</h1>
+        <ft-alert class="hub-page__banner" status="info" heading="Preview">
+          {{
+            h.status === 'Published'
+              ? 'This is your published hub, as visitors see it.'
+              : 'This is how your hub will look. It’s a draft, so visitors can’t open it yet.'
+          }}
+          <ft-link ftAlertActions [href]="'/events/' + h.eventId + '/hub'"
+            >Back to hub home</ft-link
+          >
+        </ft-alert>
+        @for (section of shown(); track section.kind) {
+          @switch (section.kind) {
+            @case ('Hero') {
+              <ft-hub-hero [hub]="h" />
+            }
+            @case ('Agenda') {
+              <ft-hub-agenda [items]="agenda()" />
+            }
+            @case ('Venue') {
+              <ft-hub-venue [hub]="h" />
+            }
+            @case ('People') {
+              <ft-hub-people [people]="people()" />
+            }
+            @case ('Links') {
+              <ft-hub-links [hub]="h" />
+            }
+            @case ('Giving') {
+              <ft-hub-giving [hub]="h" />
+            }
+            @case ('UpcomingEvents') {
+              <ft-hub-upcoming [events]="h.upcomingEvents" />
+            }
+          }
+        } @empty {
+          <ft-empty-state
+            heading="Nothing to show yet"
+            text="Fill in a section on the hub home and it will appear here."
+          />
+        }
+      </div>
+    }
+  }
+}

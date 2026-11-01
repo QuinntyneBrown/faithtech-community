@@ -1,0 +1,7 @@
+// The hub page (docs/mocks/pages/hub-page): sections stacked in one readable column.
+.hub-page {
+  display: grid;
+  gap: var(--space-6);
+  max-inline-size: 48rem;
+  margin-inline: auto;
+}

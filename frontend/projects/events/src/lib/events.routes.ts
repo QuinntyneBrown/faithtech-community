@@ -4,6 +4,7 @@ import {
   EventCheckInPage,
   EventFormPage,
   EventHubPage,
+  HubPage,
   EventPage,
   EventsPage,
   GuestCancelRsvpPage,
@@ -22,5 +23,7 @@ export const EVENTS_ROUTES: Routes = [
 /** Anonymous routes under /public/events (L2-023): the share page and the guest cancel link. */
 export const PUBLIC_EVENT_ROUTES: Routes = [
   { path: ':id', component: PublicEventPage, title: 'Event' },
+  // The hub page (L2-163, ADR 0039): the preview now, the published page for visitors with slice 44.
+  { path: ':id/hub', component: HubPage, title: 'Event hub' },
   { path: ':id/cancel-rsvp', component: GuestCancelRsvpPage, title: 'Cancel your RSVP' },
 ];
