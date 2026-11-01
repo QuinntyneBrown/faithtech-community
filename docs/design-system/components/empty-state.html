@@ -197,8 +197,28 @@
       </div>
     </section>
 
-    <section class="ds-section" id="sizes" data-na="One size in sections; page scale is the error page"><h2><a href="#sizes">Sizes</a></h2>
-      <p class="ds-na">One size inside a page. The page-scale version, with the page heading, is the <a href="error-page.html">error page</a>.</p>
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Two sizes inside a page. The page-scale version, with the page heading, is the <a href="error-page.html">error page</a>.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No contacts match “harbour”</h3></div>
+        </div>
+        <div class="ds-example__caption"><span>Default (<code>size="md"</code>): stands in for a page's list or a card's body. 64px icon circle, <code>--text-h3</code> title, <code>--space-12</code> by <code>--space-6</code> padding.</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <div class="field" style="width: 100%;"><label class="field__label" for="es-sm-q">Search past hubs</label><input class="input" id="es-sm-q" type="search" value="retreat" aria-describedby="es-sm-q-help"><div class="field__help" id="es-sm-q-help">By event title</div></div>
+          <div class="empty empty--sm" role="status" style="width: 100%;"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No hubs match “retreat”.</h3></div>
+          <div class="empty empty--sm" role="status" style="width: 100%;"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span><h3 class="empty__title">There are no other hubs to copy yet.</h3></div>
+        </div>
+        <div class="ds-example__caption"><span>Small (<code>.empty--sm</code>, <code>size="sm"</code>): stands in for a short list inside a dialog step, such as the past hubs under Copy a past hub in Create event hub (<code>dialogs/create-event-hub/copy-search-no-results</code>, <code>copy-no-hubs</code>). 40px icon circle with a 20px icon, the title in <code>--text-body</code> semibold, <code>--space-6</code> by <code>--space-4</code> padding, <code>--space-2</code> gap. Title only, usually a full sentence; no text and no action, because the field above it (the search) is the way out. It is <code>role="status"</code>, so a search that empties the list is announced politely.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="empty empty--sm" role="status"&gt;
+  &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" …&gt;…&lt;/svg&gt;&lt;/span&gt;
+  &lt;h3 class="empty__title"&gt;No hubs match “retreat”.&lt;/h3&gt;
+&lt;/div&gt;
+
+&lt;ft-empty-state size="sm" icon="search" [headingLevel]="3" heading="No hubs match “retreat”." /&gt;</code></pre></details>
+      </div>
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
@@ -238,7 +258,7 @@
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>Plain content: a heading, a paragraph and native buttons or links. The plain empty state has no ARIA role. The error variant carries <code>role="alert"</code> in the mocks so the failed load is announced when it replaces the skeletons.</p>
+      <p>Plain content: a heading, a paragraph and native buttons or links. The plain empty state has no ARIA role. The error variant carries <code>role="alert"</code> in the mocks so the failed load is announced when it replaces the skeletons. The small empty state is <code>role="status"</code>, because it replaces a list while the person types in the search field above it; the title is then announced politely without moving focus.</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Tab</kbd></td><td>Moves to the primary action, then the secondary.</td></tr>
@@ -306,6 +326,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.empty</code></td><td>Centred column, 48 × 24px padding.</td></tr>
         <tr><td><code>.empty--error</code></td><td>Danger-tinted icon; pair with <code>role="alert"</code>.</td></tr>
+        <tr><td><code>.empty--sm</code></td><td>Small: 40px icon circle, body-semibold title, 24 × 16px padding, 8px gap. <code>ft-empty-state</code> <code>size="sm"</code> (default <code>"md"</code>).</td></tr>
         <tr><td><code>.empty__icon</code></td><td>64px circle around an <code>.icon--lg</code>.</td></tr>
         <tr><td><code>.empty__title</code></td><td>h3 style; use the right heading level.</td></tr>
         <tr><td><code>.empty__text</code></td><td>Muted, 36ch max.</td></tr>
@@ -322,6 +343,7 @@
         <li>No results: <a href="../../mocks/pages/search/no-results.html">pages/search/no-results</a>, <a href="../../mocks/pages/contacts/no-results.html">contacts/no-results</a>, <a href="../../mocks/pages/people/no-results.html">people/no-results</a>, <a href="../../mocks/pages/admin-users/no-results.html">admin-users/no-results</a></li>
         <li>Error: <a href="../../mocks/pages/contacts/error.html">pages/contacts/error</a>, <a href="../../mocks/pages/home/error.html">home/error</a>, <a href="../../mocks/pages/events/error.html">events/error</a>, <a href="../../mocks/pages/partners/error.html">partners/error</a>, <a href="../../mocks/pages/audit-log/error.html">audit-log/error</a></li>
         <li><a href="../../mocks/notifications/bell/empty.html">notifications/bell/empty</a></li>
+        <li>Small: <a href="../../mocks/dialogs/create-event-hub/copy-search-no-results.html">dialogs/create-event-hub/copy-search-no-results</a>, <a href="../../mocks/dialogs/create-event-hub/copy-no-hubs.html">copy-no-hubs</a></li>
       </ul>
       <p>Try again is a <code>&lt;button type="button"&gt;</code> in every error mock and in the system. The icon wrapper is always a <code>&lt;span class="empty__icon" aria-hidden="true"&gt;</code>, in every mock, on this page and in <code>ft-empty-state</code>; do not use a <code>&lt;div&gt;</code> (the inherited Shelfie pages did). The component is inherited from Shelfie unchanged.</p>
     </section>
