@@ -22,5 +22,8 @@
     </button>
   </header>
   <div class="dialog__body"><ng-content /></div>
-  <footer class="dialog__footer"><ng-content select="[ftDialogFooter]" /></footer>
+  <footer class="dialog__footer">
+    <div class="dialog__footer-start"><ng-content select="[ftDialogFooterStart]" /></div>
+    <ng-content select="[ftDialogFooter]" />
+  </footer>
 </div>

@@ -24,6 +24,17 @@ class HostComponent {
   closes = 0;
 }
 
+@Component({
+  imports: [DialogComponent],
+  template: `
+    <ft-dialog heading="Create event hub">
+      <button ftDialogFooter type="button">Next</button>
+      <button ftDialogFooterStart type="button">Save and finish later</button>
+    </ft-dialog>
+  `,
+})
+class WizardHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -40,6 +51,17 @@ describe('DialogComponent', () => {
     );
     expect(host.querySelector('.dialog__body .body-content')).not.toBeNull();
     expect(host.querySelector('.dialog__footer button')?.textContent).toBe('Cancel');
+  });
+
+  // Traces to: L2-153 AC2 (a wizard's Save and finish later sits apart on the left).
+  it('keeps a footer-start action before the footer actions', () => {
+    const fixture = TestBed.createComponent(WizardHostComponent);
+    fixture.detectChanges();
+    const footer = (fixture.nativeElement as HTMLElement).querySelector('.dialog__footer')!;
+    expect(footer.firstElementChild?.classList.contains('dialog__footer-start')).toBe(true);
+    expect(footer.querySelector('.dialog__footer-start button')?.textContent).toBe(
+      'Save and finish later',
+    );
   });
 
   it('gives the title and description distinct ids for the dialog container', () => {
