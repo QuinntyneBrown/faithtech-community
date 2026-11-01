@@ -68,7 +68,8 @@ function setup(
 describe('EditGeneralSettingsDialog', () => {
   it('starts from the current names and saves them trimmed, chapters staying off', async () => {
     const { inputs, type, save, settle, service, ref } = setup();
-    expect(inputs().map((i) => i.value)).toEqual(['FaithTech Community', 'FaithTech']);
+    // Name, short name, then the giving link and text (none yet).
+    expect(inputs().map((i) => i.value)).toEqual(['FaithTech Community', 'FaithTech', '', '']);
     type(1, '  FT  ');
     save();
     await settle();
@@ -94,7 +95,7 @@ describe('EditGeneralSettingsDialog', () => {
   it('turns chapters on with both labels, asking for the one that is missing', async () => {
     const { host, inputs, toggle, type, save, settle, service, ref } = setup();
     toggle();
-    expect(inputs()).toHaveLength(4);
+    expect(inputs()).toHaveLength(6);
     type(2, ' Campus ');
     save();
     await settle();
@@ -119,6 +120,8 @@ describe('EditGeneralSettingsDialog', () => {
       'FaithTech',
       'City',
       'Cities',
+      '',
+      '',
     ]);
     save();
     await settle();
@@ -163,5 +166,33 @@ describe('EditGeneralSettingsDialog', () => {
     save();
     fixture.detectChanges();
     expect(inputs().every((i) => i.readOnly)).toBe(true);
+  });
+
+  // L2-158 AC4: the giving link and text are sent only when they change; empty clears them.
+  it('sends a changed giving link and text, refusing a link without https', async () => {
+    const { type, save, settle, service, ref, host } = setup(undefined, {
+      ...organisation,
+      givingLink: 'https://faithtech.com/donate',
+      givingText: 'Help us build the next one.',
+    });
+
+    type(2, 'faithtech.com/give');
+    save();
+    await settle();
+    expect(host.textContent).toContain('Use a link that starts with https://');
+    expect(service.update).not.toHaveBeenCalled();
+
+    type(2, 'https://faithtech.com/give');
+    type(3, '');
+    save();
+    await settle();
+    expect(service.update).toHaveBeenCalledWith({
+      name: 'FaithTech Community',
+      shortName: 'FaithTech',
+      chapterLabel: null,
+      givingLink: 'https://faithtech.com/give',
+      givingText: '',
+    });
+    expect(ref.close).toHaveBeenCalledWith('saved');
   });
 });

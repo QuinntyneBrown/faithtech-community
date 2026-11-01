@@ -31,6 +31,12 @@
             organisation()?.shortName
           }}</ft-description-list-item>
           <ft-description-list-item label="Chapters">{{ chapters() }}</ft-description-list-item>
+          <ft-description-list-item label="Giving link" [missing]="!organisation()?.givingLink">{{
+            organisation()?.givingLink
+          }}</ft-description-list-item>
+          <ft-description-list-item label="Giving text" [missing]="!organisation()?.givingText">{{
+            organisation()?.givingText
+          }}</ft-description-list-item>
         </ft-description-list>
         <p class="text-caption">
           The short name is shown in the top bar, page titles and emails. The address is set by the

@@ -79,24 +79,30 @@
           <ft-list label="Sections" class="hub-sections">
             @for (row of rows(); track row.kind) {
               <ft-checklist-row [label]="row.title" [description]="row.line" [state]="row.state">
-                @if (row.state === 'hidden') {
-                  <ft-button
-                    actions
-                    size="sm"
-                    [object]="row.title"
-                    (click)="setVisible(row.kind, true)"
-                    >Show</ft-button
-                  >
-                } @else {
-                  <ft-menu
-                    actions
-                    [label]="'More for ' + row.title"
-                    [entries]="menu"
-                    (itemSelected)="act(row.kind, $event)"
-                  >
-                    <ft-icon name="more" />
-                  </ft-menu>
-                }
+                <ng-container ngProjectAs="[actions]">
+                  @if (row.state === 'hidden') {
+                    <ft-button size="sm" [object]="row.title" (click)="setVisible(row.kind, true)"
+                      >Show</ft-button
+                    >
+                  } @else {
+                    @if (row.hasWizard) {
+                      <ft-button
+                        size="sm"
+                        [variant]="row.state === 'needs-info' ? 'primary' : 'secondary'"
+                        [object]="row.title"
+                        (click)="fillIn(row.kind)"
+                        >{{ row.state === 'needs-info' ? 'Fill in' : 'Edit' }}</ft-button
+                      >
+                    }
+                    <ft-menu
+                      [label]="'More for ' + row.title"
+                      [entries]="row.menu"
+                      (itemSelected)="act(row.kind, $event)"
+                    >
+                      <ft-icon name="more" />
+                    </ft-menu>
+                  }
+                </ng-container>
               </ft-checklist-row>
             }
           </ft-list>

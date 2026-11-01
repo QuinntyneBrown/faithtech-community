@@ -1,0 +1,57 @@
+<ft-dialog
+  heading="Giving"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (saver.failed()) {
+        <ft-alert status="danger" heading="We couldn’t save this section">
+          Check your connection and try again.
+          <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+        </ft-alert>
+      }
+      <h3 class="section-title" [id]="questionId">Anything to add for this event?</h3>
+      @if (organisation.givingLink; as link) {
+        <section [attr.aria-labelledby]="factsId">
+          <ft-stack gap="2">
+            <h4 class="overline" [id]="factsId">From the organisation</h4>
+            <ft-description-list>
+              <ft-description-list-item label="Giving link">{{ link }}</ft-description-list-item>
+              <ft-description-list-item label="Giving text" [missing]="!organisation.givingText">{{
+                organisation.givingText
+              }}</ft-description-list-item>
+            </ft-description-list>
+            <p class="text-caption">
+              Change these in <ft-link href="/organisation">Organisation settings</ft-link>.
+            </p>
+          </ft-stack>
+        </section>
+      } @else {
+        <ft-alert status="info">
+          {{ organisation.shortName }} hasn’t added a giving link yet. Add one in
+          <ft-link href="/organisation">Organisation settings, General</ft-link>.
+        </ft-alert>
+      }
+      <ft-form-field
+        label="Event line"
+        [optional]="true"
+        help="Shown above the giving button, like ‘Tonight’s gifts fund the Toronto shelters build.’"
+        [error]="saver.error('line')"
+      >
+        <ft-text-field
+          formControlName="line"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxLine"
+          [readonly]="saver.busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">
+    {{ saver.busy() ? 'Saving…' : 'Save' }}
+  </ft-button>
+</ft-dialog>

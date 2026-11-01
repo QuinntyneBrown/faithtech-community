@@ -1,0 +1,22 @@
+/* A hub section's display (docs/design-system/patterns/event-hub-sections.html). */
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.hub-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.section-title,
+.hub-section h3 {
+  margin: 0;
+  font: var(--text-h4);
+}
+
+p {
+  margin: 0;
+}

@@ -1,0 +1,49 @@
+<ft-dialog
+  heading="Hero"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (saver.failed()) {
+        <ft-alert status="danger" heading="We couldn’t save this section">
+          Check your connection and try again.
+          <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+        </ft-alert>
+      }
+      <h3 class="section-title" [id]="questionId">What should the top of the hub say?</h3>
+      <section [attr.aria-labelledby]="factsId">
+        <ft-stack gap="2">
+          <h4 class="overline" [id]="factsId">From the event</h4>
+          <ft-description-list>
+            <ft-description-list-item label="Title">{{ hub.event.title }}</ft-description-list-item>
+            <ft-description-list-item label="When">{{ when }}</ft-description-list-item>
+            <ft-description-list-item label="Where">{{ place }}</ft-description-list-item>
+            <ft-description-list-item label="RSVP button"
+              >Links to the RSVP page</ft-description-list-item
+            >
+          </ft-description-list>
+        </ft-stack>
+      </section>
+      <ft-form-field
+        label="Subtitle"
+        [optional]="true"
+        help="Shown under the event’s name, like ‘A night of building for the city’"
+        [error]="subtitleError()"
+      >
+        <ft-text-field
+          formControlName="subtitle"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxSubtitle"
+          [readonly]="saver.busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">
+    {{ saver.busy() ? 'Saving…' : 'Save' }}
+  </ft-button>
+</ft-dialog>

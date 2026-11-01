@@ -7,6 +7,7 @@ import {
   inject,
   input,
   signal,
+  Type,
 } from '@angular/core';
 import {
   EVENT_HUBS_SERVICE,
@@ -40,8 +41,16 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { ReorderHubSectionsDialog, ReorderHubSectionsData } from '../../dialogs';
-import { hubSection } from '../../hub-sections';
+import {
+  HubGivingDialog,
+  HubHeroDialog,
+  HubSectionPreviewData,
+  HubSectionPreviewDialog,
+  PREVIEWABLE,
+  ReorderHubSectionsData,
+  ReorderHubSectionsDialog,
+} from '../../dialogs';
+import { HubSectionWizardData, hubSection } from '../../hub-sections';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'no-hub';
 
@@ -57,8 +66,19 @@ const BADGES = {
   Hidden: { label: 'Hidden', variant: 'neutral' },
 } as const;
 
-/** The row menu of a shown section (L2-156 AC1); Preview joins it as each section's display lands. */
-const MENU: MenuEntry[] = [{ kind: 'item', id: 'hide', label: 'Hide section', icon: 'hidden' }];
+/** Each section's wizard (L2-157); a section joins as its wizard lands. */
+const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
+  Hero: HubHeroDialog,
+  Giving: HubGivingDialog,
+};
+
+const PREVIEW: MenuEntry = {
+  kind: 'item',
+  id: 'preview',
+  label: 'Preview',
+  icon: 'read-only-view',
+};
+const HIDE: MenuEntry = { kind: 'item', id: 'hide', label: 'Hide section', icon: 'hidden' };
 
 /**
  * The hub home (L2-154, L2-156), matching docs/mocks/pages/event-hub: the hub's status and link, how many sections are
@@ -95,8 +115,6 @@ export class EventHubPage {
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
 
-  protected readonly menu = MENU;
-
   /** The event's id, from the route. */
   readonly id = input.required<string>();
 
@@ -115,6 +133,8 @@ export class EventHubPage {
         line: s.state === 'NeedsInfo' ? (section.missing ?? section.line) : section.line,
         sectionState: s.state,
         state: ROW_STATES[s.state],
+        hasWizard: !!WIZARDS[s.kind],
+        menu: PREVIEWABLE.includes(s.kind) ? [PREVIEW, HIDE] : [HIDE],
       };
     }),
   );
@@ -157,6 +177,30 @@ export class EventHubPage {
 
   protected act(kind: HubSectionKind, item: string): void {
     if (item === 'hide') void this.setVisible(kind, false);
+    if (item === 'preview') void this.preview(kind);
+  }
+
+  /** Fill in or Edit (L2-157 AC1, AC2): the section's wizard; once saved, the toast and the new state. */
+  protected async fillIn(kind: HubSectionKind): Promise<void> {
+    const hub = this.hub();
+    const wizard = WIZARDS[kind];
+    if (!hub || !wizard) return;
+    const ref = this.dialogs.open<boolean, HubSectionWizardData>(wizard, { data: { hub } });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({ variant: 'success', heading: `${hubSection(kind).title} saved` });
+    await this.load(this.id(), true);
+  }
+
+  /** Preview (L2-156 AC5): the section as visitors will see it, with Edit. */
+  private async preview(kind: HubSectionKind): Promise<void> {
+    const hub = this.hub();
+    if (!hub) return;
+    const ref = this.dialogs.open<'edit', HubSectionPreviewData>(
+      HubSectionPreviewDialog,
+      { data: { hub, kind } },
+      { wide: true },
+    );
+    if ((await firstValueFrom(ref.closed)) === 'edit') await this.fillIn(kind);
   }
 
   /** Reorder sections (L2-156 AC4). */

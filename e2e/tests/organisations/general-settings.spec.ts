@@ -1,4 +1,4 @@
-// Traces to: L2-147 AC1-AC5, L2-152 AC1, L2-134 (docs/detailed-designs/organisations/organisation-settings)
+// Traces to: L2-147 AC1-AC5, L2-152 AC1, L2-134, L2-158 AC4 (docs/detailed-designs/organisations/organisation-settings)
 import { expect, test } from '../../fixtures/app';
 import { NORTHSIDE } from '../../fixtures/mock-host';
 import { AppShell } from '../../pages/app-shell.page';
@@ -58,6 +58,35 @@ test.describe('Organisation settings: General', () => {
       chapterLabel: { singular: 'City', plural: 'Cities' },
     });
     expect(api.audit.at(-1)).toMatchObject({ action: 'organisation.updated' });
+  });
+
+  // L2-158 AC4: the giving link (https only) and text that event hubs show.
+  test('a settings manager sets the giving link and text', async ({ page, api, axe }) => {
+    const priya = api.addAccount({ email: 'priya@example.org', roles: ['SystemAdmin'] });
+    api.host.organisation = { ...api.host.organisation, givingLink: null, givingText: null };
+    const general = new OrganisationGeneralPage(page);
+    await api.signInAs(priya, '/organisation');
+
+    await expect(general.value('Giving link')).toHaveText('Not added');
+    await expect(general.value('Giving text')).toHaveText('Not added');
+    await general.edit.click();
+    const dialog = new EditGeneralSettingsDialog(page);
+    await dialog.givingLink.fill('faithtech.com/give');
+    await dialog.save.click();
+    await expect(dialog.error('Use a link that starts with https://')).toBeVisible();
+    await axe.check();
+
+    await dialog.givingLink.fill('https://faithtech.com/give');
+    await dialog.givingText.fill('Fund the next build.');
+    await dialog.save.click();
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(general.value('Giving link')).toHaveText('https://faithtech.com/give');
+    await expect(general.value('Giving text')).toHaveText('Fund the next build.');
+    expect(api.callsTo('PUT', '/api/organisation').at(-1)?.body).toMatchObject({
+      givingLink: 'https://faithtech.com/give',
+      givingText: 'Fund the next build.',
+    });
   });
 
   test('a failed save keeps the dialog open with the input and offers Try again', async ({
