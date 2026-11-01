@@ -1,0 +1,18 @@
+<ft-dialog
+  heading="Reorder sections"
+  description="Drag a section, or use its move buttons. The hub shows them in this order."
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="We couldn’t save the order">
+      Check your connection and try again.
+      <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+    </ft-alert>
+  }
+  <ft-reorderable-list label="Sections" [items]="items()" (reordered)="reordered($event)" />
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : 'Save' }}
+  </ft-button>
+</ft-dialog>

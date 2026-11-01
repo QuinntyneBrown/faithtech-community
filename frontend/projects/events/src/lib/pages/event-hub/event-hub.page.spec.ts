@@ -1,7 +1,8 @@
-// Traces to: L2-154 (docs/detailed-designs/events/create-event-hub)
+// Traces to: L2-154, L2-156 (docs/detailed-designs/events/create-event-hub, fill-in-hub-sections)
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { EVENT_HUBS_SERVICE, EventHubDto } from '@faithtech-community/api';
+import { ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { EventHubPage } from './event-hub.page';
@@ -36,13 +37,23 @@ const hub: EventHubDto = {
   upcomingEvents: [],
 };
 
+const service = {
+  get: vi.fn(),
+  create: vi.fn(),
+  save: vi.fn(),
+  saveSection: vi.fn(),
+  reorder: vi.fn(),
+};
+const toasts = { show: vi.fn() };
+
 async function setup(get: () => Observable<EventHubDto> = () => of(hub)) {
+  service.get.mockImplementation(get);
+  service.save.mockReturnValue(of(undefined));
+  toasts.show.mockClear();
   TestBed.configureTestingModule({
     providers: [
-      {
-        provide: EVENT_HUBS_SERVICE,
-        useValue: { get: vi.fn(get), create: vi.fn(), save: vi.fn() },
-      },
+      { provide: EVENT_HUBS_SERVICE, useValue: service },
+      { provide: ToastService, useValue: toasts },
     ],
   });
   const fixture = TestBed.createComponent(EventHubPage);
@@ -78,5 +89,48 @@ describe('EventHubPage', () => {
     const host = await setup(() => throwError(() => new HttpErrorResponse({ status })));
 
     expect(host.textContent).toContain(heading);
+  });
+
+  // L2-156 AC2: a Needs info row says what is missing.
+  it('says what a Needs info section is missing', async () => {
+    const host = await setup();
+
+    const agenda = host.querySelectorAll('ft-checklist-row')[1];
+    expect(agenda.textContent).toContain('Add the day’s schedule.');
+  });
+
+  // L2-156 AC1, AC3: a shown section has its More menu; a hidden one offers Show, which saves only its visibility.
+  it('offers Show on a hidden section and saves it shown', async () => {
+    const host = await setup();
+    const rows = host.querySelectorAll('ft-checklist-row');
+    expect(rows[0].querySelector('ft-menu button')?.getAttribute('aria-label')).toBe(
+      'More for Hero',
+    );
+    expect(rows[2].querySelector('ft-menu')).toBeNull();
+
+    rows[2].querySelector<HTMLButtonElement>('ft-button button')!.click();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(service.save).toHaveBeenCalledWith('e1', {
+      templateKey: 'blank',
+      sections: [{ kind: 'Giving', visible: true }],
+    });
+    expect(toasts.show).toHaveBeenCalledWith(expect.objectContaining({ heading: 'Giving shown' }));
+  });
+
+  // L2-156 AC6: a failed visibility change says so.
+  it('says when a section could not be shown', async () => {
+    const host = await setup();
+    service.save.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+    host
+      .querySelectorAll('ft-checklist-row')[2]
+      .querySelector<HTMLButtonElement>('ft-button button')!
+      .click();
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'danger', heading: 'We couldn’t show Giving' }),
+    );
   });
 });
