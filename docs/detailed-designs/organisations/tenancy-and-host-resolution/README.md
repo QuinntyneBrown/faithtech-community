@@ -79,7 +79,7 @@ The host decides the organisation, nothing else does. A token, a header, a cooki
 - **Decided (slice 02): unique rules per organisation.** Every unique index on a scoped table now leads with `OrganisationId` (pending connection, connect link owner and token, invite token, partner duplicate dismissal). The EF Core in-memory provider the backend tests use does not enforce unique indexes, so the per-organisation rule is checked by the migration's SQL, not by a test.
 - **Decided (slice 01): hosts in lower case.** `Organisation` stores its host in lower case and the resolver lowers the request host, so a plain unique index makes hosts unique case-insensitively without a database collation.
 - Caching the organisation row in the API process, invalidated on suspend and lift, is deferred; v1 runs one indexed query per request.
-- `<TO SUPPLY>`: where a brochure video is stored once an organisation other than FaithTech supplies one (the proposal defers organisation-level branding; `BrochureUrl` is a URL in configuration until then).
+- Deferred: where a brochure video is stored once an organisation other than FaithTech supplies one waits on organisation-level branding (the proposal's Deferred list); `BrochureUrl` is a URL in configuration until then.
 
 ## Requirements
 
