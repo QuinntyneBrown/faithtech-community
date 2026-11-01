@@ -8,6 +8,7 @@ import {
   HubGivingComponent,
   HubHeroComponent,
   HubLinksComponent,
+  HubPeopleComponent,
   HubVenueComponent,
   hubSection,
   sectionContent,
@@ -23,6 +24,7 @@ export const PREVIEWABLE: readonly HubSectionKind[] = [
   'Hero',
   'Agenda',
   'Venue',
+  'People',
   'Links',
   'Giving',
 ];
@@ -40,6 +42,7 @@ export const PREVIEWABLE: readonly HubSectionKind[] = [
     HubGivingComponent,
     HubHeroComponent,
     HubLinksComponent,
+    HubPeopleComponent,
     HubVenueComponent,
   ],
   templateUrl: './hub-section-preview.dialog.html',
@@ -50,4 +53,5 @@ export class HubSectionPreviewDialog {
   protected readonly data = inject<HubSectionPreviewData>(DIALOG_DATA);
   protected readonly title = hubSection(this.data.kind).title;
   protected readonly agenda = sectionContent(this.data.hub, 'Agenda')?.items ?? [];
+  protected readonly people = sectionContent(this.data.hub, 'People')?.people ?? [];
 }

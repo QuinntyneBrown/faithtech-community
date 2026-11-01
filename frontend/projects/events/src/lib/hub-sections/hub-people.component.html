@@ -1,0 +1,21 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">People</h3>
+  @for (group of groups(); track group.role) {
+    <ft-stack gap="2">
+      <h4 class="overline">{{ group.title }}</h4>
+      <ft-list [label]="group.title">
+        @for (person of group.people; track $index) {
+          <ft-list-item [label]="person.name" [description]="person.line ?? ''">
+            <ft-avatar
+              leading
+              size="sm"
+              [name]="person.name"
+              [src]="person.photoUrl"
+              [color]="person.color"
+            />
+          </ft-list-item>
+        }
+      </ft-list>
+    </ft-stack>
+  }
+</section>

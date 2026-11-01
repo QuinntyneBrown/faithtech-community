@@ -6,3 +6,4 @@ export * from './agenda';
 export * from './hub-agenda.component';
 export * from './hub-venue.component';
 export * from './hub-links.component';
+export * from './hub-people.component';
