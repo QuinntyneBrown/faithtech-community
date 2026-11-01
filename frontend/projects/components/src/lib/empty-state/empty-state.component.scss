@@ -45,3 +45,19 @@
 .ft-empty__actions:empty {
   display: none;
 }
+
+/* Small: a short list inside a dialog step (docs/design-system/components/empty-state.html). */
+:host(.ft-empty--sm) {
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+}
+
+:host(.ft-empty--sm) .ft-empty__icon {
+  inline-size: var(--size-avatar-md);
+  block-size: var(--size-avatar-md);
+}
+
+:host(.ft-empty--sm) .ft-empty__title {
+  font: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+}

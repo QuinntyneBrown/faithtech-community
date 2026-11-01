@@ -24,24 +24,74 @@
         </p>
       }
       @case (2) {
+        @if (templatesFailed()) {
+          <ft-alert status="danger" heading="We couldn’t load the templates">
+            Check your connection and try again.
+            <ft-button ftAlertActions (click)="loadTemplates()">Try again</ft-button>
+          </ft-alert>
+        }
         <ft-radio-group legend="How do you want to start?" [formControl]="startingPoint">
+          @for (template of templates(); track template.id) {
+            <ft-radio [value]="template.id" [description]="template.description">{{
+              template.name
+            }}</ft-radio>
+          }
           <ft-radio
-            value="blank"
+            [value]="blank"
             description="Start with empty sections and fill them in yourself."
             initialFocus
             >Blank</ft-radio
           >
-          @for (soon of comingSoon; track soon) {
-            <ft-radio [value]="soon" description="Coming soon" [disabled]="true">{{
-              soon
-            }}</ft-radio>
-          }
+          <ft-radio
+            [value]="copy"
+            description="Bring every section over from one of your hubs, with its times moved to this event."
+            >Copy a past hub</ft-radio
+          >
         </ft-radio-group>
+        @if (startingPoint.value === copy) {
+          @if (!anyPastHubs() && !copySearch.value) {
+            <ft-empty-state
+              size="sm"
+              icon="search"
+              [headingLevel]="3"
+              heading="There are no other hubs to copy yet."
+            />
+          } @else {
+            <ft-form-field label="Search past hubs" help="By event title">
+              <ft-text-field type="search" [formControl]="copySearch" autocomplete="off" />
+            </ft-form-field>
+            @if (pastHubsFailed()) {
+              <ft-alert status="danger" heading="We couldn’t load your hubs">
+                Check your connection and try again.
+                <ft-button ftAlertActions (click)="loadPastHubs()">Try again</ft-button>
+              </ft-alert>
+            } @else if (pastHubs(); as found) {
+              @if (found.length) {
+                <ft-radio-group legend="Which hub?" [formControl]="copyFrom" [error]="copyError()">
+                  @for (hub of found; track hub.eventId) {
+                    <ft-radio [value]="hub.eventId" [description]="pastHubDate(hub)">{{
+                      hub.title
+                    }}</ft-radio>
+                  }
+                </ft-radio-group>
+              } @else {
+                <ft-empty-state
+                  size="sm"
+                  icon="search"
+                  [headingLevel]="3"
+                  [heading]="'No hubs match “' + copySearch.value.trim() + '”.'"
+                />
+              }
+            } @else {
+              <ft-list-skeleton label="Loading hubs…" [rows]="3" />
+            }
+          }
+        }
       }
       @case (3) {
         <ft-checkbox-group
           legend="What should the hub include?"
-          hint="Untick anything you don’t need. You can change this later."
+          [hint]="sectionsHint()"
           [formControl]="shown"
         >
           @for (section of sections; track section.kind) {

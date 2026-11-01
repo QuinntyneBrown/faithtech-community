@@ -1,0 +1,22 @@
+@startuml
+title Start from a template
+actor "Hub manager" as lead
+participant "CreateEventHubDialog" as w
+participant "HttpEventHubsService" as svc
+participant "Community API" as api
+participant "StartEventHubHandler" as h
+participant "EventHub" as hub
+lead -> w : step 2
+w -> svc : templates()
+svc -> api : GET /api/event-hubs/templates
+api --> w : Hackathon, Meetup, Workshop
+lead -> w : choose Meetup, Next
+w -> svc : start(eventId, { templateId })
+svc -> api : POST /api/events/{id}/hub/start
+api -> h : HandleAsync
+h -> h : Agenda minutes -> event start + minutes
+h -> hub : Start(templateId, sections, now)
+h --> api : EventHubDto (audited event_hub.started)
+api --> w : hub
+w --> lead : step 3 ticked as Meetup shows sections
+@enduml

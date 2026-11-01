@@ -385,11 +385,14 @@
         "L2-156",
         "L2-163",
         "L2-164",
-        "L2-165"
+        "L2-165",
+        "L2-169",
+        "L2-171"
       ],
       "states": [
         "default",
         "all-ready",
+        "from-template",
         "section-saved",
         "section-hidden",
         "reordered",
@@ -1349,12 +1352,27 @@
       "title": "Create event hub",
       "opens_from": "event",
       "requirements": [
-        "L2-153"
+        "L2-153",
+        "L2-169",
+        "L2-170",
+        "L2-171"
       ],
       "states": [
         "default",
         "starting-point",
+        "starting-point-template",
+        "copy-past-hub",
+        "copy-search-no-results",
+        "copy-no-hubs",
+        "copy-loading",
+        "copy-failed",
+        "copy-invalid",
+        "templates-failed",
+        "starting-point-busy",
+        "starting-point-failed",
         "sections",
+        "sections-from-template",
+        "sections-from-copy",
         "done",
         "busy",
         "failed",

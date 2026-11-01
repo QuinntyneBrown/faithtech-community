@@ -15,6 +15,8 @@ export class CreateEventHubDialog {
   readonly alert: Locator;
   readonly tryAgain: Locator;
   readonly saving: Locator;
+  /** Copy a past hub's search (L2-170 AC2). */
+  readonly searchPastHubs: Locator;
 
   constructor(private readonly page: Page) {
     this.dialog = page.getByRole('dialog', { name: 'Create event hub' });
@@ -29,6 +31,7 @@ export class CreateEventHubDialog {
     this.alert = this.dialog.getByRole('alert');
     this.tryAgain = this.dialog.getByRole('button', { name: 'Try again' });
     this.saving = this.dialog.getByRole('button', { name: 'Saving…' });
+    this.searchPastHubs = this.dialog.getByRole('searchbox', { name: 'Search past hubs' });
   }
 
   /** The value shown for a fact on step 1, such as When or Where. */
@@ -40,6 +43,29 @@ export class CreateEventHubDialog {
     return this.dialog
       .getByRole('radiogroup', { name: 'How do you want to start?' })
       .getByRole('radio', { name: new RegExp(`^${name}`) });
+  }
+
+  /** Every starting point offered in step 2, each reading its name and its description. */
+  startingPoints(): Locator {
+    return this.dialog
+      .getByRole('radiogroup', { name: 'How do you want to start?' })
+      .locator('ft-radio');
+  }
+
+  /** The hubs offered under Copy a past hub, each reading its title and date. */
+  pastHubs(): Locator {
+    return this.dialog.getByRole('radiogroup', { name: 'Which hub?' }).locator('ft-radio');
+  }
+
+  pastHub(title: string): Locator {
+    return this.dialog
+      .getByRole('radiogroup', { name: 'Which hub?' })
+      .getByRole('radio', { name: new RegExp(`^${title}`) });
+  }
+
+  /** Text in the wizard, such as step 3's hint. */
+  text(text: string): Locator {
+    return this.dialog.getByText(text, { exact: true });
   }
 
   section(name: string): Locator {

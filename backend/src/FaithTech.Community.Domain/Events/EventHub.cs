@@ -8,8 +8,11 @@ namespace FaithTech.Community.Domain.Events;
 /// </summary>
 public class EventHub : IOrganisationScoped
 {
-    /// <summary>The only starting point until templates arrive (slice 45).</summary>
+    /// <summary>The empty starting point (L2-169 AC3).</summary>
     public const string BlankTemplate = "blank";
+
+    /// <summary>The starting point of a hub copied from another (L2-170 AC4).</summary>
+    public const string CopyTemplate = "copy";
 
     private readonly List<HubSection> _sections = [];
 
@@ -34,7 +37,7 @@ public class EventHub : IOrganisationScoped
 
     public EventHubStatus Status { get; private set; }
 
-    /// <summary>The starting point the hub was made from; <see cref="BlankTemplate"/> until templates arrive.</summary>
+    /// <summary>The starting point the hub was made from: a template's id, <see cref="BlankTemplate"/> or <see cref="CopyTemplate"/>.</summary>
     public string TemplateKey { get; private set; } = BlankTemplate;
 
     /// <summary>The day-of update banner (slice 48); none until then.</summary>
@@ -63,19 +66,48 @@ public class EventHub : IOrganisationScoped
     }
 
     /// <summary>
-    /// Saves the wizard's answers (L2-153 AC5, AC7): the starting point, and the visibility of each section named; a kind left
-    /// out keeps its visibility.
+    /// Saves the wizard's answers (L2-153 AC5, AC7): the starting point when given, and the visibility of each section
+    /// named; a kind left out keeps its visibility.
     /// </summary>
-    public void Save(string templateKey, IReadOnlyDictionary<HubSectionKind, bool> visibility, DateTimeOffset now)
+    public void Save(string? templateKey, IReadOnlyDictionary<HubSectionKind, bool> visibility, DateTimeOffset now)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(templateKey);
-        TemplateKey = templateKey;
+        if (!string.IsNullOrWhiteSpace(templateKey))
+        {
+            TemplateKey = templateKey;
+        }
+
         foreach (var section in _sections)
         {
             if (visibility.TryGetValue(section.Kind, out var visible))
             {
                 section.Show(visible);
             }
+        }
+
+        UpdatedAt = now;
+    }
+
+    /// <summary>
+    /// Applies a starting point (L2-169 AC3, L2-170 AC4, ADR 0041): one entry per kind, in the order wanted, sets each section's
+    /// place, visibility and content, replacing whatever was there. The hub stays as it is otherwise.
+    /// </summary>
+    public void Start(string templateKey, IReadOnlyList<HubSectionStart> sections, DateTimeOffset now)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(templateKey);
+        if (sections.Count != _sections.Count || sections.Select(s => s.Kind).Distinct().Count() != sections.Count
+            || _sections.Any(s => sections.All(start => start.Kind != s.Kind)))
+        {
+            throw new ArgumentException("Name every section kind exactly once.", nameof(sections));
+        }
+
+        TemplateKey = templateKey;
+        for (var order = 0; order < sections.Count; order++)
+        {
+            var start = sections[order];
+            var section = _sections.Single(s => s.Kind == start.Kind);
+            section.MoveTo(order);
+            section.Show(start.Visible);
+            section.Fill(start.Content ?? HubSection.EmptyContent);
         }
 
         UpdatedAt = now;

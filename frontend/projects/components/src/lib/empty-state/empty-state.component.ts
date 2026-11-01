@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { IconComponent } from '../icon/icon.component';
 
 export type EmptyStateVariant = 'empty' | 'error';
+/** md fills a page or list; sm stands in for a short list inside a dialog step. */
+export type EmptyStateSize = 'md' | 'sm';
 
 /**
  * Shown in place of a list or page body with nothing to show or that failed to load. The error variant
@@ -15,7 +17,7 @@ export type EmptyStateVariant = 'empty' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class]': 'hostClass()',
-    '[attr.role]': 'variant() === "error" ? "alert" : null',
+    '[attr.role]': 'role()',
   },
 })
 export class EmptyStateComponent {
@@ -26,8 +28,16 @@ export class EmptyStateComponent {
   readonly headingLevel = input<1 | 2 | 3>(2);
   /** Icon name; defaults to info (empty) or error. */
   readonly icon = input<string | null>(null);
+  /** sm is announced as a status, so a search that empties a list is heard. */
+  readonly size = input<EmptyStateSize>('md');
 
-  protected readonly hostClass = computed(() => `ft-empty ft-empty--${this.variant()}`);
+  protected readonly hostClass = computed(
+    () => `ft-empty ft-empty--${this.variant()}${this.size() === 'sm' ? ' ft-empty--sm' : ''}`,
+  );
+  protected readonly role = computed(() =>
+    this.variant() === 'error' ? 'alert' : this.size() === 'sm' ? 'status' : null,
+  );
+  protected readonly iconSize = computed(() => (this.size() === 'sm' ? 'md' : 'lg'));
   protected readonly iconName = computed(
     () => this.icon() ?? (this.variant() === 'error' ? 'error' : 'info'),
   );

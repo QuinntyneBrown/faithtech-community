@@ -144,21 +144,50 @@ export interface EventHubDto {
  * visibility.
  */
 export interface SaveEventHubRequest {
-  templateKey: string;
+  /** Left out to keep the starting point step 2 applied (L2-155 AC5). */
+  templateKey?: string;
   sections: { kind: HubSectionKind; visible: boolean }[];
+}
+
+/** Step 2's choice (L2-169 AC3, L2-170 AC4): a template, a hub to copy, or neither for Blank. */
+export interface StartEventHubRequest {
+  templateId?: string;
+  copyFromEventId?: string;
 }
 
 /**
  * Contract for event hubs (docs/detailed-designs/events/create-event-hub). Pages depend on EVENT_HUBS_SERVICE, never on
  * HttpEventHubsService. Every call is 403 without ManageEventHubs and 404 for an unknown event.
  */
+/** One of the organisation's hub templates, as step 2 of the wizard lists it (L2-169 AC2). */
+/** A hub to copy (L2-170 AC2). */
+export interface PastEventHubDto {
+  eventId: string;
+  title: string;
+  startsAt: string;
+}
+
+export interface HubTemplateDto {
+  id: string;
+  name: string;
+  description: string;
+  /** The section kinds it shows, in catalogue order. */
+  shown: HubSectionKind[];
+}
+
 export interface EventHubsService {
+  /** The organisation's hub templates in order (L2-169 AC2). */
+  templates(): Observable<HubTemplateDto[]>;
+  /** The organisation's hubs by event title, newest first, at most 20, without the given event (L2-170 AC2). */
+  pastHubs(search: string, excludeEventId: string): Observable<PastEventHubDto[]>;
   /** 201 with the hub's id; 409 for a second hub or a cancelled event. */
   create(eventId: string): Observable<{ id: string }>;
   /** 404 when the event has no hub. */
   get(eventId: string): Observable<EventHubDto>;
   /** 400 with field errors for an unknown starting point or section. */
   save(eventId: string, request: SaveEventHubRequest): Observable<void>;
+  /** Applies a starting point, replacing every section; answers the hub. 400 for an unknown template or hub to copy. */
+  start(eventId: string, request: StartEventHubRequest): Observable<EventHubDto>;
   /**
    * Replaces one section's content (L2-157 AC2); 400 with field errors keyed by path, such as `items[2].title`, and 404
    * for an unknown kind.

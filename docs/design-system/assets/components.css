@@ -453,6 +453,8 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 /* Square placeholder the size of .date-badge, leading an event row while it loads. */
 .skeleton--date-badge { flex: none; width: var(--size-avatar-lg); height: var(--size-avatar-lg); border-radius: var(--radius-md); }
 .skeleton--square { aspect-ratio: 1; border-radius: var(--radius-md); }
+/* An avatar placeholder (.skeleton.avatar.avatar--sm) keeps the avatar's round shape; .skeleton's own radius would square it. */
+.skeleton.avatar { border-radius: var(--radius-full); }
 .dot { width: var(--space-2); height: var(--space-2); border-radius: var(--radius-full); background: currentColor; }
 .dot--pulse { animation: pulse var(--duration-loop) var(--ease-standard) infinite; }
 .empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-3); padding: var(--space-12) var(--space-6); }
@@ -463,6 +465,11 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 /* Full-page error (not found, forbidden, server error, offline): the empty state sits 48px down main. */
 .error-page { padding-top: var(--space-12); }
 .empty--error .empty__icon { background: var(--color-danger-bg); color: var(--color-danger-fg); }
+/* Small: stands in for a short list inside a dialog step, such as the past hubs under Copy a past hub (ft-empty-state size="sm"). */
+.empty--sm { gap: var(--space-2); padding: var(--space-6) var(--space-4); }
+.empty--sm .empty__icon { width: var(--size-avatar-md); height: var(--size-avatar-md); margin-bottom: 0; }
+.empty--sm .empty__icon .icon { width: var(--size-icon-md); height: var(--size-icon-md); }
+.empty--sm .empty__title { font: var(--text-body); font-weight: var(--font-weight-semibold); }
 
 /* ---------- Shelfie: cover ------------------------------------------------------------ */
 /* A pastel tile with a sticker. Colour comes from a cover modifier or an inline --cover token. */

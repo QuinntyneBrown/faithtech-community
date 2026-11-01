@@ -1,0 +1,40 @@
+@startuml
+title Class structure — Start a hub from a template
+class HubTemplate {
+  +Id : Guid
+  +OrganisationId : Guid
+  +Name : string
+  +Description : string
+  +SortOrder : int
+  +Sections : string (jsonb)
+  +Section(kind) : HubTemplateSection?
+}
+class HubTemplateSection <<record>> {
+  +Kind : HubSectionKind
+  +Visible : bool
+  +Content : JsonElement?
+}
+class EventHub {
+  +TemplateKey : string
+  +Start(templateKey, sections, now)
+}
+class HubSectionStart <<record>> {
+  +Kind : HubSectionKind
+  +Visible : bool
+  +Content : string?
+}
+class StartEventHubHandler {
+  +HandleAsync(eventId, command) : (Result, EventHubDto)
+  -FromTemplate(template, event)
+  -FromCopy(source, event)
+}
+class StartEventHubCommand <<record>> {
+  +TemplateId : Guid?
+  +CopyFromEventId : Guid?
+}
+HubTemplate --> HubTemplateSection
+StartEventHubHandler --> HubTemplate
+StartEventHubHandler --> EventHub
+StartEventHubHandler ..> StartEventHubCommand
+EventHub ..> HubSectionStart
+@enduml

@@ -46,9 +46,9 @@ public class SaveEventHubValidator : AbstractValidator<SaveEventHubCommand>
 {
     public SaveEventHubValidator()
     {
-        // Only Blank until templates arrive (slice 45, L2-155 AC5).
+        // Blank, or nothing to keep the applied starting point (L2-155 AC5, L2-169 AC3).
         RuleFor(x => x.TemplateKey)
-            .Must(k => k == EventHub.BlankTemplate).WithMessage("Choose a starting point from the list.");
+            .Must(k => k is null || k == EventHub.BlankTemplate).WithMessage("Choose a starting point from the list.");
         RuleFor(x => x.Sections)
             .Must(s => s is null || (s.All(v => EventHubRules.TryParseKind(v.Kind, out _))
                 && s.Select(v => v.Kind!.ToLowerInvariant()).Distinct().Count() == s.Count))
@@ -276,7 +276,7 @@ public class SaveEventHubHandler(IApplicationDbContext db, EventPermissions perm
             visibility[kind] = section.Visible;
         }
 
-        hub.Save(command.TemplateKey!, visibility, time.GetUtcNow());
+        hub.Save(command.TemplateKey, visibility, time.GetUtcNow());
         if (permissions.IsHubOverride)
         {
             audit.Record(actor, "event_hub.updated", "EventHub", hub.Id.ToString(), null, new { command.TemplateKey, command.Sections });

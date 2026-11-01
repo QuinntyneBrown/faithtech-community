@@ -7,9 +7,12 @@ import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
 import {
   EventHubDto,
   EventHubsService,
+  HubTemplateDto,
+  PastEventHubDto,
   HubContentInputByKind,
   HubSectionKind,
   SaveEventHubRequest,
+  StartEventHubRequest,
 } from './event-hubs.service';
 
 @Injectable()
@@ -33,6 +36,20 @@ export class HttpEventHubsService implements EventHubsService {
     return this.http.get<EventHubDto>(`${this.api}/events/${eventId}/hub`, {
       context: this.screen,
     });
+  }
+
+  pastHubs(search: string, excludeEventId: string): Observable<PastEventHubDto[]> {
+    return this.http.get<PastEventHubDto[]>(`${this.api}/event-hubs`, {
+      params: { search, excludeEventId },
+    });
+  }
+
+  templates(): Observable<HubTemplateDto[]> {
+    return this.http.get<HubTemplateDto[]>(`${this.api}/event-hubs/templates`);
+  }
+
+  start(eventId: string, request: StartEventHubRequest): Observable<EventHubDto> {
+    return this.http.post<EventHubDto>(`${this.api}/events/${eventId}/hub/start`, request);
   }
 
   page(eventId: string): Observable<EventHubDto> {

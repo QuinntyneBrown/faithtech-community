@@ -1,5 +1,6 @@
 import { Route } from '@playwright/test';
 
+import { faithTechHubTemplates, MockHubTemplate } from './hub-templates';
 import type { EventsCaller, MockEvent } from './mock-events';
 import { holds, isOverride } from './role-definitions';
 
@@ -97,6 +98,10 @@ const list = (value: unknown): Record<string, unknown>[] =>
 
 export class MockEventHubs {
   readonly hubs: MockEventHub[] = [];
+  /** The organisation's hub templates (L2-171): FaithTech's from the seed; empty for a provisioned organisation. */
+  templates: MockHubTemplate[] = faithTechHubTemplates();
+  private failTemplates = false;
+  private failPastHubs = false;
   /** The next create, save, section save or reorder answers 500, to drive "Try again". */
   private failSave = false;
   private failLoad = false;
@@ -147,6 +152,54 @@ export class MockEventHubs {
     section.content = content;
   }
 
+  /** Makes the next templates list fail with 500 (L2-169 AC6). */
+  failNextTemplates(): void {
+    this.failTemplates = true;
+  }
+
+  /** GET /api/event-hubs/templates (L2-169 AC2): in order, with the kinds each shows. */
+  private listTemplates(route: Route): Promise<void> {
+    if (this.failTemplates) {
+      this.failTemplates = false;
+      return route.fulfill({ status: 500 });
+    }
+    return route.fulfill({
+      status: 200,
+      json: this.templates.map((t) => ({
+        id: t.id,
+        name: t.name,
+        description: t.description,
+        shown: t.sections.filter((s) => s.visible).map((s) => s.kind),
+      })),
+    });
+  }
+
+  /** Makes the next past hubs list fail with 500 (L2-170 AC6). */
+  failNextPastHubs(): void {
+    this.failPastHubs = true;
+  }
+
+  /**
+   * GET /api/event-hubs?search=&excludeEventId= (L2-170 AC2): the organisation's hubs whose event title contains the text,
+   * newest event first, at most 20.
+   */
+  private listPastHubs(route: Route, url: URL): Promise<void> {
+    if (this.failPastHubs) {
+      this.failPastHubs = false;
+      return route.fulfill({ status: 500 });
+    }
+    const text = (url.searchParams.get('search') ?? '').trim().toLowerCase();
+    const exclude = url.searchParams.get('excludeEventId');
+    const json = this.hubs
+      .map((h) => this.context.event(h.eventId))
+      .filter((e): e is MockEvent => !!e && e.id !== exclude)
+      .filter((e) => e.title.toLowerCase().includes(text))
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+      .slice(0, 20)
+      .map((e) => ({ eventId: e.id, title: e.title, startsAt: e.startsAt }));
+    return route.fulfill({ status: 200, json });
+  }
+
   /** Makes the next write fail with 500. */
   failNextSave(): void {
     this.failSave = true;
@@ -193,8 +246,18 @@ export class MockEventHubs {
     body: Record<string, unknown>,
     caller: EventsCaller | null,
   ): Promise<void> | false {
+    if (url.pathname === '/api/event-hubs' && method === 'GET') {
+      if (!caller) return route.fulfill({ status: 401 });
+      if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
+      return this.listPastHubs(route, url);
+    }
+    if (url.pathname === '/api/event-hubs/templates' && method === 'GET') {
+      if (!caller) return route.fulfill({ status: 401 });
+      if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
+      return this.listTemplates(route);
+    }
     const match =
-      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page))?$/.exec(
+      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page|start))?$/.exec(
         url.pathname,
       );
     if (!match) return false;
@@ -208,6 +271,7 @@ export class MockEventHubs {
     if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
     const event = this.context.event(eventId);
     if (!event) return route.fulfill({ status: 404 });
+    if (publishing === 'start') return this.start(route, event, body, caller, url.origin);
     if (publishing) return this.setPublished(route, event, publishing === 'publish', caller);
     if (sectionPath === 'order') return this.reorder(route, event, body, caller);
     if (sectionPath) return this.saveSection(route, event, sectionPath, body, caller);
@@ -330,7 +394,12 @@ export class MockEventHubs {
     caller: EventsCaller,
   ): Promise<void> {
     const errors: Errors = {};
-    if (body['templateKey'] !== 'blank')
+    // Blank, or nothing to keep the applied starting point (L2-155 AC5, L2-169 AC3).
+    if (
+      body['templateKey'] !== undefined &&
+      body['templateKey'] !== null &&
+      body['templateKey'] !== 'blank'
+    )
       errors['TemplateKey'] = ['Choose a starting point from the list.'];
     const sections = list(body['sections']);
     const kinds = sections.map((s) => String(s['kind'] ?? '').toLowerCase());
@@ -348,10 +417,86 @@ export class MockEventHubs {
       );
       if (section) section.visible = s['visible'] === true;
     }
-    hub.templateKey = 'blank';
+    if (body['templateKey'] === 'blank') hub.templateKey = 'blank';
     hub.updatedAt = this.context.now().toISOString();
     this.audit('event_hub.updated', `Saved the hub for ${event.title}`, hub, caller);
     return route.fulfill({ status: 204 });
+  }
+
+  /**
+   * POST /hub/start (L2-169 AC3, AC5, ADR 0041): applies a template or Blank, replacing every section's place, visibility and
+   * content; a template's Agenda minutes become the event's start plus them. Answers the hub.
+   */
+  private start(
+    route: Route,
+    event: MockEvent,
+    body: Record<string, unknown>,
+    caller: EventsCaller,
+    origin: string,
+  ): Promise<void> {
+    const hub = this.of(event.id);
+    if (!hub) return route.fulfill({ status: 404 });
+    let key = 'blank';
+    let sections: MockHubSection[] = HUB_SECTION_KINDS.map((kind) => ({
+      kind,
+      visible: true,
+      content: {},
+    }));
+    if (body['templateId']) {
+      const template = this.templates.find((t) => t.id === body['templateId']);
+      if (!template)
+        return route.fulfill({
+          status: 400,
+          json: { status: 400, errors: { templateId: ['Choose a starting point from the list.'] } },
+        });
+      key = template.id;
+      const start = new Date(event.startsAt).getTime();
+      sections = template.sections.map((s) => ({
+        kind: s.kind,
+        visible: s.visible,
+        content:
+          s.kind === 'Agenda' && s.content
+            ? {
+                items: list(s.content['items']).map((row) => ({
+                  startsAt: new Date(start + Number(row['minutes']) * 60_000).toISOString(),
+                  title: row['title'],
+                  detail: row['detail'] ?? null,
+                })),
+              }
+            : { ...(s.content ?? {}) },
+      }));
+    } else if (body['copyFromEventId']) {
+      const fromId = String(body['copyFromEventId']);
+      const source = fromId === event.id ? undefined : this.context.event(fromId);
+      const from = source ? this.of(source.id) : undefined;
+      if (!source || !from)
+        return route.fulfill({
+          status: 400,
+          json: { status: 400, errors: { copyFromEventId: ['Choose a hub to copy.'] } },
+        });
+      // L2-170 AC4: every section, its times moved by the difference of the events' starts.
+      const shift = new Date(event.startsAt).getTime() - new Date(source.startsAt).getTime();
+      const moved = (at: unknown) =>
+        typeof at === 'string' ? new Date(new Date(at).getTime() + shift).toISOString() : at;
+      key = 'copy';
+      sections = from.sections.map((s) => {
+        const content = structuredClone(s.content);
+        if (s.kind === 'Agenda' && Array.isArray(content['items']))
+          content['items'] = list(content['items']).map((i) => ({
+            ...i,
+            startsAt: moved(i['startsAt']),
+          }));
+        if (s.kind === 'Links' && content['codeFreezeAt'])
+          content['codeFreezeAt'] = moved(content['codeFreezeAt']);
+        return { kind: s.kind, visible: s.visible, content };
+      });
+    }
+    if (this.takeFailure()) return route.fulfill({ status: 500 });
+    hub.templateKey = key;
+    hub.sections = sections;
+    hub.updatedAt = this.context.now().toISOString();
+    this.audit('event_hub.started', `Started the hub for ${event.title}`, hub, caller);
+    return route.fulfill({ status: 200, json: this.body(hub, event, origin) });
   }
 
   /** PUT /hub/sections/order (L2-156 AC4): every kind exactly once. */

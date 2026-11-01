@@ -63,7 +63,17 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
         await SeedOrganisationAsync(cancellationToken);
         await SeedFaithTechListsAsync(cancellationToken);
+        await SeedHubTemplatesAsync(cancellationToken);
         await SeedStarterResourcesAsync(cancellationToken);
+    }
+
+    /// <summary>FaithTech's hub templates, found by fixed id and inserted only when missing, so later edits survive (L2-171 AC2).</summary>
+    private async Task SeedHubTemplatesAsync(CancellationToken cancellationToken)
+    {
+        var ids = FaithTechHubTemplates.Ids;
+        var existing = await db.HubTemplates.IgnoreQueryFilters().Where(t => ids.Contains(t.Id)).Select(t => t.Id).ToListAsync(cancellationToken);
+        db.HubTemplates.AddRange(FaithTechHubTemplates.Templates().Where(t => !existing.Contains(t.Id)));
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>The FaithTech organisation, found by slug and inserted only when missing, so its later edits survive (L2-151 AC1).</summary>
