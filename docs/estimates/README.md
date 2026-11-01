@@ -1,13 +1,13 @@
 # Estimates
 
 - Overall effort: 369 days
-- Complete: 96%
+- Complete: 98%
 - Visual conformance: letter grade (F to A+) of the implemented UI against the HTML mocks and design system (margins, spacing, fonts, borders), from screenshots in `docs/videos/journeys/<journey>/screenshots/`. Subsystem grades are the rounded mean of their designs. The marketing page and Google sign-in have no journey screenshots yet, so they are not graded (n/a).
 
 | Subsystem | Effort | Complete | Visual conformance |
 |---|---|---|---|
 | [platform](platform.md) | 33 days | 84% | C+ |
-| [organisations](organisations.md) | 52 days | 96% | — |
+| [organisations](organisations.md) | 52 days | 99% | — |
 | [identity](identity.md) | 23 days | 98% | A- |
 | [profiles](profiles.md) | 13 days | 100% | B- |
 | [admin](admin.md) | 17 days | 99% | B |
@@ -28,7 +28,7 @@
 ## Roadmap
 
 1. platform: deploy behind the private-preview wall (the owner's runbook, `platform/private-preview-wall`)
-2. organisations: slices 00 to 29 are done; next, reword the copy that mentions FaithTech roles (deferred in `docs/detailed-designs/organisations/seed-faithtech`), then the proposal's Deferred list
+2. organisations: slices 00 to 29 are done; next, Google sign-in on every organisation's host, then requirements to reword the copy that mentions FaithTech roles (`docs/detailed-designs/organisations/seed-faithtech`) and the proposal's Deferred list
 3. platform and identity: finish the remaining designs
 4. admin, search, agile, marketing page and Google sign-in, and resources: finish the remaining designs
 5. notes: block-editor (the mouse path into the Turn into submenu) and pages-and-list (measure the 500-block read and save latency)

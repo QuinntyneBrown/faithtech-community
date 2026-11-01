@@ -152,5 +152,5 @@ Decisions recorded for this design ([ADR 0035](../../../adr/0035-configurable-ta
 - The resources API speaks resource type keys, as the events API does: the dialogs, the `type=` filter and the DTOs carry the key, and the DTOs add `TypeName`. The filter accepts any of the organisation's keys, archived ones included. Resolved.
 - Members cannot read the settings list, so `GET /api/organisation` carries `ArchivedResourceTypes` for the Resources page's "Show archived types". Resolved.
 - Archiving `other` answers `409` "Other is where uploads go when their type can’t be guessed, so it can’t be archived.", and its row menu offers only Rename, as the Stages & types mock shows. Resolved.
-- Key derivation from a name (lower-cased, `-` for runs of non-alphanumerics, numeric suffix on collision) is proposed here; the seeded keys are fixed by the migration.
+- Decided: key derivation from a name (lower-cased, `-` for runs of non-alphanumerics, numeric suffix on collision) is `KeyFor` in `PartnerStageSettings` and `RoleDefinitions`; the seeded keys are fixed by the migration.
 - Decided: "Show archived types" is a pressed-state chip beside the type filter on the Resources page.

@@ -144,6 +144,7 @@ async function setup(
 }
 
 describe('AnnouncementsPage', () => {
+  // Traces to: L2-030 AC1, AC4
   it('lists the announcements sent to the member, newest first, with who sent them to whom', async () => {
     const { host, items } = await setup(() =>
       of(
