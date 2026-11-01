@@ -165,9 +165,24 @@ export class MockEventHubs {
     hub.publishedAt = this.context.now().toISOString();
   }
 
-  /** The event detail's hub fields (L2-153 AC1). */
-  detail(event: MockEvent, caller: EventsCaller): { hubId: string | null; canManageHub: boolean } {
-    return { hubId: this.of(event.id)?.id ?? null, canManageHub: canManageHubs(caller) };
+  /** The event detail's hub fields (L2-153 AC1, L2-167 AC3). */
+  detail(
+    event: MockEvent,
+    caller: EventsCaller,
+    origin: string,
+  ): { hubId: string | null; canManageHub: boolean; hubLink: string | null } {
+    return {
+      hubId: this.of(event.id)?.id ?? null,
+      canManageHub: canManageHubs(caller),
+      hubLink: this.link(event, origin),
+    };
+  }
+
+  /** The hub page's URL when the event has a Published hub (L2-167 AC2, AC3). */
+  link(event: MockEvent, origin: string): string | null {
+    return this.of(event.id)?.status === 'Published'
+      ? `${origin}/public/events/${event.id}/hub`
+      : null;
   }
 
   /** Answers /api/events/{id}/hub and its sections; returns false for any other route. */
@@ -179,11 +194,14 @@ export class MockEventHubs {
     caller: EventsCaller | null,
   ): Promise<void> | false {
     const match =
-      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish))?$/.exec(
+      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page))?$/.exec(
         url.pathname,
       );
     if (!match) return false;
     const [, eventId, sectionPath, publishing] = match;
+    // The hub page's read (L2-166, ADR 0040): anyone may ask; only what the caller may see, 404 otherwise.
+    if (publishing === 'page')
+      return method === 'GET' && this.page(route, eventId, caller, url.origin);
     const allowed = sectionPath ? ['PUT'] : publishing ? ['POST'] : ['GET', 'POST', 'PUT'];
     if (!allowed.includes(method)) return false;
     if (!caller) return route.fulfill({ status: 401 });
@@ -226,42 +244,83 @@ export class MockEventHubs {
       this.failLoad = false;
       return route.fulfill({ status: 500 });
     }
+    return route.fulfill({ status: 200, json: this.body(hub, event, origin) });
+  }
+
+  /**
+   * GET /api/events/{id}/hub/page (L2-166): managers read any hub; others a Published hub of a public event, or of a
+   * members-only event when signed in. Only shown sections; no profile ids for anonymous callers. Everything else is 404.
+   */
+  private page(
+    route: Route,
+    eventId: string,
+    caller: EventsCaller | null,
+    origin: string,
+  ): Promise<void> {
+    const event = this.context.event(eventId);
+    const hub = this.of(eventId);
+    if (!event || !hub) return route.fulfill({ status: 404 });
+    const manage = !!caller && canManageHubs(caller);
+    const readable =
+      manage || (hub.status === 'Published' && (event.visibility === 'Public' || !!caller));
+    if (!readable) return route.fulfill({ status: 404 });
+    if (this.failLoad) {
+      this.failLoad = false;
+      return route.fulfill({ status: 500 });
+    }
+    const all = this.body(hub, event, origin);
+    const sections = all.sections
+      .filter(
+        (s) =>
+          s.state === 'Ready' && (s.kind !== 'UpcomingEvents' || all.upcomingEvents.length > 0),
+      )
+      .map((s) =>
+        s.kind === 'People' && !caller
+          ? {
+              ...s,
+              content: {
+                people: list(s.content['people']).map((p) => ({ ...p, profileId: null })),
+              },
+            }
+          : s,
+      );
+    return route.fulfill({ status: 200, json: { ...all, sections, canManage: manage } });
+  }
+
+  private body(hub: MockEventHub, event: MockEvent, origin: string) {
     const organisation = this.directory.organisation();
     const upcoming = this.section(event.id, 'UpcomingEvents')?.content['count'];
-    return route.fulfill({
-      status: 200,
-      json: {
-        id: hub.id,
-        eventId: event.id,
-        status: hub.status,
-        publishedAt: hub.publishedAt,
-        templateKey: hub.templateKey,
-        link: `${origin}/public/events/${event.id}/hub`,
-        event: {
-          title: event.title,
-          startsAt: event.startsAt,
-          endsAt: event.endsAt,
-          format: event.format,
-          venue: event.venue,
-          onlineLink: event.onlineLink,
-          rsvpLink: `${origin}/public/events/${event.id}`,
-          isCancelled: event.isCancelled,
-        },
-        sections: hub.sections.map((s) => ({
-          kind: s.kind,
-          visible: s.visible,
-          state: this.state(s, event, organisation),
-          content: this.contentOf(s),
-        })),
-        organisation: {
-          name: organisation.name,
-          shortName: organisation.shortName,
-          givingLink: organisation.givingLink ?? null,
-          givingText: organisation.givingText ?? null,
-        },
-        upcomingEvents: this.upcoming(event, typeof upcoming === 'number' ? upcoming : 3),
+    return {
+      id: hub.id,
+      eventId: event.id,
+      status: hub.status,
+      publishedAt: hub.publishedAt,
+      templateKey: hub.templateKey,
+      link: `${origin}/public/events/${event.id}/hub`,
+      event: {
+        title: event.title,
+        startsAt: event.startsAt,
+        endsAt: event.endsAt,
+        format: event.format,
+        venue: event.venue,
+        onlineLink: event.onlineLink,
+        rsvpLink: `${origin}/public/events/${event.id}`,
+        isCancelled: event.isCancelled,
       },
-    });
+      sections: hub.sections.map((s) => ({
+        kind: s.kind,
+        visible: s.visible,
+        state: this.state(s, event, organisation),
+        content: this.contentOf(s),
+      })),
+      organisation: {
+        name: organisation.name,
+        shortName: organisation.shortName,
+        givingLink: organisation.givingLink ?? null,
+        givingText: organisation.givingText ?? null,
+      },
+      upcomingEvents: this.upcoming(event, typeof upcoming === 'number' ? upcoming : 3),
+    };
   }
 
   private save(

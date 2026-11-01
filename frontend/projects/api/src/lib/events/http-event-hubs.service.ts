@@ -17,7 +17,7 @@ export class HttpEventHubsService implements EventHubsService {
   private readonly http = inject(HttpClient);
   private readonly api = inject(API_BASE_URL);
   /** The hub home shows its own forbidden, missing and failed states (docs/mocks/pages/event-hub). */
-  private readonly page = new HttpContext()
+  private readonly screen = new HttpContext()
     .set(HANDLES_FORBIDDEN, true)
     .set(HANDLES_SERVER_ERROR, true);
   /** The wizard keeps what was entered and offers Try again (docs/mocks/dialogs/create-event-hub/failed). */
@@ -31,7 +31,13 @@ export class HttpEventHubsService implements EventHubsService {
 
   get(eventId: string): Observable<EventHubDto> {
     return this.http.get<EventHubDto>(`${this.api}/events/${eventId}/hub`, {
-      context: this.page,
+      context: this.screen,
+    });
+  }
+
+  page(eventId: string): Observable<EventHubDto> {
+    return this.http.get<EventHubDto>(`${this.api}/events/${eventId}/hub/page`, {
+      context: this.screen,
     });
   }
 

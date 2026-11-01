@@ -1,4 +1,5 @@
 using FaithTech.Community.Domain.Organisations;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
@@ -49,10 +50,11 @@ public record EventDetailDto(
     bool CanCheckIn = false,
     bool CanViewCheckIn = false,
     Guid? HubId = null,
-    bool CanManageHub = false);
+    bool CanManageHub = false,
+    string? HubLink = null);
 
 /// <summary>Reads one event for a signed-in member; every member may see every event.</summary>
-public class GetEventHandler(IApplicationDbContext db, EventPermissions permissions)
+public class GetEventHandler(IApplicationDbContext db, EventPermissions permissions, ICurrentOrganisation organisation)
 {
     public async Task<EventDetailDto?> HandleAsync(Guid id, CancellationToken cancellationToken = default)
     {
@@ -100,6 +102,6 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
             caller is { } me && e.Rsvps.Any(r => r.ProfileId == me),
             permissions.CanManageEvents, permissions.CanExportRsvps, rsvps,
             permissions.CanSeeRsvpList ? e.CheckedInCount : null, permissions.CanCheckIn, permissions.CanViewCheckIn,
-            hubId, permissions.CanManageHubs);
+            hubId, permissions.CanManageHubs, await PublicEventsHandler.HubLinkAsync(db, organisation, e.Id, cancellationToken));
     }
 }

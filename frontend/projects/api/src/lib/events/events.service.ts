@@ -101,6 +101,8 @@ export interface EventDetailDto {
   hubId: string | null;
   /** Holders of ManageEventHubs manage the hub. */
   canManageHub: boolean;
+  /** The hub page's URL once the hub is published, otherwise null (L2-167 AC3). */
+  hubLink: string | null;
 }
 
 /** A public event as anyone with the link sees it: no RSVP list and no joining link (L2-023). */
@@ -119,6 +121,8 @@ export interface PublicEventDto {
   isFull: boolean;
   isCancelled: boolean;
   cancellationReason: string | null;
+  /** The hub page's URL once the hub is published, otherwise null (L2-167 AC2). */
+  hubLink: string | null;
 }
 
 export interface GuestRsvpRequest {

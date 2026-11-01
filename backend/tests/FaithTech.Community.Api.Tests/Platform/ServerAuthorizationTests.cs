@@ -36,6 +36,8 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/public/events/{id:guid}/rsvps",
         "api/public/events/{id:guid}/rsvps/cancel",
         "api/public/events/{id:guid}/calendar.ics",
+        // The hub page (L2-166 AC1, ADR 0040): anyone may ask; the handler answers only what the caller may see.
+        "api/events/{id:guid}/hub/page",
         "api/announcements/unsubscribe",
         // Google sign-in (L2-078) redirects to Google without a session; the client follows it to Google's host, which
         // the API does not serve (L2-131 AC2).

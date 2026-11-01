@@ -319,7 +319,7 @@ export class MockEvents {
     if (method === 'POST' && url.pathname === '/api/events')
       return this.create(route, body, caller);
     const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
-    if (one && method === 'GET') return this.get(route, one[1], caller);
+    if (one && method === 'GET') return this.get(route, one[1], caller, url.origin);
     if (one && method === 'PUT') return this.update(route, one[1], body, caller);
     const cancel = /^\/api\/events\/([^/]+)\/cancel$/.exec(url.pathname);
     if (cancel && method === 'POST') return this.cancelEvent(route, cancel[1], body, caller);
@@ -329,7 +329,7 @@ export class MockEvents {
       url.pathname,
     );
     if (publicRoute && method === 'GET' && !publicRoute[2])
-      return this.getPublic(route, publicRoute[1]);
+      return this.getPublic(route, publicRoute[1], url.origin);
     if (publicRoute && method === 'POST' && publicRoute[2] === '/rsvps')
       return this.guestRsvp(route, publicRoute[1], body);
     if (publicRoute && method === 'POST' && publicRoute[2] === '/rsvps/cancel')
@@ -645,7 +645,7 @@ export class MockEvents {
   }
 
   /** GET /api/public/events/{id} (L2-023 AC1, AC3): anonymous; members-only and unknown are 404. */
-  private getPublic(route: Route, id: string): Promise<void> {
+  private getPublic(route: Route, id: string, origin: string): Promise<void> {
     const event = this.publicEvent(id);
     if (!event) return route.fulfill({ status: 404 });
     return route.fulfill({
@@ -665,6 +665,7 @@ export class MockEvents {
         isFull: event.capacity !== null && rsvped(event).length >= event.capacity,
         isCancelled: event.isCancelled,
         cancellationReason: event.cancellationReason,
+        hubLink: this.hubs.link(event, origin),
       },
     });
   }
@@ -793,11 +794,16 @@ export class MockEvents {
   }
 
   /** GET /api/events/{id}: every signed-in member sees every event. */
-  private get(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+  private get(
+    route: Route,
+    id: string,
+    caller: EventsCaller | null,
+    origin: string,
+  ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const event = this.events.find((e) => e.id === id);
     if (!event) return route.fulfill({ status: 404 });
-    return route.fulfill({ status: 200, json: this.detail(event, caller) });
+    return route.fulfill({ status: 200, json: this.detail(event, caller, origin) });
   }
 
   /** POST /api/events (L2-020): event managers only, SaveEventValidator's rules. */
@@ -866,7 +872,7 @@ export class MockEvents {
     return route.fulfill({ status: 204 });
   }
 
-  private detail(event: MockEvent, caller: EventsCaller) {
+  private detail(event: MockEvent, caller: EventsCaller, origin: string) {
     const host = this.profile(event.createdById);
     return {
       id: event.id,
@@ -901,7 +907,7 @@ export class MockEvents {
       checkedInCount: seesList(caller) ? event.rsvps.filter((r) => r.checkedInAt).length : null,
       canCheckIn: seesEmails(caller),
       canViewCheckIn: seesList(caller),
-      ...this.hubs.detail(event, caller),
+      ...this.hubs.detail(event, caller, origin),
       rsvps: seesList(caller)
         ? rsvped(event)
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))

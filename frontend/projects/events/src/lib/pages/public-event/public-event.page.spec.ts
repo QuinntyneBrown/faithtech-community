@@ -34,6 +34,7 @@ function publicEvent(overrides: Partial<PublicEventDto> = {}): PublicEventDto {
     isFull: false,
     isCancelled: false,
     cancellationReason: null,
+    hubLink: null,
     ...overrides,
   };
 }

@@ -32,6 +32,7 @@ const existing: EventDetailDto = {
   isFull: false,
   isCancelled: false,
   cancellationReason: null,
+  hubLink: null,
   cancelledByName: null,
   cancelledAt: null,
   hostName: 'Marcus Lee',
