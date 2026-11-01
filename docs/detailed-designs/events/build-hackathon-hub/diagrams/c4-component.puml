@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Build a hackathon hub
+Container_Boundary(spa, "Web app") {
+  Component(wiz, "Hub section wizards", "Angular dialogs (events)", "Parking, What to bring, Partners, Tracks, Process, Rules, Demo format, Judging, Worship, Slides")
+  Component(disp, "Hub section displays", "Angular components (events)", "One per kind on the hub page")
+  Component(picker, "HubResourcePickerDialog", "Angular dialog (events)", "Choose from Resources or upload")
+  Component(lib, "components", "Library", "Slide viewer, numbered list, live total, icon tile")
+  Component(svc, "EVENT_HUBS_SERVICE, PARTNERS_SERVICE, RESOURCES_SERVICE", "api library", "Contracts and tokens")
+}
+Container_Boundary(api, "Community API") {
+  Component(save, "SaveHubSectionHandler", "Application", "Parses and validates by kind; checks partners and resources")
+  Component(content, "HubContent", "Application", "Ten schemas, limits, totals, Ready rule")
+  Component(page, "GetEventHubPageHandler", "Application", "Reads partners live; names files")
+  Component(files, "HubFileHandler", "Application", "Serves a resource only when a shown section names it")
+  Component(start, "StartEventHubHandler", "Application", "Core kinds plus the optional kinds a starting point brings")
+  Component(hub, "EventHub", "Domain", "Core and optional sections")
+}
+Rel(wiz, svc, "Calls")
+Rel(picker, svc, "Calls")
+Rel(disp, lib, "Composes")
+Rel(wiz, lib, "Composes")
+Rel(svc, save, "PUT /hub/sections/{kind}")
+Rel(svc, files, "GET /hub/files/{resourceId}")
+Rel(svc, page, "GET /hub/page")
+Rel(save, content, "Parse")
+Rel(start, hub, "Start")
+@enduml
