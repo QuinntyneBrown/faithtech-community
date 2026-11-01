@@ -47,7 +47,7 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 40 | Read the reports | Staff and System Admins see city figures, charts and tables, filter them and export CSV. | 7 | 100 |
 | 41 | Create an event hub | Leads start a hub from an event's page with a four-step wizard; the event's details fill in automatically. | 4 | 100 |
 | 42 | Fill in hub sections | Leads finish a hub from its checklist, one short wizard per section: hero, agenda, venue, people, links, giving and upcoming events. | 12 | 100 |
-| 43 | Preview and publish a hub | Leads preview the real page at any step, then publish, unpublish and share its link. | 3 | 0 |
+| 43 | Preview and publish a hub | Leads preview the real page at any step, then publish, unpublish and share its link. | 3 | 100 |
 | 44 | Visit an event hub | Attendees, and guests on a public event, open one page with the agenda's live "happening now", venue, people and links. | 5 | 0 |
 | 45 | Start a hub from a template | Leads start from a Hackathon, Meetup or Workshop template, or copy a past hub with its dates shifted. | 5 | 0 |
 | 46 | Build a hackathon hub | Leads add parking, what to bring, partners, tracks, process, rules, demo format, judging, worship and slides. | 14 | 0 |
