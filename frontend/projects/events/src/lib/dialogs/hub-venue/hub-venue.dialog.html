@@ -6,6 +6,7 @@
 >
   <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
     <ft-stack>
+      <ft-hub-preview-link [eventId]="hub.eventId" />
       @if (saver.failed()) {
         <ft-alert status="danger" heading="We couldn’t save this section">
           Check your connection and try again.

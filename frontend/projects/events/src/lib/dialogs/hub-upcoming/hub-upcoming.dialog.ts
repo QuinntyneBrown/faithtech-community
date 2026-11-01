@@ -14,6 +14,7 @@ import {
 } from '@faithtech-community/components';
 
 import {
+  HubPreviewLinkComponent,
   HubSectionWizardData,
   HubUpcomingComponent,
   SectionSaver,
@@ -34,6 +35,7 @@ let next = 0;
 @Component({
   selector: 'ft-hub-upcoming-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     ButtonComponent,

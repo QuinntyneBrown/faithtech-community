@@ -48,6 +48,11 @@
       <ft-page-header title="Event hub" [subtitle]="subtitle()" />
       <ft-stack>
         <ft-card heading="Your hub">
+          <ft-cluster ftCardActions>
+            <ft-button [href]="'/public/events/' + h.eventId + '/hub'">
+              <ft-icon name="read-only-view" /> Preview
+            </ft-button>
+          </ft-cluster>
           <ft-stack>
             <ft-description-list>
               <ft-description-list-item label="Status">

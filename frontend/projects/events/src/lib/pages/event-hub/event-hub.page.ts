@@ -16,6 +16,7 @@ import {
   HubSectionState,
 } from '@faithtech-community/api';
 import {
+  ClusterComponent,
   BadgeComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
@@ -101,6 +102,7 @@ const HIDE: MenuEntry = { kind: 'item', id: 'hide', label: 'Hide section', icon:
 @Component({
   selector: 'ft-event-hub-page',
   imports: [
+    ClusterComponent,
     BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,

@@ -15,6 +15,7 @@ export class EventHubPage {
   readonly tryAgain: Locator;
   readonly backToEvent: Locator;
   readonly reorder: Locator;
+  readonly preview: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -32,6 +33,7 @@ export class EventHubPage {
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.backToEvent = page.getByRole('link', { name: 'Back to event' });
     this.reorder = page.getByRole('button', { name: 'Reorder sections' });
+    this.preview = page.getByRole('link', { name: 'Preview', exact: true });
   }
 
   /** "More for {Section}", the row's menu of Preview and Hide section (L2-156 AC1). */
@@ -47,6 +49,13 @@ export class EventHubPage {
   /** A row button by its visible name and the section, such as Show Giving or Fill in Agenda. */
   action(name: string, title: string): Locator {
     return this.page.getByRole('button', { name: `${name} ${title}`, exact: true });
+  }
+
+  /** Opens a section's wizard from its row, by Fill in or Edit. */
+  async openWizard(title: string): Promise<void> {
+    await this.row(title)
+      .getByRole('button', { name: new RegExp(`^(Fill in|Edit) ${title}$`) })
+      .click();
   }
 
   /** A row's one line, saying what visitors see or what is missing. */

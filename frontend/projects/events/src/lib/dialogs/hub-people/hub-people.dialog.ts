@@ -32,6 +32,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import {
+  HubPreviewLinkComponent,
   HubPeopleComponent,
   HubSectionWizardData,
   SectionSaver,
@@ -73,6 +74,7 @@ let next = 0;
 @Component({
   selector: 'ft-hub-people-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     AvatarComponent,
