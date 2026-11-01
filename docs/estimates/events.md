@@ -9,3 +9,4 @@
 | public-events-and-guest-rsvp | 4 days | 100% | B- |
 | rsvp | 5 days | 100% | B- |
 | event-check-in | 6 days | 100% | B+ |
+| create-event-hub | 4 days | 0% | — |

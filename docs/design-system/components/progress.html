@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Progress — FaithTech Community design system</title>
-<meta name="description" content="A determinate bar for sprint points or a photo upload, in two heights, with a label row and a complete state. A core component no FaithTech mock uses yet.">
+<meta name="description" content="A determinate bar for sprint points or a photo upload, in two heights, with a label row and a complete state; also the attendance meter, the hub progress line and the Reports bar chart.">
 <link rel="stylesheet" href="../tokens/tokens.css">
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="../assets/ds.css">
@@ -58,7 +58,7 @@
       <li><a href="../components/card.html">Card</a></li>
       <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
       <li><a href="../components/notification-panel.html">Notification panel</a></li>
-      <li><a href="../components/list.html">List</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
       <li><a href="../components/table.html">Table</a></li>
       <li><a href="../components/description-list.html">Description list</a></li>
       <li><a href="../components/feed.html">Activity feed</a></li>
@@ -85,7 +85,7 @@
       <li><a href="../components/toast.html">Toast</a></li>
       <li><a href="../components/alert.html">Alert and banner</a></li>
       <li><a href="../components/inline-message.html">Inline message</a></li>
-      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/progress.html">Progress</a></li><li><a href="../components/stepper.html">Stepper</a></li>
       <li><a href="../components/skeleton.html">Skeleton</a></li>
       <li><a href="../components/empty-state.html">Empty state</a></li>
       <li><a href="../components/error-page.html">Error page</a></li>
@@ -111,7 +111,7 @@
     <header class="ds-header">
       <p class="ds-kicker">Component · Feedback</p>
       <h1>Progress</h1>
-      <p class="ds-lead">A rounded bar that shows how far a known amount has got: Sprint 7 has 6 of 24 points done, a photo is 60% uploaded. It turns green when the whole amount is done. Event check-in uses it as an attendance meter (12 of 34 checked in), and Reports lines several up as a bar chart.</p>
+      <p class="ds-lead">A rounded bar that shows how far a known amount has got: Sprint 7 has 6 of 24 points done, a photo is 60% uploaded. It turns green when the whole amount is done. Event check-in uses it as an attendance meter (12 of 34 checked in), the event hub home as a progress line (3 of 6 sections ready), and Reports lines several up as a bar chart.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>role="progressbar"</code></span></div>
       <ul class="ds-toc">
         <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
@@ -123,7 +123,7 @@
       <ul>
         <li>Pair it with a label in a <code>.progress-row</code> ("6 of 24 points") so the number is visible, not only the length.</li>
         <li>Candidate places, where the mocks currently use text only: the sprint header and sprint history on the backlog ("21 of 23 points"), the close-sprint dialog, and a photo row while it uploads ("Uploading… 60%").</li>
-        <li>In use: the attendance meter on event check-in ("12 of 34") and the bar charts on Reports ("Members by city", "New members by month").</li>
+        <li>In use: the attendance meter on event check-in ("12 of 34"), the progress line on the event hub home ("3 of 6 sections ready") and the bar charts on Reports ("Members by city", "New members by month").</li>
         <li>Where the mocks show sprint progress as text, text alone ("18 of 26 points") is also correct.</li>
       </ul>
     </section>
@@ -180,6 +180,18 @@
     &lt;div class="progress__bar" style="--value: 100%;"&gt;&lt;/div&gt;
   &lt;/div&gt;&lt;span class="progress-row__label"&gt;36 of 36&lt;/span&gt;
 &lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Progress line</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card stack"><div class="progress-row"><span class="progress-row__label">Sections ready</span><div class="progress" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="7" aria-label="3 of 7 sections ready"><div class="progress__bar" style="--value: 43%;"></div></div><span class="progress-row__label">3 of 7 sections ready</span></div></div>
+          <div class="card stack"><div class="progress-row"><span class="progress-row__label">Sections ready</span><div class="progress" role="progressbar" aria-valuenow="3" aria-valuemin="0" aria-valuemax="6" aria-label="3 of 6 sections ready"><div class="progress__bar" style="--value: 50%;"></div></div><span class="progress-row__label">3 of 6 sections ready</span></div></div>
+          <div class="card stack"><div class="progress-row"><span class="progress-row__label">Sections ready</span><div class="progress progress--complete" role="progressbar" aria-valuenow="6" aria-valuemin="0" aria-valuemax="6" aria-label="6 of 6 sections ready"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">6 of 6 sections ready</span></div></div>
+        </div>
+        <div class="ds-example__caption"><span>From the event hub home (<code>pages/event-hub/default</code>), above the section <a href="checklist-row.html">checklist rows</a>. It counts the sections that are Ready out of those shown, so a hidden section drops out of both numbers. An online event where every section is shown reads "3 of 7 sections ready". Toronto Builders Night with Giving hidden reads "3 of 6 sections ready". In Angular it is <code>ft-progress</code> with <code>heading="Sections ready"</code>, the caption "{ready} of {shown} sections ready" and the same words as its <code>label</code>.</span></div>
+        <details class="ds-example__code"><summary>Angular</summary><pre><code>&lt;ft-progress heading="Sections ready" [value]="hub.readyCount" [max]="hub.shownCount"
+  [caption]="readyText" [label]="readyText" /&gt;
+&lt;!-- readyText = `${hub.readyCount} of ${hub.shownCount} ${hub.shownCount === 1 ? 'section' : 'sections'} ready` --&gt;</code></pre></details>
       </div>
       <h3>Bar chart</h3>
       <div class="ds-example">
@@ -241,6 +253,7 @@
       <ul>
         <li>The track fills whatever width is left in its row; the label keeps its width and never wraps.</li>
         <li>On phones, table rows use the short label ("21 of 23"); the sprint header can afford "21 of 23 points".</li>
+        <li>On a phone, the progress line's two labels leave a short track (about 3rem at 360px). The trailing text still gives the value in full.</li>
         <li>At 8% (2 of 24) the fill is only a few pixels; the label makes the value clear at any width.</li>
         <li>A bar chart keeps three columns down to 360px. The label column takes the longest label ("Product Engineer"), and the bars shrink.</li>
       </ul>
@@ -282,6 +295,7 @@
         <li>Upload: "Uploading… 60%", with the ellipsis character.</li>
         <li><code>aria-label</code>: name the thing, then the value: "Sprint 5: 18 of 26 points done".</li>
         <li>Attendance: leading label "Checked in", trailing "12 of 34".</li>
+        <li>Progress line: leading label "Sections ready", trailing "3 of 7 sections ready"; "section" is singular when the total is 1 ("1 of 1 section ready"). The <code>aria-label</code> repeats the trailing text.</li>
         <li>Bar chart: the category on the left, the bare count on the right ("Toronto … 186"), and a footer that says what is counted and what never is ("Private contacts are never counted.").</li>
       </ul>
     </section>
@@ -341,6 +355,7 @@
       </ul>
       <ul>
         <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a>, <a href="../../mocks/pages/event-check-in/done.html">done</a> (complete), <a href="../../mocks/pages/event-check-in/cancelled.html">cancelled</a>, <a href="../../mocks/pages/event-check-in/read-only.html">read-only</a> and <a href="../../mocks/dialogs/check-in-walk-in/default.html">dialogs/check-in-walk-in</a> (attendance meter)</li>
+        <li><a href="../../mocks/pages/event-hub/default.html">pages/event-hub/default</a> and <a href="../../mocks/pages/event-hub/link-copied.html">link-copied</a> (progress line)</li>
         <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a>, <a href="../../mocks/pages/reports/filtered.html">filtered</a> and <a href="../../mocks/pages/reports/city.html">city</a> (bar charts)</li>
       </ul>
       <p>Resolved 2026-10-22: the Reports mocks now use <code>.progress-chart</code> (no inline <code>min-width</code>) with <code>aria-hidden</code> tracks, so no full bar is announced as "186 of 412"; <code>event-check-in/done</code> shows 36 of 36 with <code>.progress--complete</code>.</p>

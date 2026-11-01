@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Create an event hub
+Container_Boundary(spa, "Web app") {
+  Component(page, "EventPage", "Angular page (events)", "Create event hub / Open event hub")
+  Component(dlg, "CreateEventHubDialog", "CDK Dialog (events)", "Four steps over ft-stepper; saves as you go")
+  Component(home, "EventHubPage", "Angular page (events)", "Status, link, progress, ft-checklist-row per section")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "create, get, save")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "Minimal API", "/api/events/{id}/hub; no business logic")
+  Component(h, "CreateEventHubHandler / GetEventHubHandler / SaveEventHubHandler", "Application", "Authorise, one hub per event, section states")
+  Component(val, "SaveEventHubValidator", "Application", "Starting point and section kinds from the list")
+  Component(perm, "EventPermissions", "Application", "Has(ManageEventHubs) and the override rule")
+  Component(audit, "IAuditLog", "Application contract", "event_hub.created / updated on override")
+  Component(ctx, "CommunityDbContext", "EF Core", "EventHubs and HubSections, filtered by organisation")
+}
+ContainerDb(db, "Community database", "PostgreSQL")
+Rel(page, dlg, "Opens")
+Rel(dlg, svc, "create, save")
+Rel(home, svc, "get")
+Rel(svc, ep, "HTTPS")
+Rel(ep, val, "Validates PUT with")
+Rel(ep, h, "Dispatches")
+Rel(h, perm, "Authorises with")
+Rel(h, audit, "Records overrides")
+Rel(h, ctx, "Reads and writes")
+Rel(ctx, db, "SQL")
+@enduml

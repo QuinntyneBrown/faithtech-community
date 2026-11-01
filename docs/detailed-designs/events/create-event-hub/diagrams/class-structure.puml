@@ -1,0 +1,75 @@
+@startuml
+title Class structure — Create an event hub
+skinparam classAttributeIconSize 0
+package "Domain.Events" {
+  class "Event" as Ev {
+    +Id : Guid
+    +Title, StartsAt, EndsAt
+    +Format, Venue, Visibility
+    +IsCancelled
+  }
+  class EventHub <<IOrganisationScoped>> {
+    +Id : Guid
+    +OrganisationId : Guid
+    +EventId : Guid
+    +Status : EventHubStatus
+    +TemplateKey : string
+    +UpdateBanner : string?
+    +PublishedAt : DateTimeOffset?
+    +CreatedAt, UpdatedAt
+    +{static} CreateBlank(eventId, now) : EventHub
+    +Save(templateKey, visibility, now)
+  }
+  class HubSection <<IOrganisationScoped>> {
+    +Id : Guid
+    +EventHubId : Guid
+    +Kind : HubSectionKind
+    +Order : int
+    +Visible : bool
+    +Content : string (JSON)
+  }
+  enum EventHubStatus {
+    Draft
+    Published
+  }
+  enum HubSectionKind {
+    Hero
+    Agenda
+    Venue
+    People
+    Links
+    Giving
+    UpcomingEvents
+  }
+}
+package "Application.Events" {
+  class CreateEventHubHandler
+  class GetEventHubHandler
+  class SaveEventHubHandler
+  class SaveEventHubCommand {
+    +TemplateKey : string
+    +Sections : HubSectionVisibility[]
+  }
+  class SaveEventHubValidator
+  class EventHubDto {
+    +Id, EventId, Status, TemplateKey, Link
+    +Event : HubEventFacts
+    +Sections : HubSectionDto[]
+  }
+  class HubSectionDto {
+    +Kind, Visible, State
+  }
+  class EventPermissions {
+    +CanManageHubs
+    +IsHubOverride
+  }
+}
+Ev "1" -- "0..1" EventHub
+EventHub "1" *-- "7" HubSection
+CreateEventHubHandler ..> EventPermissions
+GetEventHubHandler ..> EventPermissions
+SaveEventHubHandler ..> EventPermissions
+SaveEventHubValidator ..> SaveEventHubCommand
+GetEventHubHandler ..> EventHubDto
+EventHubDto *-- HubSectionDto
+@enduml

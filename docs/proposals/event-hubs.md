@@ -152,7 +152,7 @@ All three are organisation-scoped through the DbContext's global query filter. M
 
 ## Open questions
 
-1. Can a lead whose role is tagged with a chapter edit hubs for other chapters' events? Chapters filter and never hide, so the default answer is yes; confirm.
+1. Can a lead whose role is tagged with a chapter edit hubs for other chapters' events? Chapters filter and never hide, so the default answer is yes. **Answered (slice 41, ADR 0036): yes.** A chapter-tagged holder of `ManageEventHubs` manages hubs for every chapter's events and organisation-wide events (`L2-155` AC3).
 2. Do we allow a **Custom text** section for anything the catalogue does not cover?
 3. Should templates be editable by chapter leads, or only by organisation administrators?
 4. Multi-language hubs: needed in v1?

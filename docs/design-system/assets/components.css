@@ -1270,3 +1270,28 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 .choice input:disabled + .choice__text small { color: var(--color-fg-muted); }
 /* A wider dialog for long checklists (Define a role). */
 .dialog--wide .dialog__panel { max-width: 44rem; }
+
+/* ---------- Stepper (ft-stepper): "Step 2 of 4" and the step name over one segment per step (Create event hub). ----------
+   The visible status line carries the position; the ordered list carries every step name for assistive tech. */
+.stepper { display: flex; flex-direction: column; gap: var(--space-2); }
+.stepper__status { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); margin: 0; font: var(--text-label); }
+.stepper__count { color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.stepper__name { color: var(--color-fg-default); }
+.stepper__steps { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.stepper__step { height: var(--space-1); border-radius: var(--radius-full); background: var(--color-bg-subtle-hover); }
+.stepper__step--done, .stepper__step[aria-current="step"] { background: var(--color-accent); }
+@media (forced-colors: active) { .stepper__step { border: var(--border-width-hairline) solid CanvasText; } .stepper__step--done, .stepper__step[aria-current="step"] { background: Highlight; } }
+
+/* ---------- Checklist row (ft-checklist-row): one row per hub section in an ft-list, with a state icon, badge and actions slot. ---------- */
+.checklist-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--space-2) var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.checklist-row:last-child { border-bottom: 0; }
+.checklist-row__icon { flex: none; display: grid; place-items: center; width: var(--size-icon-md); height: var(--size-icon-md); margin-top: var(--space-0-5); }
+.checklist-row__icon .icon { width: var(--size-icon-md); height: var(--size-icon-md); }
+.checklist-row--ready .checklist-row__icon { color: var(--color-success-icon); }
+.checklist-row--needs-info .checklist-row__icon { color: var(--color-warning-icon); }
+.checklist-row--hidden .checklist-row__icon { color: var(--color-fg-subtle); }
+.checklist-row__body { flex: 1 1 14rem; min-width: 0; }
+.checklist-row__title { font: var(--text-label); }
+.checklist-row__text { margin: var(--space-0-5) 0 0; font: var(--text-body-sm); color: var(--color-fg-muted); }
+.checklist-row--hidden .checklist-row__title { color: var(--color-fg-muted); }
+.checklist-row__end { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-inline-start: auto; }

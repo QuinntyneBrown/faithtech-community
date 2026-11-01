@@ -1,0 +1,25 @@
+@startuml
+title Open the hub home
+actor "Hub manager" as lead
+participant "EventHubPage" as home
+participant "HttpEventHubsService" as svc
+participant "EventsEndpoints" as ep
+participant "GetEventHubHandler" as h
+database "Community database" as db
+lead -> home : /events/{id}/hub
+home --> lead : Loading
+home -> svc : get(eventId)
+svc -> ep : GET /api/events/{id}/hub
+ep -> h : Handle
+h -> db : Event (filtered by organisation) with its hub and sections
+alt no ManageEventHubs
+  ep --> home : 403 -> "You can't manage event hubs"
+else no hub or unknown event
+  ep --> home : 404 -> "This event has no hub yet"
+else
+  h -> h : Read title, dates, venue, RSVP link from the event (never copied)
+  h -> h : State per section: Hidden, Ready or Needs info
+  ep --> home : 200 EventHubDto
+  home --> lead : Status, link, "3 of 6 sections ready", one row per section
+end
+@enduml
