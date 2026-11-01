@@ -15,7 +15,13 @@ import {
   formatTimeRange,
 } from '@faithtech-community/components';
 
-import { HubSectionWizardData, SectionSaver, hubPlace, sectionContent } from '../../hub-sections';
+import {
+  HubPreviewLinkComponent,
+  HubSectionWizardData,
+  SectionSaver,
+  hubPlace,
+  sectionContent,
+} from '../../hub-sections';
 
 const MAX_SUBTITLE = 140;
 let next = 0;
@@ -27,6 +33,7 @@ let next = 0;
 @Component({
   selector: 'ft-hub-hero-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     ButtonComponent,

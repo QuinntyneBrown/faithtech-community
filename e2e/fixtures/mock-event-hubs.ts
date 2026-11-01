@@ -31,6 +31,7 @@ export interface MockEventHub {
   id: string;
   eventId: string;
   status: 'Draft' | 'Published';
+  publishedAt: string | null;
   templateKey: string;
   sections: MockHubSection[];
   createdAt: string;
@@ -98,6 +99,7 @@ export class MockEventHubs {
   readonly hubs: MockEventHub[] = [];
   /** The next create, save, section save or reorder answers 500, to drive "Try again". */
   private failSave = false;
+  private failLoad = false;
   private directory: EventHubsDirectory = {
     organisation: () => ({ name: 'FaithTech Community', shortName: 'FaithTech' }),
     member: () => undefined,
@@ -116,6 +118,7 @@ export class MockEventHubs {
       id: `hub-${this.hubs.length + 1}`,
       eventId: event.id,
       status: 'Draft',
+      publishedAt: null,
       templateKey: 'blank',
       sections: HUB_SECTION_KINDS.map((kind) => ({
         kind,
@@ -149,6 +152,19 @@ export class MockEventHubs {
     this.failSave = true;
   }
 
+  /** Makes the next read of a hub fail with 500, for the hub page's failed state. */
+  failNextLoad(): void {
+    this.failLoad = true;
+  }
+
+  /** Arranges a published hub, as Publish would leave it (L2-164 AC1). */
+  publish(eventId: string): void {
+    const hub = this.of(eventId);
+    if (!hub) throw new Error(`No hub for ${eventId}`);
+    hub.status = 'Published';
+    hub.publishedAt = this.context.now().toISOString();
+  }
+
   /** The event detail's hub fields (L2-153 AC1). */
   detail(event: MockEvent, caller: EventsCaller): { hubId: string | null; canManageHub: boolean } {
     return { hubId: this.of(event.id)?.id ?? null, canManageHub: canManageHubs(caller) };
@@ -162,15 +178,19 @@ export class MockEventHubs {
     body: Record<string, unknown>,
     caller: EventsCaller | null,
   ): Promise<void> | false {
-    const match = /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+))?$/.exec(url.pathname);
+    const match =
+      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish))?$/.exec(
+        url.pathname,
+      );
     if (!match) return false;
-    const [, eventId, sectionPath] = match;
-    const allowed = sectionPath ? ['PUT'] : ['GET', 'POST', 'PUT'];
+    const [, eventId, sectionPath, publishing] = match;
+    const allowed = sectionPath ? ['PUT'] : publishing ? ['POST'] : ['GET', 'POST', 'PUT'];
     if (!allowed.includes(method)) return false;
     if (!caller) return route.fulfill({ status: 401 });
     if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
     const event = this.context.event(eventId);
     if (!event) return route.fulfill({ status: 404 });
+    if (publishing) return this.setPublished(route, event, publishing === 'publish', caller);
     if (sectionPath === 'order') return this.reorder(route, event, body, caller);
     if (sectionPath) return this.saveSection(route, event, sectionPath, body, caller);
     if (method === 'POST') return this.create(route, event, caller);
@@ -202,6 +222,10 @@ export class MockEventHubs {
   private get(route: Route, event: MockEvent, origin: string): Promise<void> {
     const hub = this.of(event.id);
     if (!hub) return route.fulfill({ status: 404 });
+    if (this.failLoad) {
+      this.failLoad = false;
+      return route.fulfill({ status: 500 });
+    }
     const organisation = this.directory.organisation();
     const upcoming = this.section(event.id, 'UpcomingEvents')?.content['count'];
     return route.fulfill({
@@ -210,6 +234,7 @@ export class MockEventHubs {
         id: hub.id,
         eventId: event.id,
         status: hub.status,
+        publishedAt: hub.publishedAt,
         templateKey: hub.templateKey,
         link: `${origin}/public/events/${event.id}/hub`,
         event: {
@@ -511,6 +536,31 @@ export class MockEventHubs {
         venue: e.venue,
         chapterName: this.context.chapterName(e.chapterId),
       }));
+  }
+
+  /** Publish or unpublish (L2-164): refuses nothing; every status change is audited, override or not. */
+  private setPublished(
+    route: Route,
+    event: MockEvent,
+    publish: boolean,
+    caller: EventsCaller,
+  ): Promise<void> {
+    const hub = this.of(event.id);
+    if (!hub) return route.fulfill({ status: 404 });
+    if (this.takeFailure()) return route.fulfill({ status: 500 });
+    if (!publish && hub.status === 'Draft') return route.fulfill({ status: 204 });
+    const now = this.context.now().toISOString();
+    hub.status = publish ? 'Published' : 'Draft';
+    hub.publishedAt = publish ? now : null;
+    hub.updatedAt = now;
+    this.context.addAuditEntry({
+      action: publish ? 'event_hub.published' : 'event_hub.unpublished',
+      summary: `${publish ? 'Published' : 'Unpublished'} the hub for ${event.title}`,
+      actorId: caller.profileId,
+      targetType: 'EventHub',
+      targetId: hub.id,
+    });
+    return route.fulfill({ status: 204 });
   }
 
   /** Only an action allowed by AdministerOrganisation alone is audited (L2-155 AC2, L2-157 AC5). */

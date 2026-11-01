@@ -16,7 +16,13 @@ import {
   TextareaComponent,
 } from '@faithtech-community/components';
 
-import { HubSectionWizardData, SectionSaver, mapsLink, sectionContent } from '../../hub-sections';
+import {
+  HubPreviewLinkComponent,
+  HubSectionWizardData,
+  SectionSaver,
+  mapsLink,
+  sectionContent,
+} from '../../hub-sections';
 
 const MAX_DIRECTIONS = 500;
 let next = 0;
@@ -29,6 +35,7 @@ let next = 0;
 @Component({
   selector: 'ft-hub-venue-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     ButtonComponent,

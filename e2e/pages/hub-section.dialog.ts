@@ -15,6 +15,8 @@ export class HubSectionDialog {
   readonly step: Locator;
   readonly failed: Locator;
   readonly tryAgain: Locator;
+  readonly preview: Locator;
+  readonly close: Locator;
 
   constructor(
     private readonly page: Page,
@@ -30,6 +32,8 @@ export class HubSectionDialog {
     this.step = this.dialog.locator('.ft-stepper__status');
     this.failed = this.dialog.getByText('We couldn’t save this section');
     this.tryAgain = this.dialog.getByRole('button', { name: 'Try again' });
+    this.preview = this.dialog.getByRole('link', { name: 'Preview the hub (new tab)' });
+    this.close = this.dialog.getByRole('button', { name: 'Close', exact: true });
   }
 
   /** A field by its label, with or without "(optional)". */

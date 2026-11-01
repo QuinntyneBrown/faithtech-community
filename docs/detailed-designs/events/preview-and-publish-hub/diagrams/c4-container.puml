@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Preview and publish a hub
+Person(lead, "Hub manager")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Hub home, section wizards and the hub page at /public/events/:id/hub")
+  Container(api, "Community API", "ASP.NET Core", "GET /hub, POST /hub/publish, POST /hub/unpublish")
+  ContainerDb(db, "Community database", "PostgreSQL", "EventHub.Status and PublishedAt; audit entries")
+}
+Rel(lead, spa, "Uses", "HTTPS")
+Rel(spa, api, "JSON over HTTPS, bearer token")
+Rel(api, db, "EF Core, filtered by organisation")
+@enduml

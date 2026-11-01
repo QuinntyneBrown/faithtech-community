@@ -15,7 +15,12 @@ import {
   TextFieldComponent,
 } from '@faithtech-community/components';
 
-import { HubSectionWizardData, SectionSaver, sectionContent } from '../../hub-sections';
+import {
+  HubPreviewLinkComponent,
+  HubSectionWizardData,
+  SectionSaver,
+  sectionContent,
+} from '../../hub-sections';
 
 const MAX_LINE = 200;
 let next = 0;
@@ -28,6 +33,7 @@ let next = 0;
 @Component({
   selector: 'ft-hub-giving-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     ButtonComponent,

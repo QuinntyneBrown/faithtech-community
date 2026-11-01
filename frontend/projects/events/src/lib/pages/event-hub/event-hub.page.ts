@@ -16,6 +16,7 @@ import {
   HubSectionState,
 } from '@faithtech-community/api';
 import {
+  ClusterComponent,
   BadgeComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
@@ -38,6 +39,7 @@ import {
   StackComponent,
   ToastService,
   formatDay,
+  formatTime,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -54,6 +56,8 @@ import {
   PREVIEWABLE,
   ReorderHubSectionsData,
   ReorderHubSectionsDialog,
+  UnpublishHubData,
+  UnpublishHubDialog,
 } from '../../dialogs';
 import { HubSectionWizardData, hubSection } from '../../hub-sections';
 
@@ -101,6 +105,7 @@ const HIDE: MenuEntry = { kind: 'item', id: 'hide', label: 'Hide section', icon:
 @Component({
   selector: 'ft-event-hub-page',
   imports: [
+    ClusterComponent,
     BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
@@ -133,6 +138,7 @@ export class EventHubPage {
 
   protected readonly state = signal<State>('loading');
   protected readonly hub = signal<EventHubDto | null>(null);
+  protected readonly publishing = signal(false);
 
   protected readonly subtitle = computed(() => {
     const h = this.hub();
@@ -234,6 +240,60 @@ export class EventHubPage {
     });
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: 'Sections reordered' });
+    await this.load(this.id(), true);
+  }
+
+  /** "Sun 1 Nov · 3:40 pm": when the hub was published (L2-164 AC2). */
+  protected when(at: string): string {
+    return `${formatDay(at)} · ${formatTime(at)}`;
+  }
+
+  /** Copy link (L2-165 AC1): the copy field copies, or selects the link when the browser refuses. */
+  protected linkCopied(): void {
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Link copied',
+      text: 'Share it with attendees and helpers.',
+    });
+  }
+
+  /** Publish (L2-164 AC1): refuses nothing; a failure offers Try again on its toast. */
+  protected async publish(): Promise<void> {
+    if (this.publishing()) return;
+    this.publishing.set(true);
+    try {
+      await firstValueFrom(this.hubs.publish(this.id()));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t publish the hub',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.publish(),
+      });
+      return;
+    } finally {
+      this.publishing.set(false);
+    }
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Hub published',
+      text: 'Visitors can open it now.',
+    });
+    await this.load(this.id(), true);
+  }
+
+  /** Unpublish (L2-164 AC3): asks first in its dialog. */
+  protected async unpublish(): Promise<void> {
+    const ref = this.dialogs.open<boolean, UnpublishHubData>(UnpublishHubDialog, {
+      data: { eventId: this.id() },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Hub unpublished',
+      text: 'It’s a draft again, so only people who manage hubs can open it.',
+    });
     await this.load(this.id(), true);
   }
 

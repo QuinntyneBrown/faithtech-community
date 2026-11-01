@@ -34,7 +34,7 @@ public record HubUpcomingEventDto(
 /// <summary>A hub as its home shows it (L2-154 AC1), sections in order.</summary>
 public record EventHubDto(
     Guid Id, Guid EventId, string Status, string TemplateKey, string Link, HubEventFactsDto Event, IReadOnlyList<HubSectionDto> Sections,
-    HubOrganisationDto? Organisation = null, IReadOnlyList<HubUpcomingEventDto>? UpcomingEvents = null);
+    HubOrganisationDto? Organisation = null, IReadOnlyList<HubUpcomingEventDto>? UpcomingEvents = null, DateTimeOffset? PublishedAt = null);
 
 public record HubSectionVisibility(string? Kind, bool Visible);
 
@@ -140,7 +140,7 @@ public class GetEventHubHandler(
         return (Result.Ok(), new EventHubDto(
             hub.Id, e.Id, hub.Status.ToString(), hub.TemplateKey, $"{origin}{EventHubRules.Path(e.Id)}", facts, sections,
             new HubOrganisationDto(org.Name, org.ShortName, org.GivingLink, org.GivingText),
-            await UpcomingAsync(e, count, cancellationToken)));
+            await UpcomingAsync(e, count, cancellationToken), hub.PublishedAt));
     }
 
     private async Task<object> ContentAsync(HubSection section, CancellationToken cancellationToken) => section.Kind switch

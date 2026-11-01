@@ -8,3 +8,4 @@ export * from './hub-venue.component';
 export * from './hub-links.component';
 export * from './hub-people.component';
 export * from './hub-upcoming.component';
+export * from './hub-preview-link.component';

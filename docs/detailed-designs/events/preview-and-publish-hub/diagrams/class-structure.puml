@@ -1,0 +1,39 @@
+@startuml
+title Class structure — Preview and publish a hub
+class EventHub {
+  +Status : EventHubStatus
+  +PublishedAt : DateTimeOffset?
+  +Publish(now) : void
+  +Unpublish(now) : bool
+}
+enum EventHubStatus {
+  Draft
+  Published
+}
+class PublishEventHubHandler {
+  +PublishAsync(eventId) : Result
+  +UnpublishAsync(eventId) : Result
+}
+class EventPermissions {
+  +CanManageHubs : bool
+  +IsHubOverride : bool
+}
+interface IAuditLog {
+  +Record(actor, action, type, id, before, after)
+}
+class EventHubDto <<TypeScript>> {
+  status : 'Draft' | 'Published'
+  publishedAt : string | null
+}
+class HubPage <<Angular>> {
+  hub : EventHubDto
+  shown : HubSectionDto[]
+  preview : boolean
+}
+class UnpublishHubDialog <<Angular>>
+EventHub --> EventHubStatus
+PublishEventHubHandler --> EventHub
+PublishEventHubHandler --> EventPermissions
+PublishEventHubHandler --> IAuditLog
+HubPage --> EventHubDto
+@enduml

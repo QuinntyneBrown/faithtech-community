@@ -83,6 +83,13 @@ public static class EventsEndpoints
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventHubCommand>();
 
+        // Publishing (L2-164, ADR 0039): refuses nothing; every status change is audited.
+        events.MapPost("/{id:guid}/hub/publish", async (Guid id, PublishEventHubHandler handler, CancellationToken cancellationToken) =>
+            (await handler.PublishAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        events.MapPost("/{id:guid}/hub/unpublish", async (Guid id, PublishEventHubHandler handler, CancellationToken cancellationToken) =>
+            (await handler.UnpublishAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
         // Hub sections (L2-156, L2-157, ADR 0038): the order, then one section's content validated against its kind's schema.
         events.MapPut("/{id:guid}/hub/sections/order", async (
                 Guid id, ReorderHubSectionsCommand command, ReorderHubSectionsHandler handler, CancellationToken cancellationToken) =>

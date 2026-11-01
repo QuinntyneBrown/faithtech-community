@@ -15,6 +15,11 @@ export class EventHubPage {
   readonly tryAgain: Locator;
   readonly backToEvent: Locator;
   readonly reorder: Locator;
+  readonly preview: Locator;
+  readonly publish: Locator;
+  readonly unpublish: Locator;
+  readonly publishedAt: Locator;
+  readonly linkHelp: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -32,6 +37,13 @@ export class EventHubPage {
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.backToEvent = page.getByRole('link', { name: 'Back to event' });
     this.reorder = page.getByRole('button', { name: 'Reorder sections' });
+    this.preview = page.getByRole('link', { name: 'Preview', exact: true });
+    this.publish = page.getByRole('button', { name: /^(Publish|Publishing…)$/ });
+    this.unpublish = page.getByRole('button', { name: 'Unpublish', exact: true });
+    this.publishedAt = page
+      .locator('dt', { hasText: /^Published$/ })
+      .locator('xpath=following-sibling::dd[1]');
+    this.linkHelp = page.locator('ft-copy-field').getByText(/^Visitors can open it/);
   }
 
   /** "More for {Section}", the row's menu of Preview and Hide section (L2-156 AC1). */
@@ -49,9 +61,21 @@ export class EventHubPage {
     return this.page.getByRole('button', { name: `${name} ${title}`, exact: true });
   }
 
+  /** Opens a section's wizard from its row, by Fill in or Edit. */
+  async openWizard(title: string): Promise<void> {
+    await this.row(title)
+      .getByRole('button', { name: new RegExp(`^(Fill in|Edit) ${title}$`) })
+      .click();
+  }
+
   /** A row's one line, saying what visitors see or what is missing. */
   line(title: string): Locator {
     return this.row(title).locator('.ft-checklist-row__text');
+  }
+
+  /** A toast's action button, such as Try again. */
+  toastAction(heading: string, name: string): Locator {
+    return this.toast(heading).getByRole('button', { name, exact: true });
   }
 
   /** A success or danger toast by its heading. */

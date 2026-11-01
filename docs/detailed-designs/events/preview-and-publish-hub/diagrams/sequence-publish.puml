@@ -1,0 +1,33 @@
+@startuml
+title Publish and unpublish a hub
+actor "Hub manager" as lead
+participant "EventHubPage" as page
+participant "UnpublishHubDialog" as dlg
+participant "HttpEventHubsService" as svc
+participant "Community API" as api
+database "Community database" as db
+lead -> page : Publish
+page -> svc : publish(eventId)
+svc -> api : POST /api/events/{id}/hub/publish
+alt no ManageEventHubs
+  api --> page : 403
+else no hub, or another organisation
+  api --> page : 404
+else
+  api -> db : Status = Published, PublishedAt = now; audit event_hub.published
+  api --> page : 204
+  page --> lead : toast "Hub published"; status Published with its date; Unpublish
+end
+lead -> page : Unpublish
+page -> dlg : open
+lead -> dlg : Unpublish
+dlg -> svc : unpublish(eventId)
+svc -> api : POST /api/events/{id}/hub/unpublish
+alt network failure
+  dlg --> lead : "We couldn’t unpublish the hub" with Try again
+else
+  api -> db : Status = Draft, PublishedAt = null; audit event_hub.unpublished
+  api --> dlg : 204
+  page --> lead : toast "Hub unpublished"
+end
+@enduml

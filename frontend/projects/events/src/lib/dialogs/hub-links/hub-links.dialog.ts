@@ -15,7 +15,12 @@ import {
   formatTime,
 } from '@faithtech-community/components';
 
-import { HubSectionWizardData, SectionSaver, sectionContent } from '../../hub-sections';
+import {
+  HubPreviewLinkComponent,
+  HubSectionWizardData,
+  SectionSaver,
+  sectionContent,
+} from '../../hub-sections';
 
 const MAX_LINK = 500;
 const HTTPS = 'Use a link that starts with https://';
@@ -34,6 +39,7 @@ function linkOk(value: string): boolean {
 @Component({
   selector: 'ft-hub-links-dialog',
   imports: [
+    HubPreviewLinkComponent,
     ReactiveFormsModule,
     AlertComponent,
     ButtonComponent,

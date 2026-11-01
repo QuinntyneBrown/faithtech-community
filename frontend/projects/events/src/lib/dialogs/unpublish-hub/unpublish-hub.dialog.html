@@ -1,0 +1,21 @@
+<ft-dialog
+  heading="Unpublish the hub?"
+  description="Visitors won’t be able to open it until you publish it again. Everything it says is kept."
+  icon="hidden"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="We couldn’t unpublish the hub">
+      Check your connection and try again.
+      <ft-button ftAlertActions size="sm" (click)="confirm()">Try again</ft-button>
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close(false)"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Unpublishing…' : 'Unpublish' }}
+  </ft-button>
+</ft-dialog>

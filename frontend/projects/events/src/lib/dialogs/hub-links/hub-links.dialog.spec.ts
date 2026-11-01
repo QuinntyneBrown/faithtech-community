@@ -11,6 +11,7 @@ function hubFixture(overrides: Partial<EventHubDto> = {}): EventHubDto {
     id: 'h1',
     eventId: 'e1',
     status: 'Draft',
+    publishedAt: null,
     templateKey: 'blank',
     link: 'https://app.faithtech.community/public/events/e1/hub',
     event: {

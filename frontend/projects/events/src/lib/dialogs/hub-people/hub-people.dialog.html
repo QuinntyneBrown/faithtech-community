@@ -1,5 +1,6 @@
 <ft-dialog heading="People" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
   <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
     <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
     @if (saver.failed()) {
       <ft-alert status="danger" heading="We couldn’t save this section">

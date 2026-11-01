@@ -48,6 +48,18 @@
       <ft-page-header title="Event hub" [subtitle]="subtitle()" />
       <ft-stack>
         <ft-card heading="Your hub">
+          <ft-cluster ftCardActions>
+            <ft-button [href]="'/public/events/' + h.eventId + '/hub'">
+              <ft-icon name="read-only-view" /> Preview
+            </ft-button>
+            @if (h.status === 'Published') {
+              <ft-button (click)="unpublish()">Unpublish</ft-button>
+            } @else {
+              <ft-button variant="primary" [loading]="publishing()" (click)="publish()">
+                {{ publishing() ? 'Publishing…' : 'Publish' }}
+              </ft-button>
+            }
+          </ft-cluster>
           <ft-stack>
             <ft-description-list>
               <ft-description-list-item label="Status">
@@ -55,11 +67,21 @@
                   h.status
                 }}</ft-badge>
               </ft-description-list-item>
+              @if (h.publishedAt; as at) {
+                <ft-description-list-item label="Published">
+                  <time [attr.datetime]="at">{{ when(at) }}</time>
+                </ft-description-list-item>
+              }
             </ft-description-list>
             <ft-copy-field
               label="Link"
               [value]="h.link"
-              help="Visitors can open it once you publish."
+              (copied)="linkCopied()"
+              [help]="
+                h.status === 'Published'
+                  ? 'Visitors can open it now.'
+                  : 'Visitors can open it once you publish.'
+              "
             />
           </ft-stack>
         </ft-card>
