@@ -50,6 +50,13 @@ export class HubPage {
     return this.agendaRows.filter({ hasText: title });
   }
 
+  /** Whether the page is wider than the window, so it would scroll sideways. */
+  scrollsSideways(): Promise<boolean> {
+    return this.page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    );
+  }
+
   /** The page's meta description. */
   description(): Promise<string | null> {
     return this.page.locator('meta[name="description"]').getAttribute('content');

@@ -265,6 +265,13 @@ export class MockEvents {
   }
 
   /** A guest's RSVP, as the public page would take it, `daysAgo` before the fake's "now". */
+  /** Changes an event's facts, as a lead's edit would. */
+  change(eventId: string, changes: Partial<MockEvent>): void {
+    const event = this.events.find((e) => e.id === eventId);
+    if (!event) throw new Error(`No event ${eventId}`);
+    Object.assign(event, changes);
+  }
+
   addGuest(event: MockEvent, name: string, email: string, daysAgo = 1): MockRsvp {
     return this.push(event, null, name, email, daysAgo);
   }

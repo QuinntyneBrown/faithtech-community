@@ -1,9 +1,10 @@
-// Traces to: L2-166 AC1 to AC3, L2-167 AC1 to AC4 (docs/detailed-designs/events/visit-event-hub)
+// Traces to: L2-166 AC1 to AC3, AC6, L2-167 AC1 to AC4 (docs/detailed-designs/events/visit-event-hub)
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { EventPage } from '../../pages/event.page';
 import { HubPage } from '../../pages/hub.page';
 import { PublicEventPage } from '../../pages/public-event.page';
+import { SignInPage } from '../../pages/sign-in.page';
 
 test.use({ timezoneId: 'America/Toronto' });
 
@@ -132,5 +133,58 @@ test.describe('Visit an event hub', () => {
 
     await expect(hub.text('It may not be published yet, or the link may be wrong.')).toBeVisible();
     await expect(hub.signIn).toBeHidden();
+  });
+
+  // L2-166 AC2: Sign in from the not-available page returns the member to the members-only hub.
+  test('an anonymous visitor signs in and lands back on the members-only hub', async ({
+    page,
+    api,
+  }) => {
+    const event = arrange(api, 'MembersOnly');
+    const ruth = api.addAccount({
+      email: 'ruth@example.org',
+      name: 'Ruth Alvarez',
+      roles: ['Staff'],
+    });
+    const hub = new HubPage(page);
+    const signIn = new SignInPage(page);
+    await hub.open(event.id);
+
+    await hub.signIn.click();
+    await signIn.signIn(ruth.email, ruth.password);
+
+    await expect(page).toHaveURL(new RegExp(`/public/events/${event.id}/hub$`));
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
+  });
+
+  // L2-166 AC6: the hub reads the event's facts on every visit, so a change shows next time.
+  test('a change to the event shows the next time the hub is opened', async ({ page, api }) => {
+    const event = arrange(api, 'Public');
+    const hub = new HubPage(page);
+    await hub.open(event.id);
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
+
+    api.events.change(event.id, {
+      title: 'Toronto Builders Night: Shelters',
+      venue: 'Trinity Community Centre, 155 Bathurst St, Toronto',
+    });
+    await hub.open(event.id);
+
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night: Shelters');
+    await expect(hub.text('Trinity Community Centre, 155 Bathurst St, Toronto')).toBeVisible();
+  });
+
+  // L2-167 AC4: on a phone the sections stack in one column with no sideways scroll, and pass axe.
+  test('the hub reads in one column on a phone', async ({ page, api, axe }) => {
+    const event = arrange(api, 'Public');
+    api.events.hubs.fill(event.id, 'Hero', { subtitle: 'A night of building for the city' });
+    const hub = new HubPage(page);
+    await page.setViewportSize({ width: 360, height: 780 });
+
+    await hub.open(event.id);
+
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
+    expect(await hub.scrollsSideways()).toBe(false);
+    await axe.check();
   });
 });
