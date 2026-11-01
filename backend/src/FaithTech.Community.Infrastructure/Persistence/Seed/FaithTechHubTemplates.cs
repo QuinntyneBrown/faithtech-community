@@ -60,7 +60,7 @@ public static class FaithTechHubTemplates
 
     private static string Sections(Template t) =>
         JsonSerializer.Serialize(
-            Enum.GetValues<HubSectionKind>().Select(kind => new
+            HubSectionKinds.Core.Select(kind => new
             {
                 kind = kind.ToString(),
                 visible = !t.Hidden.Contains(kind),

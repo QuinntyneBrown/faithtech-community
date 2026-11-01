@@ -40,8 +40,7 @@ public class ReorderHubSectionsValidator : AbstractValidator<ReorderHubSectionsC
     {
         RuleFor(x => x.Kinds)
             .Must(k => k is not null && k.All(v => EventHubRules.TryParseKind(v, out _))
-                && k.Select(v => v.ToLowerInvariant()).Distinct().Count() == k.Count
-                && k.Count == Enum.GetValues<HubSectionKind>().Length)
+                && k.Select(v => v.ToLowerInvariant()).Distinct().Count() == k.Count)
             .WithMessage("Choose sections from the list.");
     }
 }
@@ -140,6 +139,16 @@ public static partial class HubContent
         HubSectionKind.Links => typeof(LinksContent),
         HubSectionKind.Giving => typeof(GivingContent),
         HubSectionKind.UpcomingEvents => typeof(UpcomingEventsContent),
+        HubSectionKind.Parking => typeof(ParkingContent),
+        HubSectionKind.WhatToBring => typeof(WhatToBringContent),
+        HubSectionKind.Partners => typeof(PartnersContent),
+        HubSectionKind.Tracks => typeof(TracksContent),
+        HubSectionKind.Process => typeof(ProcessContent),
+        HubSectionKind.Rules => typeof(RulesContent),
+        HubSectionKind.DemoFormat => typeof(DemoFormatContent),
+        HubSectionKind.Judging => typeof(JudgingContent),
+        HubSectionKind.Worship => typeof(WorshipContent),
+        HubSectionKind.Slides => typeof(SlidesContent),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -152,6 +161,16 @@ public static partial class HubContent
         HubSectionKind.Links => new LinksContentValidator(),
         HubSectionKind.Giving => new GivingContentValidator(),
         HubSectionKind.UpcomingEvents => new UpcomingEventsContentValidator(),
+        HubSectionKind.Parking => new ParkingContentValidator(),
+        HubSectionKind.WhatToBring => new WhatToBringContentValidator(),
+        HubSectionKind.Partners => new PartnersContentValidator(),
+        HubSectionKind.Tracks => new TracksContentValidator(),
+        HubSectionKind.Process => new ProcessContentValidator(),
+        HubSectionKind.Rules => new RulesContentValidator(),
+        HubSectionKind.DemoFormat => new DemoFormatContentValidator(),
+        HubSectionKind.Judging => new JudgingContentValidator(),
+        HubSectionKind.Worship => new WorshipContentValidator(),
+        HubSectionKind.Slides => new SlidesContentValidator(),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -214,7 +233,7 @@ public static partial class HubContent
         LinksContent c => new LinksContent(Text(c.SubmissionUrl), Text(c.FeedbackUrl), c.CodeFreezeAt),
         GivingContent c => new GivingContent(Text(c.Line)),
         UpcomingEventsContent c => new UpcomingEventsContent(c.Count),
-        _ => content,
+        _ => NormaliseOptional(content),
     };
 
     private static string? Text(string? value) => string.IsNullOrWhiteSpace(value) ? null : WhiteSpace().Replace(value.Trim(), " ");
@@ -244,7 +263,7 @@ public static partial class HubContent
             HubSectionKind.People => Read<PeopleContent>(section.Content).People is { Count: > 0 },
             HubSectionKind.Links => Read<LinksContent>(section.Content) is var l && (l.SubmissionUrl is not null || l.FeedbackUrl is not null),
             HubSectionKind.Giving => organisation.GivingLink is not null,
-            _ => false,
+            _ => OptionalReady(section.Kind, section.Content),
         };
         return ready ? "Ready" : "NeedsInfo";
     }
@@ -264,7 +283,8 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
         }
 
         var hub = await db.EventHubs.Include(h => h.Sections).SingleOrDefaultAsync(h => h.EventId == eventId, cancellationToken);
-        if (hub is null || !EventHubRules.TryParseKind(kindName, out var kind) || !await db.Events.AnyAsync(e => e.Id == eventId, cancellationToken))
+        if (hub is null || !EventHubRules.TryParseKind(kindName, out var kind) || !hub.Holds(kind)
+            || !await db.Events.AnyAsync(e => e.Id == eventId, cancellationToken))
         {
             return Result.NotFound();
         }
@@ -332,6 +352,11 @@ public class ReorderHubSectionsHandler(IApplicationDbContext db, EventPermission
             EventHubRules.TryParseKind(k, out var kind);
             return kind;
         }).ToList();
+        if (kinds.Count != hub.Sections.Count || hub.Sections.Any(s => !kinds.Contains(s.Kind)))
+        {
+            return Result.Invalid("kinds", "Choose sections from the list.");
+        }
+
         hub.Reorder(kinds, time.GetUtcNow());
         if (permissions.IsHubOverride)
         {

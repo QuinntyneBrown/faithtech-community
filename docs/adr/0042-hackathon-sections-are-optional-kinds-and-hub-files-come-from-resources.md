@@ -5,6 +5,7 @@
 - Requirements: L1-008, L2-172 to L2-183
 - Designs: `docs/detailed-designs/events/build-hackathon-hub`
 - Proposal: `docs/proposals/event-hubs.md`
+- Supersedes in part: ADR 0036 (a kind added later is added to every existing hub)
 - Refines: ADR 0038 (section content is what the lead types), ADR 0040 (visitors read the hub through one endpoint),
   ADR 0041 (a starting point replaces the hub's sections)
 
@@ -20,7 +21,8 @@ from Partners, and how FaithTech's existing Hackathon template gains the new def
 - **The ten kinds are optional.** A hub always holds the seven phase 1 kinds (the core) and holds an optional kind only when
   its starting point brings it: a template that names it, or a copied hub that has it. Blank is the core seven, as before. A
   starting point applied again removes optional sections it doesn't bring. The catalogue has one order for all seventeen,
-  with the core keeping its relative order, so existing hubs read exactly as they did.
+  with the core keeping its relative order, so existing hubs read exactly as they did. Unlike ADR 0036 planned, the new kinds
+  are not added to existing hubs, hidden or otherwise, and no migration touches them.
 - **Kinds stay one enum, stored as strings.** The enum is reordered into catalogue order; nothing stores its numbers. The
   core set is a list beside it, not a property of the database.
 - **Images and slides are Resources.** Parking maps and slides are resource ids. The wizard picks from Resources or uploads

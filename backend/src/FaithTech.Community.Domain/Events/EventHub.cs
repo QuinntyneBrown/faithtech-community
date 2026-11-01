@@ -52,12 +52,12 @@ public class EventHub : IOrganisationScoped
     /// <summary>The sections; <see cref="HubSection.Order"/> gives their place.</summary>
     public IReadOnlyCollection<HubSection> Sections => _sections;
 
-    /// <summary>A Draft hub starting from Blank, with one shown, empty section of every kind in catalogue order (L2-153 AC3).</summary>
+    /// <summary>A Draft hub starting from Blank, with one shown, empty section of every core kind in catalogue order (L2-153 AC3, L2-172 AC2).</summary>
     public static EventHub CreateBlank(Guid eventId, DateTimeOffset now)
     {
         var hub = new EventHub(eventId, now);
         var order = 0;
-        foreach (var kind in Enum.GetValues<HubSectionKind>())
+        foreach (var kind in HubSectionKinds.Core)
         {
             hub._sections.Add(new HubSection(hub.Id, kind, order++));
         }
@@ -88,23 +88,31 @@ public class EventHub : IOrganisationScoped
     }
 
     /// <summary>
-    /// Applies a starting point (L2-169 AC3, L2-170 AC4, ADR 0041): one entry per kind, in the order wanted, sets each section's
-    /// place, visibility and content, replacing whatever was there. The hub stays as it is otherwise.
+    /// Applies a starting point (L2-169 AC3, L2-170 AC4, L2-172 AC2, AC3, ADR 0041, ADR 0042): every core kind and any optional
+    /// kinds, each once, in the order wanted. Sets each section's place, visibility and content, replacing whatever was there;
+    /// adds the optional sections named and removes those not named.
     /// </summary>
     public void Start(string templateKey, IReadOnlyList<HubSectionStart> sections, DateTimeOffset now)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(templateKey);
-        if (sections.Count != _sections.Count || sections.Select(s => s.Kind).Distinct().Count() != sections.Count
-            || _sections.Any(s => sections.All(start => start.Kind != s.Kind)))
+        if (sections.Select(s => s.Kind).Distinct().Count() != sections.Count
+            || HubSectionKinds.Core.Any(kind => sections.All(start => start.Kind != kind)))
         {
-            throw new ArgumentException("Name every section kind exactly once.", nameof(sections));
+            throw new ArgumentException("Name every core kind, and each kind once.", nameof(sections));
         }
 
         TemplateKey = templateKey;
+        _sections.RemoveAll(s => sections.All(start => start.Kind != s.Kind));
         for (var order = 0; order < sections.Count; order++)
         {
             var start = sections[order];
-            var section = _sections.Single(s => s.Kind == start.Kind);
+            var section = _sections.SingleOrDefault(s => s.Kind == start.Kind);
+            if (section is null)
+            {
+                section = new HubSection(Id, start.Kind, order);
+                _sections.Add(section);
+            }
+
             section.MoveTo(order);
             section.Show(start.Visible);
             section.Fill(start.Content ?? HubSection.EmptyContent);
@@ -112,6 +120,9 @@ public class EventHub : IOrganisationScoped
 
         UpdatedAt = now;
     }
+
+    /// <summary>Whether the hub has a section of this kind (L2-172 AC4).</summary>
+    public bool Holds(HubSectionKind kind) => _sections.Any(s => s.Kind == kind);
 
     /// <summary>Replaces one section's content (L2-157 AC2); the JSON is validated by Application before it gets here.</summary>
     public void FillSection(HubSectionKind kind, string content, DateTimeOffset now)

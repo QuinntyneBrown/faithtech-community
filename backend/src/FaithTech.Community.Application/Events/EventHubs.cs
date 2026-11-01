@@ -203,7 +203,7 @@ public class GetEventHubHandler(
         HubSectionKind.Giving => HubContent.Read<GivingContent>(section.Content),
         HubSectionKind.UpcomingEvents => new UpcomingEventsContent(
             HubContent.Read<UpcomingEventsContent>(section.Content).Count ?? HubContent.DefaultUpcoming),
-        _ => new { },
+        _ => HubContent.ReadAs(section.Kind, section.Content),
     };
 
     /// <summary>Members are read from Profiles each time; a profile that no longer exists here drops out (L2-161 AC2).</summary>
@@ -274,6 +274,12 @@ public class SaveEventHubHandler(IApplicationDbContext db, EventPermissions perm
         {
             EventHubRules.TryParseKind(section.Kind, out var kind);
             visibility[kind] = section.Visible;
+        }
+
+        // L2-172 AC4: only the hub's own sections can be shown or hidden.
+        if (visibility.Keys.Any(kind => !hub.Holds(kind)))
+        {
+            return Result.Invalid("sections", "Choose sections from the list.");
         }
 
         hub.Save(command.TemplateKey, visibility, time.GetUtcNow());
