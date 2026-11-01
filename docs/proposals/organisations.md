@@ -4,7 +4,7 @@ Make the platform organisation-agnostic: one deployment that hosts many organisa
 
 - Status: implemented (prompts `00` to `29`, 2026-10-31). Requirements `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. No rule names a FaithTech role outside the seed. Fixed copy that mentions FaithTech roles is deferred to a follow-up slice (`docs/detailed-designs/organisations/seed-faithtech`, open questions).
 - Date: 2026-10-30
-- Next step: Google sign-in on every organisation's host; then requirements to reword the copy that mentions FaithTech roles, and the Deferred list below.
+- Next step: requirements to reword the copy that mentions FaithTech roles, then the Deferred list below.
 
 ## Problem
 

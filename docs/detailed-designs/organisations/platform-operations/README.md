@@ -57,6 +57,7 @@ The code lives in `FaithTech.Community.Application/Organisations/Platform/`, wit
 ### Open questions
 
 - A new organisation's community host is a custom domain on the container app with a managed certificate; creating the DNS record and binding the host are the owner's steps until automation is built (proposal, deferred).
+- Google sign-in on a new organisation's host needs `https://{host}/api/account/google/callback` added to the Google client's authorised redirect URIs. Like the DNS record, this is the owner's step until automation is built.
 - The operator API is reachable on any host, including a suspended organisation's, only when the resolution middleware admits the request; on a suspended host it does not (`L2-131` AC3). Operators act from an active host or the Cli. There is no dedicated platform host in v1 (decided in slice 26); one would be a new host kind in the resolution middleware.
 - Slice 26 decisions:
   - `ICurrentUser.OperatorEmail` and `IsPlatformOperator` are computed by `CurrentRolesMiddleware`, and only for requests under `/api/platform`, by reading the signed-in account's email and comparing it with the list. Other requests never pay for the lookup and never see an operator.
