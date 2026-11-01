@@ -1,0 +1,19 @@
+@startuml
+title Preview the hub page
+actor "Hub manager" as lead
+participant "Section wizard" as wiz
+participant "HubPage" as page
+participant "HttpEventHubsService" as svc
+participant "Community API" as api
+lead -> wiz : Next (saves the step)
+lead -> wiz : Preview
+wiz -> page : open /public/events/{id}/hub in a new tab
+page -> svc : get(eventId)
+svc -> api : GET /api/events/{id}/hub
+alt 403 or 404
+  page --> lead : "This hub isn’t available"
+else
+  api --> page : EventHubDto
+  page --> lead : Preview banner; visible Ready sections in order, or "Nothing to show yet"
+end
+@enduml

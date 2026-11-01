@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Preview and publish a hub
+Person(lead, "Hub manager", "Member holding ManageEventHubs, e.g. a City Lead or Event Lead in FaithTech")
+Person(admin, "Organisation administrator", "Member holding AdministerOrganisation; reads the audit log")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+Rel(lead, community, "Previews, publishes, unpublishes and shares a hub", "HTTPS")
+Rel(admin, community, "Reads event_hub.published and event_hub.unpublished in the audit log", "HTTPS")
+@enduml

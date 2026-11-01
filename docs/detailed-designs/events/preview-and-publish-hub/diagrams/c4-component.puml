@@ -1,0 +1,33 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Preview and publish a hub
+Container_Boundary(spa, "Web app") {
+  Component(home, "EventHubPage", "Angular page (events)", "Preview, Publish / Unpublish, Published date, Copy link toast")
+  Component(unpub, "UnpublishHubDialog", "CDK Dialog (events)", "Confirm, Try again on failure")
+  Component(page, "HubPage", "Angular page (events, public routes)", "Preview banner, sections in order")
+  Component(wiz, "Hub section wizards", "CDK Dialogs (events)", "Preview link on every step")
+  Component(disp, "Display components", "Angular (events)", "One per section kind (slice 42)")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "get, publish, unpublish")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "Minimal API", "POST /hub/publish, POST /hub/unpublish")
+  Component(pub, "PublishEventHubHandler", "Application", "Authorise, set status, audit")
+  Component(get, "GetEventHubHandler", "Application", "Adds publishedAt")
+  Component(audit, "IAuditLog", "Application port", "event_hub.published / unpublished")
+  Component(ctx, "CommunityDbContext", "EF Core", "Filtered by organisation")
+}
+Rel(home, unpub, "Opens")
+Rel(home, svc, "publish")
+Rel(unpub, svc, "unpublish")
+Rel(page, svc, "get")
+Rel(page, disp, "Renders ready sections")
+Rel(wiz, page, "Preview link (new tab)")
+Rel(home, page, "Preview link")
+Rel(svc, ep, "HTTPS")
+Rel(ep, pub, "Dispatches")
+Rel(ep, get, "Dispatches")
+Rel(pub, audit, "Records")
+Rel(pub, ctx, "Reads and saves")
+Rel(get, ctx, "Reads")
+@enduml
