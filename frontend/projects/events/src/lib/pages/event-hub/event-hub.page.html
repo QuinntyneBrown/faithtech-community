@@ -76,6 +76,7 @@
             <ft-copy-field
               label="Link"
               [value]="h.link"
+              (copied)="linkCopied()"
               [help]="
                 h.status === 'Published'
                   ? 'Visitors can open it now.'

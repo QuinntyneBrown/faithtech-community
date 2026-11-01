@@ -160,4 +160,19 @@ test.describe('Preview and publish a hub', () => {
     await expect(dialog.dialog).toBeHidden();
     await expect(home.status).toHaveText('Draft');
   });
+
+  // L2-165 AC4: Copy link copies the hub's link and says so.
+  test('Copy link copies the hub link and says to share it', async ({ page, api, context }) => {
+    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    const { event, grace } = arrange(api);
+    const home = new EventHubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.copyLink.click();
+
+    await expect(home.toast('Link copied')).toContainText('Share it with attendees and helpers.');
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(
+      new RegExp(`/public/events/${event.id}/hub$`),
+    );
+  });
 });

@@ -248,6 +248,15 @@ export class EventHubPage {
     return `${formatDay(at)} · ${formatTime(at)}`;
   }
 
+  /** Copy link (L2-165 AC4): the copy field copies, or selects the link when the browser refuses. */
+  protected linkCopied(): void {
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Link copied',
+      text: 'Share it with attendees and helpers.',
+    });
+  }
+
   /** Publish (L2-164 AC1, L2-165 AC1): refuses nothing; a failure offers Try again on its toast (AC2). */
   protected async publish(): Promise<void> {
     if (this.publishing()) return;
