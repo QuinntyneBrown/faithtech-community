@@ -42,6 +42,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import {
+  HubAgendaDialog,
   HubGivingDialog,
   HubHeroDialog,
   HubSectionPreviewData,
@@ -69,8 +70,12 @@ const BADGES = {
 /** Each section's wizard (L2-157); a section joins as its wizard lands. */
 const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
   Hero: HubHeroDialog,
+  Agenda: HubAgendaDialog,
   Giving: HubGivingDialog,
 };
+
+/** The two-step wizards, opened in the wide panel (docs/mocks/dialogs/hub-agenda, hub-people). */
+const WIDE: readonly HubSectionKind[] = ['Agenda', 'People'];
 
 const PREVIEW: MenuEntry = {
   kind: 'item',
@@ -185,7 +190,11 @@ export class EventHubPage {
     const hub = this.hub();
     const wizard = WIZARDS[kind];
     if (!hub || !wizard) return;
-    const ref = this.dialogs.open<boolean, HubSectionWizardData>(wizard, { data: { hub } });
+    const ref = this.dialogs.open<boolean, HubSectionWizardData>(
+      wizard,
+      { data: { hub } },
+      { wide: WIDE.includes(kind) },
+    );
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: `${hubSection(kind).title} saved` });
     await this.load(this.id(), true);

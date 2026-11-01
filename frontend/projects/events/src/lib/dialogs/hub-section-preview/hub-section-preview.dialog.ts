@@ -3,7 +3,13 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { EventHubDto, HubSectionKind } from '@faithtech-community/api';
 import { ButtonComponent, DialogComponent } from '@faithtech-community/components';
 
-import { HubGivingComponent, HubHeroComponent, hubSection } from '../../hub-sections';
+import {
+  HubAgendaComponent,
+  HubGivingComponent,
+  HubHeroComponent,
+  hubSection,
+  sectionContent,
+} from '../../hub-sections';
 
 export interface HubSectionPreviewData {
   hub: EventHubDto;
@@ -11,7 +17,7 @@ export interface HubSectionPreviewData {
 }
 
 /** The kinds whose display the preview can show; each joins as its display lands. */
-export const PREVIEWABLE: readonly HubSectionKind[] = ['Hero', 'Giving'];
+export const PREVIEWABLE: readonly HubSectionKind[] = ['Hero', 'Agenda', 'Giving'];
 
 /**
  * "{Section} preview" (L2-156 AC5), matching docs/mocks/dialogs/hub-section-preview: the section rendered by its
@@ -19,7 +25,13 @@ export const PREVIEWABLE: readonly HubSectionKind[] = ['Hero', 'Giving'];
  */
 @Component({
   selector: 'ft-hub-section-preview-dialog',
-  imports: [ButtonComponent, DialogComponent, HubGivingComponent, HubHeroComponent],
+  imports: [
+    ButtonComponent,
+    DialogComponent,
+    HubAgendaComponent,
+    HubGivingComponent,
+    HubHeroComponent,
+  ],
   templateUrl: './hub-section-preview.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -27,4 +39,5 @@ export class HubSectionPreviewDialog {
   protected readonly ref = inject<DialogRef<'edit'>>(DialogRef);
   protected readonly data = inject<HubSectionPreviewData>(DIALOG_DATA);
   protected readonly title = hubSection(this.data.kind).title;
+  protected readonly agenda = sectionContent(this.data.hub, 'Agenda')?.items ?? [];
 }

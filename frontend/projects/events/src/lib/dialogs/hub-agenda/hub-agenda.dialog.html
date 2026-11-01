@@ -1,0 +1,143 @@
+<ft-dialog heading="Agenda" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
+  <ft-stack>
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+    @if (rowErrors().length) {
+      <ft-alert status="danger" heading="Check the rows">
+        @for (message of rowErrors(); track $index) {
+          <p>{{ message }}</p>
+        }
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <ft-stack gap="2">
+        <h3 class="section-title" [id]="questionId">What’s happening and when?</h3>
+        <p class="text-caption">
+          Times are in your time zone. Drag or use the arrow buttons to reorder.
+        </p>
+      </ft-stack>
+      @if (rows().length === 0) {
+        <p class="text-muted">No rows yet. Add the first one, or paste a schedule.</p>
+      } @else {
+        <ft-reorderable-list label="Agenda rows" [items]="items()" (reordered)="reordered($event)">
+          <ng-template ftReorderableActions let-item>
+            <ft-button variant="ghost" size="sm" [object]="item.title" (click)="edit(item.id)"
+              >Edit</ft-button
+            >
+            <ft-button variant="ghost" size="sm" [object]="item.title" (click)="remove(item.id)"
+              >Remove</ft-button
+            >
+          </ng-template>
+        </ft-reorderable-list>
+      }
+
+      @if (pasting()) {
+        <section class="agenda-entry" aria-labelledby="agenda-paste">
+          <ft-stack>
+            <h4 class="overline" id="agenda-paste">Paste a schedule</h4>
+            @if (parsed(); as p) {
+              @if (unreadable()) {
+                <ft-inline-message>{{ unreadable() }}</ft-inline-message>
+              }
+              <h5 class="found">{{ found() }}</h5>
+              <ft-list [label]="found()">
+                @for (row of parsedRows(); track $index) {
+                  <ft-list-item [label]="row" />
+                }
+              </ft-list>
+              <ft-cluster>
+                <ft-button variant="primary" [disabled]="p.rows.length === 0" (click)="addParsed()"
+                  >Add these rows</ft-button
+                >
+                <ft-button (click)="stopPasting()">Cancel</ft-button>
+              </ft-cluster>
+            } @else {
+              <ft-form-field label="Paste your schedule, one line per row, like ‘6:30 Doors open’">
+                <ft-textarea [formControl]="schedule" [rows]="6" />
+              </ft-form-field>
+              <ft-cluster>
+                <ft-button variant="primary" (click)="read()">Read schedule</ft-button>
+                <ft-button (click)="stopPasting()">Cancel</ft-button>
+              </ft-cluster>
+            }
+          </ft-stack>
+        </section>
+      } @else {
+        <section class="agenda-entry" aria-labelledby="agenda-add">
+          <form [formGroup]="form" (submit)="$event.preventDefault(); addRow()">
+            <ft-stack>
+              <h4 class="overline" id="agenda-add">
+                {{ editing() ? 'Edit the row' : 'Add a row' }}
+              </h4>
+              <div class="agenda-fields">
+                <ft-form-field label="Time" [error]="timeError()">
+                  <ft-text-field formControlName="time" type="time" />
+                </ft-form-field>
+                <ft-form-field label="What’s happening" [error]="whatError()">
+                  <ft-text-field formControlName="what" autocomplete="off" [maxlength]="maxTitle" />
+                </ft-form-field>
+              </div>
+              <ft-form-field label="Detail" [optional]="true" [error]="detailError()">
+                <ft-text-field
+                  formControlName="detail"
+                  autocomplete="off"
+                  [maxlength]="maxDetail"
+                />
+              </ft-form-field>
+              @if (rowsError()) {
+                <ft-inline-message>{{ rowsError() }}</ft-inline-message>
+              }
+              <ft-cluster>
+                <ft-button (click)="addRow()">{{ editing() ? 'Update row' : 'Add row' }}</ft-button>
+                <ft-button variant="ghost" (click)="paste()">Paste a schedule</ft-button>
+              </ft-cluster>
+            </ft-stack>
+          </form>
+        </section>
+      }
+    } @else {
+      <h3 class="section-title" [id]="questionId">Here’s the agenda</h3>
+      <ft-hub-agenda [items]="rows()" />
+      <p class="text-muted">{{ summary() }}</p>
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

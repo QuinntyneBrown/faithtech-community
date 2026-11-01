@@ -47,6 +47,21 @@ function setup() {
 }
 
 describe('ReorderableListComponent', () => {
+  it('shows a row’s lead before its title and its warning under it', () => {
+    const { fixture, host } = setup();
+    fixture.componentInstance.items.set([
+      { id: 'a', title: 'Clean up', lead: '9:30 pm', warning: 'Outside the event’s times' },
+    ]);
+    fixture.detectChanges();
+
+    const row = host.querySelector('.ft-reorderable-list__item')!;
+    expect(row.querySelector('.ft-reorderable-list__lead')?.textContent).toBe('9:30 pm');
+    expect(row.querySelector('.ft-reorderable-list__warning')?.textContent?.trim()).toBe(
+      'Outside the event’s times',
+    );
+    expect(host.querySelector('button[aria-label="Move Clean up up"]')).not.toBeNull();
+  });
+
   it('shows the badges of a row under its meta', () => {
     const { host } = setup();
     const badges = host

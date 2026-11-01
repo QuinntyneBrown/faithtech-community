@@ -27,9 +27,7 @@ export class HubSectionDialog {
     this.next = this.dialog.getByRole('button', { name: /^(Next|Saving…)$/ });
     this.back = this.dialog.getByRole('button', { name: 'Back', exact: true });
     this.saveAndFinishLater = this.dialog.getByRole('button', { name: 'Save and finish later' });
-    this.step = this.dialog
-      .locator('ft-stepper [aria-live], ft-stepper .ft-stepper__status')
-      .first();
+    this.step = this.dialog.locator('.ft-stepper__status');
     this.failed = this.dialog.getByText('We couldn’t save this section');
     this.tryAgain = this.dialog.getByRole('button', { name: 'Try again' });
   }

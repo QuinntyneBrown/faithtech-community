@@ -5,4 +5,5 @@ export * from './create-event-hub';
 export * from './reorder-hub-sections';
 export * from './hub-hero';
 export * from './hub-giving';
+export * from './hub-agenda';
 export * from './hub-section-preview';

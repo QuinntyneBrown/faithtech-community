@@ -20,3 +20,12 @@
 p {
   margin: 0;
 }
+
+/* The agenda's time column. */
+.hub-section__time {
+  flex: none;
+  inline-size: 4.5rem;
+  font: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-muted);
+}
