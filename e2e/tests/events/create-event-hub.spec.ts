@@ -1,4 +1,4 @@
-// Traces to: L2-153, L2-154, L2-155 (docs/detailed-designs/events/create-event-hub)
+// Traces to: L2-153, L2-154, L2-155, L2-169 AC1 (docs/detailed-designs/events/create-event-hub)
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { CreateEventHubDialog } from '../../pages/create-event-hub.dialog';
@@ -50,8 +50,9 @@ test.describe('Create an event hub', () => {
     await expect(wizard.step).toHaveText(/Step 2 of 4\s*Starting point/);
     expect(api.events.hubs.of(event.id)?.status).toBe('Draft');
     await expect(wizard.startingPoint('Blank')).toBeChecked();
-    for (const soon of ['Hackathon', 'Meetup', 'Workshop', 'Copy a past hub']) {
-      await expect(wizard.startingPoint(soon)).toBeDisabled();
+    // L2-153 AC4 as changed by L2-169: the organisation's templates and Copy a past hub are offered beside Blank.
+    for (const choice of ['Hackathon', 'Meetup', 'Workshop', 'Copy a past hub']) {
+      await expect(wizard.startingPoint(choice)).toBeEnabled();
     }
     await axe.check();
 

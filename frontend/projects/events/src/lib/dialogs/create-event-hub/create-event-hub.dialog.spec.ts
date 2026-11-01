@@ -1,4 +1,4 @@
-// Traces to: L2-153 (docs/detailed-designs/events/create-event-hub)
+// Traces to: L2-153, L2-169 AC3 (docs/detailed-designs/events/create-event-hub)
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
@@ -21,6 +21,15 @@ function setup(create: () => Observable<{ id: string }> = () => of({ id: 'h1' })
     create: vi.fn(create),
     get: vi.fn(),
     save: vi.fn((): Observable<void> => of(undefined)),
+    templates: vi.fn(() => of([])),
+    // Blank: every section shown (L2-169 AC3).
+    start: vi.fn(() =>
+      of({
+        sections: ['Hero', 'Agenda', 'Venue', 'People', 'Links', 'Giving', 'UpcomingEvents'].map(
+          (kind) => ({ kind, visible: true }),
+        ),
+      }),
+    ),
   };
   TestBed.configureTestingModule({
     providers: [
