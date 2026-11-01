@@ -349,6 +349,21 @@ export class MockApi {
     return this.addInvite({ email, invitedBy: '', preassignedRole: 'administrator' }, 0);
   }
 
+  /**
+   * An operator suspends the host's organisation (L2-150 AC1): its hosts answer the neutral 503 page and every session
+   * there is revoked, so the member signs in again after the lift.
+   */
+  async suspendOrganisation(): Promise<void> {
+    this.signedIn = null;
+    this.session = null;
+    await this.host.suspended();
+  }
+
+  /** An operator lifts the suspension: the next request behaves as before (L2-150 AC3). */
+  liftSuspension(): Promise<void> {
+    return this.host.lift();
+  }
+
   /** An invite as the Invites table holds it; give `daysAgo` to age it. */
   addInvite(
     invite: Partial<MockInvite> & { email: string; invitedBy: string },
