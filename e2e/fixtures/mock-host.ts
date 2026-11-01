@@ -13,6 +13,9 @@ export interface MockOrganisation {
   shortName: string;
   host: string;
   chapterLabel: { singular: string; plural: string } | null;
+  /** Where event hubs send people who want to give (L2-158 AC4); none when absent. */
+  givingLink?: string | null;
+  givingText?: string | null;
   /** The Marketing:Sites entry of its public host, as GET /api/site answers it there (L2-134 AC3). */
   marketing: {
     headline: string;
@@ -34,6 +37,8 @@ export const FAITHTECH: MockOrganisation = {
   shortName: 'FaithTech',
   host: 'app.faithtech.community',
   chapterLabel: { singular: 'City', plural: 'Cities' },
+  givingLink: 'https://faithtech.com/donate',
+  givingText: 'Help us build the next one.',
   marketing: {
     headline: 'Build with people who share your faith',
     brochure: {

@@ -1,0 +1,24 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Giving</h3>
+  <ft-card>
+    <ft-stack gap="2">
+      @if (line(); as l) {
+        <p>{{ l }}</p>
+      }
+      @if (hub().organisation.givingText; as text) {
+        <p class="text-muted">{{ text }}</p>
+      }
+      @if (hub().organisation.givingLink; as link) {
+        <ft-cluster>
+          <ft-button
+            variant="primary"
+            [href]="link"
+            target="_blank"
+            [object]="'to ' + hub().organisation.shortName"
+            >Give <ft-icon name="external"
+          /></ft-button>
+        </ft-cluster>
+      }
+    </ft-stack>
+  </ft-card>
+</section>

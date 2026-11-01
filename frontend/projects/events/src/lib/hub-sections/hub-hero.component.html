@@ -1,0 +1,15 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <ft-card>
+    <ft-stack gap="2">
+      <span class="overline">{{ hub().organisation.name }}</span>
+      <h3 [id]="id">{{ hub().event.title }}</h3>
+      @if (subtitle(); as s) {
+        <p>{{ s }}</p>
+      }
+      <p class="text-muted">{{ when() }} · {{ place() }}</p>
+      <ft-cluster>
+        <ft-button variant="primary" [href]="hub().event.rsvpLink">RSVP</ft-button>
+      </ft-cluster>
+    </ft-stack>
+  </ft-card>
+</section>

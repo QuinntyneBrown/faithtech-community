@@ -21,10 +21,105 @@ export interface HubEventFactsDto {
   isCancelled: boolean;
 }
 
-export interface HubSectionDto {
-  kind: HubSectionKind;
+// Each section kind's content: only what the lead types; other features' values are read live (ADR 0038).
+
+export interface HeroContent {
+  subtitle: string | null;
+}
+
+export interface AgendaItem {
+  /** An instant; entered and shown in the member's time zone (L2-159 AC6). */
+  startsAt: string;
+  title: string;
+  detail: string | null;
+}
+
+export interface AgendaContent {
+  items: AgendaItem[];
+}
+
+export interface VenueContent {
+  directions: string | null;
+}
+
+export type HubPersonRole = 'Mentor' | 'Judge' | 'Speaker';
+
+/** A member (profile id; name and photo read from Profiles) or a guest kept on the hub only (L2-161). */
+export interface HubPersonDto {
+  profileId: string | null;
+  name: string;
+  line: string | null;
+  role: HubPersonRole;
+  photoUrl: string | null;
+}
+
+export interface PeopleContent {
+  people: HubPersonDto[];
+}
+
+/** What People saves: a member's id and role, or a guest's name, line and role. */
+export interface HubPersonInput {
+  profileId: string | null;
+  name: string | null;
+  line: string | null;
+  role: HubPersonRole;
+}
+
+export interface LinksContent {
+  submissionUrl: string | null;
+  feedbackUrl: string | null;
+  /** One of the agenda's row times (L2-160 AC3). */
+  codeFreezeAt: string | null;
+}
+
+export interface GivingContent {
+  line: string | null;
+}
+
+export interface UpcomingEventsContent {
+  /** 1 to 6; 3 by default (L2-162 AC1). */
+  count: number;
+}
+
+export interface HubContentByKind {
+  Hero: HeroContent;
+  Agenda: AgendaContent;
+  Venue: VenueContent;
+  People: PeopleContent;
+  Links: LinksContent;
+  Giving: GivingContent;
+  UpcomingEvents: UpcomingEventsContent;
+}
+
+/** What each kind's wizard saves; People sends inputs, not resolved people. */
+export interface HubContentInputByKind extends Omit<HubContentByKind, 'People'> {
+  People: { people: HubPersonInput[] };
+}
+
+export interface HubSectionDto<K extends HubSectionKind = HubSectionKind> {
+  kind: K;
   visible: boolean;
   state: HubSectionState;
+  content: HubContentByKind[K];
+}
+
+/** The organisation's facts the hub shows: its names and giving link and text (L2-158). */
+export interface HubOrganisationDto {
+  name: string;
+  shortName: string;
+  givingLink: string | null;
+  givingText: string | null;
+}
+
+/** One of the chapter's next public events (L2-162 AC2). */
+export interface HubUpcomingEventDto {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  format: EventFormat;
+  venue: string | null;
+  chapterName: string | null;
 }
 
 /** An event's hub as its home shows it (L2-154 AC1), sections in order. */
@@ -36,6 +131,8 @@ export interface EventHubDto {
   link: string;
   event: HubEventFactsDto;
   sections: HubSectionDto[];
+  organisation: HubOrganisationDto;
+  upcomingEvents: HubUpcomingEventDto[];
 }
 
 /**
@@ -58,6 +155,17 @@ export interface EventHubsService {
   get(eventId: string): Observable<EventHubDto>;
   /** 400 with field errors for an unknown starting point or section. */
   save(eventId: string, request: SaveEventHubRequest): Observable<void>;
+  /**
+   * Replaces one section's content (L2-157 AC2); 400 with field errors keyed by path, such as `items[2].title`, and 404
+   * for an unknown kind.
+   */
+  saveSection<K extends HubSectionKind>(
+    eventId: string,
+    kind: K,
+    content: HubContentInputByKind[K],
+  ): Observable<void>;
+  /** Puts the sections in this order (L2-156 AC4); 400 unless it names every kind exactly once. */
+  reorder(eventId: string, kinds: HubSectionKind[]): Observable<void>;
 }
 
 export const EVENT_HUBS_SERVICE = new InjectionToken<EventHubsService>('EVENT_HUBS_SERVICE');

@@ -53,6 +53,29 @@
   overflow-wrap: anywhere;
 }
 
+.ft-reorderable-list__lead {
+  flex: none;
+  align-self: flex-start;
+  min-inline-size: 4.5rem;
+  font: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-muted);
+}
+
+.ft-reorderable-list__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  font: var(--text-body-sm);
+  color: var(--color-warning-fg);
+
+  ft-icon {
+    flex: none;
+    color: var(--color-warning-icon);
+  }
+}
+
 .ft-reorderable-list__meta {
   font: var(--text-body-sm);
   color: var(--color-fg-muted);

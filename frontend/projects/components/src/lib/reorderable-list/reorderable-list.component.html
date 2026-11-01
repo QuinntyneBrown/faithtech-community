@@ -17,10 +17,16 @@
           <ft-icon name="drag-handle" />
         </span>
       }
+      @if (item.lead) {
+        <span class="ft-reorderable-list__lead">{{ item.lead }}</span>
+      }
       <div class="ft-reorderable-list__body">
         <div class="ft-reorderable-list__title">{{ item.title }}</div>
         @if (item.meta) {
           <div class="ft-reorderable-list__meta">{{ item.meta }}</div>
+        }
+        @if (item.warning) {
+          <p class="ft-reorderable-list__warning"><ft-icon name="warning" />{{ item.warning }}</p>
         }
         @if (item.badges?.length) {
           <div class="ft-reorderable-list__badges">

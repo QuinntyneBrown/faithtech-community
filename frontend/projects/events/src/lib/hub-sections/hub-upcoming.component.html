@@ -1,0 +1,22 @@
+<section class="hub-section" [attr.aria-labelledby]="heading() ? id : null">
+  @if (heading()) {
+    <h3 [id]="id">Upcoming events</h3>
+  }
+  @if (cards().length === 0) {
+    <p class="text-muted">No upcoming public events yet. They’ll appear here automatically.</p>
+  } @else {
+    <ft-card variant="flush">
+      <ft-list [label]="label()">
+        @for (event of cards(); track event.id) {
+          <ft-event-card
+            [title]="event.title"
+            [href]="event.href"
+            [month]="event.month"
+            [day]="event.day"
+            [meta]="event.meta"
+          />
+        }
+      </ft-list>
+    </ft-card>
+  }
+</section>

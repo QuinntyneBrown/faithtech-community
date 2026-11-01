@@ -64,6 +64,9 @@
           </ft-stack>
         </ft-card>
         <ft-card variant="flush" heading="Sections">
+          <ft-button ftCardActions size="sm" (click)="reorder()">
+            <ft-icon name="move" /> Reorder sections
+          </ft-button>
           <div class="hub-progress">
             <ft-progress
               heading="Sections ready"
@@ -75,7 +78,32 @@
           </div>
           <ft-list label="Sections" class="hub-sections">
             @for (row of rows(); track row.kind) {
-              <ft-checklist-row [label]="row.title" [description]="row.line" [state]="row.state" />
+              <ft-checklist-row [label]="row.title" [description]="row.line" [state]="row.state">
+                <ng-container ngProjectAs="[actions]">
+                  @if (row.state === 'hidden') {
+                    <ft-button size="sm" [object]="row.title" (click)="setVisible(row.kind, true)"
+                      >Show</ft-button
+                    >
+                  } @else {
+                    @if (row.hasWizard) {
+                      <ft-button
+                        size="sm"
+                        [variant]="row.state === 'needs-info' ? 'primary' : 'secondary'"
+                        [object]="row.title"
+                        (click)="fillIn(row.kind)"
+                        >{{ row.state === 'needs-info' ? 'Fill in' : 'Edit' }}</ft-button
+                      >
+                    }
+                    <ft-menu
+                      [label]="'More for ' + row.title"
+                      [entries]="row.menu"
+                      (itemSelected)="act(row.kind, $event)"
+                    >
+                      <ft-icon name="more" />
+                    </ft-menu>
+                  }
+                </ng-container>
+              </ft-checklist-row>
             }
           </ft-list>
         </ft-card>

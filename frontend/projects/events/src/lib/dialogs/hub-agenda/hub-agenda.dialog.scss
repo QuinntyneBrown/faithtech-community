@@ -1,0 +1,26 @@
+.agenda-entry {
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+/* Time beside what's happening, stacked on a phone. */
+.agenda-fields {
+  display: grid;
+  grid-template-columns: minmax(8rem, 10rem) minmax(0, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 39.99rem) {
+  .agenda-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.found {
+  margin: 0;
+  font: var(--text-label);
+}
+
+p {
+  margin: 0;
+}

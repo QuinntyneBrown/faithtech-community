@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Fill in hub sections
+Container_Boundary(spa, "Web app") {
+  Component(home, "EventHubPage", "Angular page (events)", "Fill in / Edit, Preview, Hide, Show, Reorder")
+  Component(wiz, "Hub section wizards", "CDK Dialogs (events)", "Hero, Agenda, Venue, People, Links, Giving, Upcoming")
+  Component(disp, "Display components", "Angular (events)", "One per section kind; reused by preview and public page")
+  Component(reorder, "ReorderHubSectionsDialog", "CDK Dialog (events)", "ft-reorderable-list with live region")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "get, save, saveSection, reorder")
+  Component(people, "PEOPLE_SERVICE", "Contract and token (api)", "Member search for People")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "Minimal API", "/hub/sections/{kind}, /hub/sections/order")
+  Component(save, "SaveHubSectionHandler", "Application", "Authorise, deserialise, validate per kind, store JSON")
+  Component(val, "Hub content validators", "Application (FluentValidation)", "One per kind; field-keyed messages")
+  Component(ord, "ReorderHubSectionsHandler", "Application", "Every kind exactly once")
+  Component(get, "GetEventHubHandler", "Application", "States, members resolved, upcoming events")
+  Component(ctx, "CommunityDbContext", "EF Core", "Filtered by organisation")
+}
+Rel(home, wiz, "Opens")
+Rel(home, reorder, "Opens")
+Rel(wiz, disp, "Review step renders")
+Rel(wiz, svc, "saveSection")
+Rel(wiz, people, "search")
+Rel(reorder, svc, "reorder")
+Rel(svc, ep, "HTTPS")
+Rel(ep, save, "Dispatches")
+Rel(ep, ord, "Dispatches")
+Rel(ep, get, "Dispatches")
+Rel(save, val, "Validates with")
+Rel(save, ctx, "Reads and writes")
+Rel(ord, ctx, "Writes")
+Rel(get, ctx, "Reads")
+@enduml

@@ -1,0 +1,10 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Agenda</h3>
+  <ft-list label="Agenda">
+    @for (row of rows(); track $index) {
+      <ft-list-item [label]="row.title" [description]="row.detail">
+        <span leading class="hub-section__time">{{ row.time }}</span>
+      </ft-list-item>
+    }
+  </ft-list>
+</section>

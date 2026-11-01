@@ -1,0 +1,137 @@
+<ft-dialog heading="People" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
+  <ft-stack>
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+    @if (peopleErrors().length) {
+      <ft-alert status="danger" heading="Check the people">
+        @for (message of peopleErrors(); track $index) {
+          <p>{{ message }}</p>
+        }
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <ft-stack gap="2">
+        <h3 class="section-title" [id]="questionId">Who’s helping on the day?</h3>
+        <p class="text-caption">Add members or guests and say how they’re helping.</p>
+      </ft-stack>
+      @if (rows().length === 0) {
+        <p class="text-muted">No one yet. Add a member or a guest.</p>
+      } @else {
+        <ft-list label="People">
+          @for (row of rows(); track row.key) {
+            <ft-list-item [label]="row.name" [description]="row.description">
+              <ft-avatar
+                leading
+                size="sm"
+                [name]="row.name"
+                [src]="row.photoUrl"
+                [color]="color(row)"
+              />
+              <ft-cluster trailing>
+                <ft-select
+                  [formControl]="row.role"
+                  [options]="roles"
+                  [label]="'Role on the day for ' + row.name"
+                />
+                <ft-button variant="ghost" size="sm" [object]="row.name" (click)="remove(row.key)"
+                  >Remove</ft-button
+                >
+              </ft-cluster>
+            </ft-list-item>
+          }
+        </ft-list>
+      }
+      @if (limitError()) {
+        <ft-inline-message>{{ limitError() }}</ft-inline-message>
+      }
+
+      <section class="people-entry">
+        <ft-form-field label="Add a member">
+          <ft-person-picker
+            [formControl]="picked"
+            [options]="options()"
+            [loading]="searching()"
+            [multiple]="false"
+            listLabel="Members"
+            (query)="search($event)"
+          />
+        </ft-form-field>
+      </section>
+
+      @if (addingGuest()) {
+        <section class="people-entry" aria-labelledby="people-guest">
+          <form [formGroup]="guest" (submit)="$event.preventDefault(); addGuest()">
+            <ft-stack>
+              <h4 class="overline" id="people-guest">Add a guest</h4>
+              <ft-form-field label="Name" [error]="nameError()">
+                <ft-text-field formControlName="name" autocomplete="off" [maxlength]="maxName" />
+              </ft-form-field>
+              <ft-form-field
+                label="About them"
+                [optional]="true"
+                help="One line, like ‘Founder, Kestrel Labs’"
+                [error]="lineError()"
+              >
+                <ft-text-field formControlName="line" autocomplete="off" [maxlength]="maxLine" />
+              </ft-form-field>
+              <ft-form-field label="Role on the day">
+                <ft-select formControlName="role" [options]="roles" />
+              </ft-form-field>
+              <p class="text-caption">Guests appear on this hub only; they don’t get a profile.</p>
+              <ft-cluster>
+                <ft-button (click)="addGuest()">Add guest</ft-button>
+                <ft-button variant="ghost" (click)="cancelGuest()">Cancel</ft-button>
+              </ft-cluster>
+            </ft-stack>
+          </form>
+        </section>
+      } @else {
+        <ft-cluster>
+          <ft-button (click)="startGuest()">Add a guest</ft-button>
+        </ft-cluster>
+      }
+    } @else {
+      <h3 class="section-title" [id]="questionId">Here’s who’s helping</h3>
+      <ft-hub-people [people]="review()" />
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

@@ -1295,3 +1295,12 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 .checklist-row__text { margin: var(--space-0-5) 0 0; font: var(--text-body-sm); color: var(--color-fg-muted); }
 .checklist-row--hidden .checklist-row__title { color: var(--color-fg-muted); }
 .checklist-row__end { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-inline-start: auto; }
+
+/* ---------- Event hub sections (events library, local composition): the seven section displays and their wizards. ----------
+   Each display composes card, list, avatar, badge, link card, event card and button; these rules add only the agenda's time
+   column and the inline out-of-hours warning on an agenda row (patterns/event-hub-sections.html). */
+.hub-section { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+.hub-section__time { flex: none; width: 4.5rem; font: var(--text-label); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); align-self: flex-start; padding-top: var(--space-0-5); }
+.hub-section__warning { display: flex; align-items: flex-start; gap: var(--space-1); margin: var(--space-1) 0 0; font: var(--text-body-sm); color: var(--color-warning-fg); }
+.hub-section__warning .icon { flex: none; width: var(--size-icon-sm); height: var(--size-icon-sm); margin-top: var(--space-0-5); color: var(--color-warning-icon); }
+@media (max-width: 39.99rem) { .hub-section__time { width: 3.75rem; } }

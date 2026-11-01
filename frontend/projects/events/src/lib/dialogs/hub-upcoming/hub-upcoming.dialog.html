@@ -1,0 +1,37 @@
+<ft-dialog
+  heading="Upcoming events"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">How many upcoming events should the hub show?</h3>
+    <ft-form-field
+      label="Show"
+      help="Your chapter’s next public events, added automatically."
+      [error]="saver.error('count')"
+    >
+      <ft-select [formControl]="count" [options]="counts" />
+    </ft-form-field>
+    <section [attr.aria-labelledby]="previewId">
+      <ft-stack gap="2">
+        <h4 class="overline" [id]="previewId">The hub would show these now</h4>
+        <ft-hub-upcoming
+          [events]="shown()"
+          [heading]="false"
+          label="The hub would show these now"
+        />
+      </ft-stack>
+    </section>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>

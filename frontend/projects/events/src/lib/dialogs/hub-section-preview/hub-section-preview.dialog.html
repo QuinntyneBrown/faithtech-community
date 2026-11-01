@@ -1,0 +1,33 @@
+<ft-dialog
+  [heading]="title + ' preview'"
+  description="This is how the section will look on the hub."
+  (closed)="ref.close()"
+>
+  @switch (data.kind) {
+    @case ('Hero') {
+      <ft-hub-hero [hub]="data.hub" />
+    }
+    @case ('Agenda') {
+      <ft-hub-agenda [items]="agenda" />
+    }
+    @case ('Venue') {
+      <ft-hub-venue [hub]="data.hub" />
+    }
+    @case ('People') {
+      <ft-hub-people [people]="people" />
+    }
+    @case ('Links') {
+      <ft-hub-links [hub]="data.hub" />
+    }
+    @case ('Giving') {
+      <ft-hub-giving [hub]="data.hub" />
+    }
+    @case ('UpcomingEvents') {
+      <ft-hub-upcoming [events]="data.hub.upcomingEvents" />
+    }
+  }
+  <ft-button ftDialogFooter (click)="ref.close()">Close</ft-button>
+  <ft-button ftDialogFooter variant="primary" [object]="title" (click)="ref.close('edit')"
+    >Edit</ft-button
+  >
+</ft-dialog>

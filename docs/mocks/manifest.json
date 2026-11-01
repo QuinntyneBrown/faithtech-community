@@ -379,10 +379,15 @@
       "title": "Event hub",
       "route": "/events/:id/hub",
       "requirements": [
-        "L2-154"
+        "L2-154",
+        "L2-156"
       ],
       "states": [
         "default",
+        "all-ready",
+        "section-saved",
+        "section-hidden",
+        "reordered",
         "loading",
         "error",
         "forbidden",
@@ -1317,6 +1322,174 @@
       "not_applicable": {}
     },
     {
+      "id": "reorder-hub-sections",
+      "kind": "dialog",
+      "title": "Reorder sections",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-156"
+      ],
+      "states": [
+        "default",
+        "moved",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Nothing is typed: the list can only be put in another order, and every section is always in it."
+      }
+    },
+    {
+      "id": "hub-section-preview",
+      "kind": "dialog",
+      "title": "Section preview",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-156"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "busy": "Read-only: the preview renders content the hub home already holds and saves nothing.",
+        "invalid": "Read-only: nothing is entered."
+      }
+    },
+    {
+      "id": "hub-hero",
+      "kind": "dialog",
+      "title": "Hero",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-158"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-agenda",
+      "kind": "dialog",
+      "title": "Agenda",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-159"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "rows",
+        "paste",
+        "parsed",
+        "unreadable-lines",
+        "out-of-range",
+        "invalid",
+        "review",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-venue",
+      "kind": "dialog",
+      "title": "Venue",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-160"
+      ],
+      "states": [
+        "default",
+        "online",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-people",
+      "kind": "dialog",
+      "title": "People",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-161"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "search-results",
+        "guest-form",
+        "invalid",
+        "review",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-links",
+      "kind": "dialog",
+      "title": "Submission and feedback",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-160"
+      ],
+      "states": [
+        "default",
+        "no-agenda",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-giving",
+      "kind": "dialog",
+      "title": "Giving",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-158"
+      ],
+      "states": [
+        "default",
+        "no-org-link",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-upcoming",
+      "kind": "dialog",
+      "title": "Upcoming events",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-162"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
       "id": "cancel-rsvp",
       "kind": "dialog",
       "title": "Cancel RSVP",
@@ -2240,7 +2413,8 @@
       "requirements": [
         "L2-147",
         "L2-140",
-        "L2-152"
+        "L2-152",
+        "L2-158"
       ],
       "states": [
         "default",
@@ -2332,11 +2506,13 @@
       "title": "Edit general settings",
       "requirements": [
         "L2-140",
-        "L2-147"
+        "L2-147",
+        "L2-158"
       ],
       "states": [
         "default",
         "invalid",
+        "giving-invalid",
         "busy",
         "failed",
         "success"

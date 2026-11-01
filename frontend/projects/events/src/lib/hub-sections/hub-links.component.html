@@ -1,0 +1,22 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Submission and feedback</h3>
+  <ft-card>
+    <ft-stack gap="2">
+      <ft-cluster>
+        @if (links()?.submissionUrl; as url) {
+          <ft-button variant="primary" [href]="url" target="_blank"
+            >Submit your project <ft-icon name="external"
+          /></ft-button>
+        }
+        @if (links()?.feedbackUrl; as url) {
+          <ft-button [href]="url" target="_blank"
+            >Give feedback <ft-icon name="external"
+          /></ft-button>
+        }
+      </ft-cluster>
+      @if (codeFreeze()) {
+        <p class="text-muted">{{ codeFreeze() }}</p>
+      }
+    </ft-stack>
+  </ft-card>
+</section>

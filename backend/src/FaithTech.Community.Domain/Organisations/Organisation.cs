@@ -13,6 +13,8 @@ public partial class Organisation
     public const int MaxChapterLabelLength = 30;
     public const int MaxHostLength = 253;
     public const int MaxSlugLength = 40;
+    public const int MaxGivingLinkLength = 500;
+    public const int MaxGivingTextLength = 120;
 
     private Organisation()
     {
@@ -56,6 +58,12 @@ public partial class Organisation
 
     public string? ChapterLabelPlural { get; private set; }
 
+    /// <summary>Where event hubs send people who want to give (https), or none (L2-158 AC4, ADR 0038).</summary>
+    public string? GivingLink { get; private set; }
+
+    /// <summary>The words on the giving button, such as "Help us build the next one.", or none.</summary>
+    public string? GivingText { get; private set; }
+
     public OrganisationStatus Status { get; private set; }
 
     public string? SuspendedReason { get; private set; }
@@ -71,6 +79,13 @@ public partial class Organisation
     }
 
     /// <summary>Turns chapters on with both forms of the label, or off with neither.</summary>
+    /// <summary>Sets or clears the giving link and text; Application checks the link is https.</summary>
+    public void SetGiving(string? link, string? text)
+    {
+        GivingLink = string.IsNullOrWhiteSpace(link) ? null : link.Trim();
+        GivingText = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+    }
+
     public void SetChapterLabel(string? singular, string? plural)
     {
         if (singular is null && plural is null)

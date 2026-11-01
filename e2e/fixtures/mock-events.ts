@@ -225,6 +225,8 @@ export class MockEvents {
     this.hubs = new MockEventHubs({
       now,
       event: (id) => events.find((e) => e.id === id),
+      events: () => events,
+      chapterName: (id) => chapters.nameOf(id),
       addAuditEntry,
     });
     this.types = new MockEventTypes({

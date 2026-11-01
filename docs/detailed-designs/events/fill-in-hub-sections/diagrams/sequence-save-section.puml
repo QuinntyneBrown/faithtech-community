@@ -1,0 +1,35 @@
+@startuml
+title Fill in a section
+actor "Hub manager" as lead
+participant "EventHubPage" as page
+participant "Section wizard" as wiz
+participant "HttpEventHubsService" as svc
+participant "EventsEndpoints" as ep
+participant "SaveHubSectionHandler" as h
+database "Community database" as db
+lead -> page : Fill in (Agenda)
+page -> wiz : open(hub, kind)
+lead -> wiz : add rows or paste a schedule, reorder
+wiz --> lead : rows outside the event's times flagged (warning)
+lead -> wiz : Next, then Save
+wiz -> svc : saveSection(eventId, "Agenda", { items })
+svc -> ep : PUT /api/events/{id}/hub/sections/Agenda
+ep -> h : Handle
+alt no ManageEventHubs (and not AdministerOrganisation)
+  h --> ep : 403
+else other organisation, no hub or unknown kind
+  h --> ep : 404
+else content breaks the kind's schema
+  h --> ep : 400 { "items[2].title": ["Say what's happening."] }
+  ep --> wiz : shown on the step that holds the field
+else valid
+  h -> db : HubSection.Content = normalised JSON
+  opt override
+    h -> db : Audit event_hub.updated
+  end
+  ep --> wiz : 204
+  wiz --> page : closed (saved)
+  page -> svc : get(eventId)
+  page --> lead : toast "Agenda saved"; row now Ready
+end
+@enduml

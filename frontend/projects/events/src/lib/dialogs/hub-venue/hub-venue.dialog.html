@@ -1,0 +1,60 @@
+<ft-dialog
+  heading="Venue"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (saver.failed()) {
+        <ft-alert status="danger" heading="We couldn’t save this section">
+          Check your connection and try again.
+          <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+        </ft-alert>
+      }
+      <h3 class="section-title" [id]="questionId">How do people find it?</h3>
+      @if (online) {
+        <p>This event is online, so the hub shows the joining link instead of a venue.</p>
+      }
+      <section [attr.aria-labelledby]="factsId">
+        <ft-stack gap="2">
+          <h4 class="overline" [id]="factsId">From the event</h4>
+          <ft-description-list>
+            <ft-description-list-item label="Venue" [missing]="!online && !venue">{{
+              online ? 'Online' : venue
+            }}</ft-description-list-item>
+            @if (maps; as link) {
+              <ft-description-list-item label="Map">
+                <ft-link [href]="link" [external]="true" object="(new tab)"
+                  ><ft-icon name="location" /> Open in maps</ft-link
+                >
+              </ft-description-list-item>
+            }
+          </ft-description-list>
+        </ft-stack>
+      </section>
+      @if (!online) {
+        <ft-form-field
+          label="Directions"
+          [optional]="true"
+          help="Shown under ‘Where’, like ‘Enter from Spadina; we’re on the 4th floor.’"
+          [error]="saver.error('directions')"
+        >
+          <ft-textarea formControlName="directions" [rows]="3" [maxlength]="maxDirections" />
+        </ft-form-field>
+      }
+    </ft-stack>
+  </form>
+  @if (online) {
+    <ft-button ftDialogFooter variant="primary" (click)="ref.close(false)">Close</ft-button>
+  } @else {
+    <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)"
+      >Cancel</ft-button
+    >
+  }
+  @if (!online) {
+    <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+      saver.busy() ? 'Saving…' : 'Save'
+    }}</ft-button>
+  }
+</ft-dialog>

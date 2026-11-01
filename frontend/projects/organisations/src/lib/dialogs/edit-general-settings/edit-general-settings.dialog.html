@@ -70,6 +70,37 @@
           Turning chapters off keeps every chapter and tag; it asks you to confirm first.
         </p>
       }
+      <fieldset class="giving">
+        <legend class="section-title">Giving</legend>
+        <ft-stack>
+          <ft-form-field
+            label="Giving link"
+            [optional]="true"
+            help="Where event hubs send people who want to give"
+            [error]="givingLinkError()"
+          >
+            <ft-text-field
+              formControlName="givingLink"
+              type="url"
+              autocomplete="off"
+              [readonly]="busy()"
+            />
+          </ft-form-field>
+          <ft-form-field
+            label="Giving text"
+            [optional]="true"
+            help="Shown on the giving button, like ‘Help us build the next one.’"
+            [error]="givingTextError()"
+          >
+            <ft-text-field
+              formControlName="givingText"
+              autocomplete="off"
+              [maxlength]="maxGivingText"
+              [readonly]="busy()"
+            />
+          </ft-form-field>
+        </ft-stack>
+      </fieldset>
     </ft-stack>
   </form>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>

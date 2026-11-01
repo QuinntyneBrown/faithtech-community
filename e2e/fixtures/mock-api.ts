@@ -231,6 +231,18 @@ export class MockApi {
     this.host = new MockHost(page, ALLOWED_ORIGINS);
     // Each test starts from FaithTech's seed; roles a spec defines never reach the next test.
     resetRoleDefinitions();
+    this.events.hubs.connect({
+      organisation: () => this.host.organisation,
+      member: (id) => {
+        const profile = this.profiles.get(id);
+        return profile
+          ? {
+              name: profile.name,
+              photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
+            }
+          : undefined;
+      },
+    });
   }
 
   /** A role the host organisation defines for this test, with any capabilities and grant rules by key (ADR 0033). */
@@ -958,13 +970,15 @@ export class MockApi {
   /** OrganisationEndpoints: GET /api/organisation, its names and roles not archived, for any member (L2-136 AC8). */
   private organisation(route: Route, authorization: string | undefined) {
     if (!this.caller(authorization)) return route.fulfill({ status: 401 });
-    const { name, shortName, chapterLabel } = this.host.organisation;
+    const { name, shortName, chapterLabel, givingLink, givingText } = this.host.organisation;
     return route.fulfill({
       status: 200,
       json: {
         name,
         shortName,
         chapterLabel: chapterLabel ?? null,
+        givingLink: givingLink ?? null,
+        givingText: givingText ?? null,
         chapters: this.chapters.options(),
         partnerStages: this.partners.stages.options(),
         eventTypes: this.events.types.options(),
@@ -1014,6 +1028,19 @@ export class MockApi {
       else if (plural.length > 30)
         errors['ChapterLabel.Plural'] = ['Use 30 characters or fewer for the plural label.'];
     }
+    // Left out keeps the current value; an empty string clears it (L2-158 AC4).
+    const givingLink =
+      body['givingLink'] === undefined || body['givingLink'] === null
+        ? (this.host.organisation.givingLink ?? null)
+        : String(body['givingLink']).trim() || null;
+    const givingText =
+      body['givingText'] === undefined || body['givingText'] === null
+        ? (this.host.organisation.givingText ?? null)
+        : String(body['givingText']).trim() || null;
+    if (givingLink && !/^https:\/\/[^\s]+$/.test(givingLink))
+      errors['GivingLink'] = ['Use a link that starts with https://'];
+    if (givingText && givingText.length > 120)
+      errors['GivingText'] = ['Use 120 characters or fewer for the giving text.'];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { title: 'Invalid', status: 400, errors } });
     if (this.failOrganisationUpdate) {
@@ -1024,9 +1051,18 @@ export class MockApi {
       name: this.host.organisation.name,
       shortName: this.host.organisation.shortName,
       chapterLabel: this.host.organisation.chapterLabel,
+      givingLink: this.host.organisation.givingLink ?? null,
+      givingText: this.host.organisation.givingText ?? null,
     };
     const chapterLabel = label ? { singular, plural } : null;
-    this.host.organisation = { ...this.host.organisation, name, shortName, chapterLabel };
+    this.host.organisation = {
+      ...this.host.organisation,
+      name,
+      shortName,
+      chapterLabel,
+      givingLink,
+      givingText,
+    };
     this.addAuditEntry({
       action: 'organisation.updated',
       summary: `Renamed ${before.name} to ${name}`,
@@ -1035,7 +1071,7 @@ export class MockApi {
       targetType: 'Organisation',
       targetId: this.host.organisation.slug,
       before: JSON.stringify(before),
-      after: JSON.stringify({ name, shortName, chapterLabel }),
+      after: JSON.stringify({ name, shortName, chapterLabel, givingLink, givingText }),
     });
     return route.fulfill({ status: 200 });
   }

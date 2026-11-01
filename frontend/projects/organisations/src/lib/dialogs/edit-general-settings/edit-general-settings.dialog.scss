@@ -1,0 +1,13 @@
+/* The Giving group is a fieldset for its legend; it keeps the dialog's spacing, not the browser's frame. */
+.giving {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.giving legend {
+  padding: 0;
+  margin-block-end: var(--space-3);
+  font: var(--text-h4);
+}

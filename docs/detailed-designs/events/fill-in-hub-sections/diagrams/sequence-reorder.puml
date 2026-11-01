@@ -1,0 +1,28 @@
+@startuml
+title Hide, show and reorder sections
+actor "Hub manager" as lead
+participant "EventHubPage" as page
+participant "ReorderHubSectionsDialog" as dlg
+participant "HttpEventHubsService" as svc
+participant "Community API" as api
+database "Community database" as db
+lead -> page : More for Giving > Hide section
+page -> svc : save(eventId, { sections: [{ Giving, visible: false }] })
+svc -> api : PUT /api/events/{id}/hub
+api -> db : HubSection.Visible = false
+page --> lead : toast "Giving hidden"; row Hidden with Show
+lead -> page : Reorder
+page -> dlg : open(sections)
+lead -> dlg : Move up / drag
+dlg --> lead : live region "Moved Agenda down to position 3 of 7."
+lead -> dlg : Save
+dlg -> svc : reorder(eventId, kinds)
+svc -> api : PUT /api/events/{id}/hub/sections/order
+alt not every kind exactly once
+  api --> dlg : 400 "Choose sections from the list."
+else
+  api -> db : Order = 0..6
+  api --> dlg : 204
+  page --> lead : toast "Sections reordered"
+end
+@enduml

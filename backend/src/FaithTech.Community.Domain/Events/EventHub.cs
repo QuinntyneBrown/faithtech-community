@@ -80,4 +80,27 @@ public class EventHub : IOrganisationScoped
 
         UpdatedAt = now;
     }
+
+    /// <summary>Replaces one section's content (L2-157 AC2); the JSON is validated by Application before it gets here.</summary>
+    public void FillSection(HubSectionKind kind, string content, DateTimeOffset now)
+    {
+        _sections.Single(s => s.Kind == kind).Fill(content);
+        UpdatedAt = now;
+    }
+
+    /// <summary>Puts the sections in the given order (L2-156 AC4); it must name every kind exactly once.</summary>
+    public void Reorder(IReadOnlyList<HubSectionKind> kinds, DateTimeOffset now)
+    {
+        if (kinds.Count != _sections.Count || kinds.Distinct().Count() != kinds.Count || _sections.Any(s => !kinds.Contains(s.Kind)))
+        {
+            throw new ArgumentException("Name every section kind exactly once.", nameof(kinds));
+        }
+
+        foreach (var section in _sections)
+        {
+            section.MoveTo(kinds.ToList().IndexOf(section.Kind));
+        }
+
+        UpdatedAt = now;
+    }
 }

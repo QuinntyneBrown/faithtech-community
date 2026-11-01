@@ -1,0 +1,18 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Where</h3>
+  <ft-card>
+    <ft-stack gap="2">
+      <ft-description-list>
+        <ft-description-list-item label="Venue">{{ venue() }}</ft-description-list-item>
+      </ft-description-list>
+      @if (directions(); as d) {
+        <p>{{ d }}</p>
+      }
+      <p>
+        <ft-link [href]="maps()" [external]="true" object="(new tab)"
+          ><ft-icon name="location" /> Open in maps</ft-link
+        >
+      </p>
+    </ft-stack>
+  </ft-card>
+</section>

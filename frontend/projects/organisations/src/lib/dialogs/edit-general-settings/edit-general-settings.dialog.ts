@@ -31,13 +31,15 @@ import {
 const MAX_NAME = 100;
 const MAX_SHORT_NAME = 30;
 const MAX_LABEL = 30;
+const MAX_GIVING_TEXT = 120;
 
 /** How the dialog closed: saved, or saved with chapters turned off (the page words its toast from it). */
 export type GeneralSettingsOutcome = 'saved' | 'chapters-off';
 
 /**
- * Edit general settings (L2-147 AC4, AC5, L2-140 AC1, AC6), matching docs/mocks/dialogs/edit-general-settings: the
- * name, the short name and whether the organisation has chapters, with the label's two forms. Turning chapters off
+ * Edit general settings (L2-147 AC4, AC5, L2-140 AC1, AC6, L2-158 AC4), matching docs/mocks/dialogs/edit-general-settings:
+ * the name, the short name, whether the organisation has chapters, with the label's two forms, and the giving link and
+ * text event hubs show. The giving values are sent only when they change; an empty one clears it. Turning chapters off
  * while any exist asks first (TurnChaptersOffDialog). A failed save keeps the input and offers Try again.
  */
 @Component({
@@ -54,6 +56,7 @@ export type GeneralSettingsOutcome = 'saved' | 'chapters-off';
     TextFieldComponent,
   ],
   templateUrl: './edit-general-settings.dialog.html',
+  styleUrl: './edit-general-settings.dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditGeneralSettingsDialog {
@@ -67,12 +70,15 @@ export class EditGeneralSettingsDialog {
   protected readonly maxName = MAX_NAME;
   protected readonly maxShortName = MAX_SHORT_NAME;
   protected readonly maxLabel = MAX_LABEL;
+  protected readonly maxGivingText = MAX_GIVING_TEXT;
   protected readonly form = inject(NonNullableFormBuilder).group({
     name: [this.current.name],
     shortName: [this.current.shortName],
     chapters: [this.current.chapterLabel !== null],
     singular: [this.current.chapterLabel?.singular ?? ''],
     plural: [this.current.chapterLabel?.plural ?? ''],
+    givingLink: [this.current.givingLink ?? ''],
+    givingText: [this.current.givingText ?? ''],
   });
   protected readonly chaptersOn = toSignal(this.form.controls.chapters.valueChanges, {
     initialValue: this.form.controls.chapters.value,
@@ -83,6 +89,8 @@ export class EditGeneralSettingsDialog {
   protected readonly shortNameError = signal('');
   protected readonly singularError = signal('');
   protected readonly pluralError = signal('');
+  protected readonly givingLinkError = signal('');
+  protected readonly givingTextError = signal('');
 
   protected async save(): Promise<void> {
     if (this.busy()) return;
@@ -91,6 +99,8 @@ export class EditGeneralSettingsDialog {
     const on = this.form.controls.chapters.value;
     const singular = this.form.controls.singular.value.trim();
     const plural = this.form.controls.plural.value.trim();
+    const givingLink = this.form.controls.givingLink.value.trim();
+    const givingText = this.form.controls.givingText.value.trim();
     this.nameError.set(
       !name
         ? 'Enter a name.'
@@ -107,7 +117,24 @@ export class EditGeneralSettingsDialog {
     );
     this.singularError.set(on ? labelError(singular, 'singular') : '');
     this.pluralError.set(on ? labelError(plural, 'plural') : '');
-    if (this.nameError() || this.shortNameError() || this.singularError() || this.pluralError()) {
+    this.givingLinkError.set(
+      givingLink && !/^https:\/\/\S+$/.test(givingLink)
+        ? 'Use a link that starts with https://'
+        : '',
+    );
+    this.givingTextError.set(
+      givingText.length > MAX_GIVING_TEXT
+        ? `Use ${MAX_GIVING_TEXT} characters or fewer for the giving text.`
+        : '',
+    );
+    if (
+      this.nameError() ||
+      this.shortNameError() ||
+      this.singularError() ||
+      this.pluralError() ||
+      this.givingLinkError() ||
+      this.givingTextError()
+    ) {
       this.errorFocus().focusFirstError();
       return;
     }
@@ -117,6 +144,8 @@ export class EditGeneralSettingsDialog {
       shortName,
       chapterLabel: on ? { singular, plural } : null,
     };
+    if (givingLink !== (this.current.givingLink ?? '')) request.givingLink = givingLink;
+    if (givingText !== (this.current.givingText ?? '')) request.givingText = givingText;
     if (!on && this.current.chapterLabel && this.current.chapters.length > 0) {
       this.confirmChaptersOff(request);
       return;
@@ -134,6 +163,8 @@ export class EditGeneralSettingsDialog {
         this.shortNameError.set(errors?.['ShortName']?.[0] ?? '');
         this.singularError.set(errors?.['ChapterLabel.Singular']?.[0] ?? '');
         this.pluralError.set(errors?.['ChapterLabel.Plural']?.[0] ?? '');
+        this.givingLinkError.set(errors?.['GivingLink']?.[0] ?? '');
+        this.givingTextError.set(errors?.['GivingText']?.[0] ?? '');
         this.errorFocus().focusFirstError();
       } else {
         this.failed.set(true);

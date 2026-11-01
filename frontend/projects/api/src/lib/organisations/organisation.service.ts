@@ -84,6 +84,10 @@ export interface ResourceTypeDto extends ResourceTypeOption {
 export interface OrganisationDto {
   name: string;
   shortName: string;
+  /** Where event hubs send people who want to give (https), or null (L2-158 AC4); optional for fixtures that predate it. */
+  givingLink?: string | null;
+  /** The words on the giving button, or null. */
+  givingText?: string | null;
   /** Null while chapters are off (L2-140 AC2). */
   chapterLabel: ChapterLabel | null;
   /** The active chapters in order; empty while chapters are off. */
@@ -106,6 +110,9 @@ export interface UpdateOrganisationRequest {
   shortName: string;
   /** Both forms turn chapters on; null turns them off and keeps every chapter (L2-140 AC1, AC6). */
   chapterLabel: ChapterLabel | null;
+  /** Left out keeps the current value; an empty string clears it (L2-158 AC4). */
+  givingLink?: string;
+  givingText?: string;
 }
 
 /**

@@ -22,6 +22,11 @@ public static class FaithTechSeed
 
     public const string ChapterLabelPlural = "Cities";
 
+    /// <summary>Where FaithTech's event hubs send people who want to give, as the SoCal hub did (L2-158 AC4).</summary>
+    public const string GivingLink = "https://faithtech.com/donate";
+
+    public const string GivingText = "Help us build the next one.";
+
     /// <summary>The creation time the first migration records for the row.</summary>
     public static readonly DateTime CreatedAtUtc = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc);
 
@@ -157,6 +162,7 @@ public static class FaithTechSeed
     {
         var organisation = new Organisation(OrganisationId, Slug, Host, Name, ShortName, CreatedAtUtc);
         organisation.SetChapterLabel(ChapterLabelSingular, ChapterLabelPlural);
+        organisation.SetGiving(GivingLink, GivingText);
         return organisation;
     }
 }

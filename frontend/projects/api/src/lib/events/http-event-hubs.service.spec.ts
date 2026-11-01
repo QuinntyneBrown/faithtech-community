@@ -7,7 +7,7 @@ import { apiTestProviders } from '../shared/api-test-providers';
 import { EVENT_HUBS_SERVICE } from './event-hubs.service';
 import { HttpEventHubsService } from './http-event-hubs.service';
 
-// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4.
+// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4; L2-156 AC4; L2-157 AC2.
 describe('HttpEventHubsService', () => {
   let service: HttpEventHubsService;
   let controller: HttpTestingController;
@@ -62,6 +62,25 @@ describe('HttpEventHubsService', () => {
       templateKey: 'blank',
       sections: [{ kind: 'People', visible: false }],
     });
+    req.flush(null);
+  });
+
+  it('saves one section’s content at its kind, keeping failures on screen', () => {
+    service.saveSection('e1', 'Hero', { subtitle: 'A night of building' }).subscribe();
+
+    const req = controller.expectOne('/api/events/e1/hub/sections/Hero');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ subtitle: 'A night of building' });
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(null);
+  });
+
+  it('sends the new order of every section', () => {
+    service.reorder('e1', ['Agenda', 'Hero']).subscribe();
+
+    const req = controller.expectOne('/api/events/e1/hub/sections/order');
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual({ kinds: ['Agenda', 'Hero'] });
     req.flush(null);
   });
 });

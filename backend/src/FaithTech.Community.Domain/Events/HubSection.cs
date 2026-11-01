@@ -37,4 +37,13 @@ public class HubSection : IOrganisationScoped
     public string Content { get; private set; } = EmptyContent;
 
     internal void Show(bool visible) => Visible = visible;
+
+    internal void MoveTo(int order) => Order = order;
+
+    /// <summary>Replaces the content with JSON already validated against the kind's schema in Application (ADR 0038).</summary>
+    internal void Fill(string content)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(content);
+        Content = content;
+    }
 }
