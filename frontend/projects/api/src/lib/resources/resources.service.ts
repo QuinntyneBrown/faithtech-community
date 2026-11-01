@@ -11,17 +11,6 @@ export const OTHER_RESOURCE_TYPE = 'other';
 
 export type ResourceVisibility = 'Private' | 'Shared' | 'Global';
 
-/** The roles a resource can be shared with (L2-061 AC1). */
-export const SHAREABLE_ROLES: Role[] = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Staff',
-];
-
 /** A row of the Resources list (L2-055). A link has `linkUrl` and `linkHost`; a file the rest. */
 export interface ResourceSummary {
   id: string;

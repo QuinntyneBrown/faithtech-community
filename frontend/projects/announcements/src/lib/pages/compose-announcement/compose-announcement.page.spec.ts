@@ -11,6 +11,7 @@ import {
   EventSummaryDto,
   SendAnnouncementRequest,
   Capability,
+  ORGANISATION_SERVICE,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -51,6 +52,79 @@ async function setup(
   TestBed.configureTestingModule({
     providers: [
       { provide: ANNOUNCEMENTS_SERVICE, useValue: service },
+      {
+        provide: ORGANISATION_SERVICE,
+        useValue: {
+          get: () =>
+            of({
+              roles: [
+                {
+                  id: 'role-CityLead',
+                  key: 'CityLead',
+                  name: 'City Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-EventLead',
+                  key: 'EventLead',
+                  name: 'Event Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CreateLead',
+                  key: 'CreateLead',
+                  name: 'Create Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CommunicationsLead',
+                  key: 'CommunicationsLead',
+                  name: 'Communications Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Staff',
+                  key: 'Staff',
+                  name: 'Staff',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Volunteer',
+                  key: 'Volunteer',
+                  name: 'Volunteer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-ProductEngineer',
+                  key: 'ProductEngineer',
+                  name: 'Product Engineer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Attendee',
+                  key: 'Attendee',
+                  name: 'Attendee',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-SystemAdmin',
+                  key: 'SystemAdmin',
+                  name: 'System Admin',
+                  description: '',
+                  chapterScopable: false,
+                },
+              ],
+            }),
+        },
+      },
       { provide: EVENTS_SERVICE, useValue: events },
       {
         provide: AUTH_SERVICE,

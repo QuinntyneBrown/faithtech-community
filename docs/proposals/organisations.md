@@ -2,9 +2,9 @@
 
 Make the platform organisation-agnostic: one deployment that hosts many organisations, each defining its own roles, chapters and vocabulary as data, with FaithTech as the first organisation.
 
-- Status: implemented (prompts `00` to `29`, 2026-10-31). Requirements `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. Role labels and copy that still name FaithTech roles in the frontend are deferred to a follow-up slice (`docs/detailed-designs/organisations/seed-faithtech`, open questions).
+- Status: implemented (prompts `00` to `29`, 2026-10-31). Requirements `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. No rule names a FaithTech role outside the seed. Fixed copy that mentions FaithTech roles is deferred to a follow-up slice (`docs/detailed-designs/organisations/seed-faithtech`, open questions).
 - Date: 2026-10-30
-- Next step: a follow-up slice to label roles from the organisation's own definitions; then the Deferred list below.
+- Next step: a follow-up slice to reword the copy that mentions FaithTech roles; then the Deferred list below.
 
 ## Problem
 

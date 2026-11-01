@@ -2,8 +2,12 @@
 import { expect, test } from '../../fixtures/app';
 import { MockOrganisation } from '../../fixtures/mock-host';
 import { AcceptInvitePage } from '../../pages/accept-invite.page';
+import { ComposeAnnouncementPage } from '../../pages/compose-announcement.page';
+import { InvitesPage } from '../../pages/invites.page';
 import { OrganisationGeneralPage } from '../../pages/organisation-general.page';
 import { ProfilePage } from '../../pages/profile.page';
+import { AddResourceDialog } from '../../pages/resource.dialogs';
+import { ResourcesPage } from '../../pages/resources.page';
 
 // An organisation just provisioned by an operator: its defaults only, and no chapters.
 const RIVERSIDE: MockOrganisation = {
@@ -27,7 +31,9 @@ test.describe('A provisioned organisation', () => {
 
     await accept.open(invite.token);
 
-    await expect(accept.invitation).toContainText('A Riverside lead invited you to join Riverside');
+    await expect(accept.invitation).toContainText(
+      'A Riverside lead invited you to join Riverside as a Administrator',
+    );
     await expect(accept.email).toHaveValue('joel@riverside.test');
     await axe.check();
 
@@ -44,6 +50,43 @@ test.describe('A provisioned organisation', () => {
     await expect(general.value('Short name')).toHaveText('Riverside');
     await expect(general.edit).toBeVisible();
     await expect(general.readOnly).toHaveCount(0);
+    await axe.check();
+  });
+
+  // Traces to: L2-151 AC5 sweep; L2-061 AC1; L2-029 AC1; L2-010 (docs/detailed-designs/organisations/seed-faithtech)
+  test('its own roles label invites and fill the share and audience pickers', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    api.provision(RIVERSIDE);
+    const joel = api.addAccount({
+      email: 'joel@riverside.test',
+      name: 'Joel Mwangi',
+      roles: ['administrator'],
+    });
+    api.addInvite({
+      email: 'ana@riverside.test',
+      invitedBy: joel.profileId,
+      preassignedRole: 'member',
+    });
+    await api.signInAs(joel, '/invites');
+
+    await expect(new InvitesPage(page).item('ana@riverside.test')).toContainText('Member');
+
+    const resources = new ResourcesPage(page);
+    await resources.open();
+    await resources.addFirst.click();
+    const dialog = new AddResourceDialog(page);
+    await dialog.visibility('Shared').check();
+    await expect(dialog.roles).toHaveText(['Administrator', 'Member']);
+    await axe.check();
+    await page.keyboard.press('Escape');
+
+    const compose = new ComposeAnnouncementPage(page);
+    await page.goto('/announcements/new');
+    await compose.chooseAudience('People with a role');
+    await expect(compose.roleOptions).toHaveText(['Administrator', 'Member']);
     await axe.check();
   });
 });

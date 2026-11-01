@@ -30,6 +30,7 @@ const invite: InviteLookupDto = {
   inviterName: 'Grace Okonkwo',
   inviterChapterName: 'Toronto',
   preassignedRole: 'Volunteer',
+  preassignedRoleName: 'Volunteer',
   hasAccount: false,
 };
 

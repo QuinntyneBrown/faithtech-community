@@ -14,11 +14,11 @@ import { Router } from '@angular/router';
 import {
   AGILE_SERVICE,
   ArchivedItemDto,
-  ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMemberDto,
   WorkspaceMethod,
   problemDetails,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -93,6 +93,7 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceSettingsPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly agile = inject(AGILE_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -145,7 +146,7 @@ export class WorkspaceSettingsPage {
   }
 
   protected roles(member: WorkspaceMemberDto): string {
-    return member.roles.map((r) => ROLE_LABELS[r]).join(', ');
+    return member.roles.map((r) => this.organisationRoles.label(r)).join(', ');
   }
 
   protected retry(): void {

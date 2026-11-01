@@ -7,6 +7,7 @@ import {
   AdminUsersService,
   PagedResult,
   WorkspaceSummaryDto,
+  ORGANISATION_SERVICE,
 } from '@faithtech-community/api';
 import { avatarColorFor, DialogService } from '@faithtech-community/components';
 import { Observable, of, Subject, throwError } from 'rxjs';
@@ -47,6 +48,80 @@ async function setup(
   const dialogs = { open: vi.fn(() => ({ closed: of(dialogResult) })) };
   TestBed.configureTestingModule({
     providers: [
+      // The FaithTech seed's names for the role keys (L2-151).
+      {
+        provide: ORGANISATION_SERVICE,
+        useValue: {
+          get: () =>
+            of({
+              roles: [
+                {
+                  id: 'role-CityLead',
+                  key: 'CityLead',
+                  name: 'City Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-EventLead',
+                  key: 'EventLead',
+                  name: 'Event Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CreateLead',
+                  key: 'CreateLead',
+                  name: 'Create Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CommunicationsLead',
+                  key: 'CommunicationsLead',
+                  name: 'Communications Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Staff',
+                  key: 'Staff',
+                  name: 'Staff',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Volunteer',
+                  key: 'Volunteer',
+                  name: 'Volunteer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-ProductEngineer',
+                  key: 'ProductEngineer',
+                  name: 'Product Engineer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Attendee',
+                  key: 'Attendee',
+                  name: 'Attendee',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-SystemAdmin',
+                  key: 'SystemAdmin',
+                  name: 'System Admin',
+                  description: '',
+                  chapterScopable: false,
+                },
+              ],
+            }),
+        },
+      },
       { provide: ADMIN_USERS_SERVICE, useValue: service },
       { provide: AGILE_SERVICE, useValue: agile },
       { provide: DialogService, useValue: dialogs },

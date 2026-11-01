@@ -4,8 +4,8 @@ import {
   ANNOUNCEMENTS_SERVICE,
   AUTH_SERVICE,
   OrganisationNames,
-  ROLE_LABELS,
   hasAny,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   ButtonComponent,
@@ -45,6 +45,7 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnouncementsPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(ANNOUNCEMENTS_SERVICE);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
@@ -63,7 +64,7 @@ export class AnnouncementsPage {
 
   protected meta(a: AnnouncementDto): string {
     const recipients = `${a.recipientCount} ${a.recipientCount === 1 ? 'recipient' : 'recipients'}`;
-    return `To ${audience(a)} · Sent ${formatDay(a.sentAt)} by ${a.senderName} · ${recipients}`;
+    return `To ${audience(a, (key) => this.organisationRoles.label(key))} · Sent ${formatDay(a.sentAt)} by ${a.senderName} · ${recipients}`;
   }
 
   protected retry(): void {
@@ -96,11 +97,17 @@ export class AnnouncementsPage {
   }
 }
 
-/** "Everyone", "Product Engineers, Volunteers" or "RSVPs: Toronto Builders Night". */
-function audience(a: AnnouncementDto): string {
+/**
+ * "Everyone", "everyone who has the Product Engineer or Volunteer role" or "RSVPs: Toronto Builders Night", naming
+ * roles by the organisation's definitions.
+ */
+function audience(a: AnnouncementDto, label: (key: string) => string): string {
   if (a.audienceKind === 'EventRsvps') return `RSVPs: ${a.eventTitle ?? 'an event'}`;
   if (a.audienceKind === 'Roles') {
-    return a.roles.map((r) => (r === 'Staff' ? 'Staff' : `${ROLE_LABELS[r]}s`)).join(', ');
+    const names = a.roles.map(label);
+    const last = names.pop();
+    const list = names.length ? `${names.join(', ')} or ${last}` : last;
+    return `everyone who has the ${list} role`;
   }
   return 'Everyone';
 }

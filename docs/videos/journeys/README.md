@@ -108,7 +108,7 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 
 | Video | Length | Rerun alone |
 |---|---|---|
-| [Docs & notes](docs-and-notes/video.webm) · [poster](docs-and-notes/poster.png) · [captions](docs-and-notes/captions.vtt) · [narration](docs-and-notes/narration.md) | 1:25 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey docs-and-notes` |
+| [Docs & notes](docs-and-notes/video.webm) · [poster](docs-and-notes/poster.png) · [captions](docs-and-notes/captions.vtt) · [narration](docs-and-notes/narration.md) | 1:26 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey docs-and-notes` |
 
 ### Reports
 

@@ -18,10 +18,9 @@ import {
   AudienceKind,
   EVENTS_SERVICE,
   EventSummaryDto,
-  ROLES,
-  ROLE_LABELS,
   Role,
   hasAny,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -98,6 +97,7 @@ const SUMMARY: Record<string, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ComposeAnnouncementPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly announcements = inject(ANNOUNCEMENTS_SERVICE);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
@@ -105,7 +105,9 @@ export class ComposeAnnouncementPage {
   private readonly subjectField = viewChild('subjectField', { read: FormFieldComponent });
   private readonly bodyField = viewChild('bodyField', { read: FormFieldComponent });
 
-  protected readonly roles = ROLES.map((role) => ({ role, label: ROLE_LABELS[role] }));
+  protected readonly roles = computed(() =>
+    this.organisationRoles.roles().map((r) => ({ role: r.key, label: r.name })),
+  );
   protected readonly form = inject(NonNullableFormBuilder).group({
     kind: ['Everyone' as AudienceKind],
     roles: [[] as string[]],

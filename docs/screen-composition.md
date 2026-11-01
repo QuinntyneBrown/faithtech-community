@@ -248,7 +248,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 ### Announcements — `/announcements` (`pages/announcements`: default, loading, empty, error)
 
 - Library: `PageHeaderComponent` ("Announcements", subtitle "In-app and email. People can opt out of announcement emails.") with primary *New announcement* for Communications Leads and System Admins, `CardComponent` `flush` + `ListComponent` "Announcements" + `ListItemComponent` (subject, meta "To {audience} · Sent {day} by {sender} · {n} recipients", `description` the message, leading `IconTileComponent` `announcements`), `ButtonComponent` *Show older announcements*, `ListSkeletonComponent`, `EmptyStateComponent` ("No announcements yet", with *New announcement* for senders; error with *Try again*).
-- Local: the audience wording ("Product Engineers", "RSVPs: {event}").
+- Local: the audience wording ("everyone who has the {role} role" from the organisation's definitions, "RSVPs: {event}").
 
 ### New announcement — `/announcements/new` (`pages/compose-announcement`: default, invalid, busy, error, success)
 

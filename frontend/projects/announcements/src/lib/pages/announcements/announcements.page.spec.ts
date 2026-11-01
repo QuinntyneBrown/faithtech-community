@@ -8,6 +8,7 @@ import {
   PagedResult,
   SITE_SERVICE,
   Capability,
+  ORGANISATION_SERVICE,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -52,6 +53,79 @@ async function setup(
     providers: [
       { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: ANNOUNCEMENTS_SERVICE, useValue: service },
+      {
+        provide: ORGANISATION_SERVICE,
+        useValue: {
+          get: () =>
+            of({
+              roles: [
+                {
+                  id: 'role-CityLead',
+                  key: 'CityLead',
+                  name: 'City Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-EventLead',
+                  key: 'EventLead',
+                  name: 'Event Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CreateLead',
+                  key: 'CreateLead',
+                  name: 'Create Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-CommunicationsLead',
+                  key: 'CommunicationsLead',
+                  name: 'Communications Lead',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Staff',
+                  key: 'Staff',
+                  name: 'Staff',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Volunteer',
+                  key: 'Volunteer',
+                  name: 'Volunteer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-ProductEngineer',
+                  key: 'ProductEngineer',
+                  name: 'Product Engineer',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-Attendee',
+                  key: 'Attendee',
+                  name: 'Attendee',
+                  description: '',
+                  chapterScopable: false,
+                },
+                {
+                  id: 'role-SystemAdmin',
+                  key: 'SystemAdmin',
+                  name: 'System Admin',
+                  description: '',
+                  chapterScopable: false,
+                },
+              ],
+            }),
+        },
+      },
       { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
@@ -96,7 +170,7 @@ describe('AnnouncementsPage', () => {
     expect(first.textContent).toContain('November hackathon: teams are forming');
     expect(first.textContent).toContain('Team formation opens Monday.');
     expect(first.textContent).toContain(
-      'To Product Engineers · Sent Tue 20 Oct by Hannah Kim · 41 recipients',
+      'To everyone who has the Product Engineer role · Sent Tue 20 Oct by Hannah Kim · 41 recipients',
     );
     expect(second.textContent).toContain('To RSVPs: Toronto Builders Night');
     expect(second.textContent).toContain('1 recipient');

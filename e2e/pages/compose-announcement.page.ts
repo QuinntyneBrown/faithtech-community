@@ -38,6 +38,11 @@ export class ComposeAnnouncementPage {
     await this.sendTo.getByRole('radio', { name: new RegExp(`^${label}`) }).check();
   }
 
+  /** The labels of the roles offered as an audience, in order. */
+  get roleOptions(): Locator {
+    return this.roles.locator('label');
+  }
+
   async chooseRole(label: string): Promise<void> {
     await this.roles.getByRole('checkbox', { name: label, exact: true }).check();
   }

@@ -40,7 +40,7 @@
           </ft-radio-group>
           @if (kind() === 'Roles') {
             <ft-checkbox-group legend="Roles" formControlName="roles" [error]="error('roles')">
-              @for (option of roles; track option.role) {
+              @for (option of roles(); track option.role) {
                 <ft-checkbox [value]="option.role">{{ option.label }}</ft-checkbox>
               }
             </ft-checkbox-group>

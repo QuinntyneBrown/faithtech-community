@@ -41,6 +41,8 @@ export interface InviteLookupDto {
   preassignedRole: Role | null;
   /** An account already uses the invited email, so the invitee signs in to accept. */
   hasAccount: boolean;
+  /** The organisation's name for the pre-assigned role; null without one. */
+  preassignedRoleName: string | null;
 }
 
 export interface NewAccount {

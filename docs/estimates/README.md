@@ -28,7 +28,7 @@
 ## Roadmap
 
 1. platform: deploy behind the private-preview wall (the owner's runbook, `platform/private-preview-wall`)
-2. organisations: slices 00 to 29 are done; next, label roles from each organisation's own definitions (deferred in `docs/detailed-designs/organisations/seed-faithtech`), then the proposal's Deferred list
+2. organisations: slices 00 to 29 are done; next, reword the copy that mentions FaithTech roles (deferred in `docs/detailed-designs/organisations/seed-faithtech`), then the proposal's Deferred list
 3. platform and identity: finish the remaining designs
 4. admin, search, agile, marketing page and Google sign-in, and resources: finish the remaining designs
 5. notes: block-editor (the mouse path into the Turn into submenu) and pages-and-list (measure the 500-block read and save latency)
