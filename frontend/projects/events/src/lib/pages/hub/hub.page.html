@@ -25,26 +25,38 @@
     </ft-empty-state>
   }
   @case ('unavailable') {
-    <ft-empty-state
-      [headingLevel]="1"
-      heading="This hub isn’t available"
-      text="It may not be published yet, or the link may be wrong."
-    />
+    @if (signedIn()) {
+      <ft-empty-state
+        [headingLevel]="1"
+        heading="This hub isn’t available"
+        text="It may not be published yet, or the link may be wrong."
+      />
+    } @else {
+      <ft-empty-state
+        [headingLevel]="1"
+        heading="This hub isn’t available"
+        text="It may not be published yet, or it may be for members only. Members can sign in to see it."
+      >
+        <ft-button actions variant="primary" [href]="signInHref()">Sign in</ft-button>
+      </ft-empty-state>
+    }
   }
   @case ('loaded') {
     @if (hub(); as h) {
       <div class="hub-page">
         <h1 class="visually-hidden">{{ h.event.title }} hub</h1>
-        <ft-alert class="hub-page__banner" status="info" heading="Preview">
-          {{
-            h.status === 'Published'
-              ? 'This is your published hub, as visitors see it.'
-              : 'This is how your hub will look. It’s a draft, so visitors can’t open it yet.'
-          }}
-          <ft-link ftAlertActions [href]="'/events/' + h.eventId + '/hub'"
-            >Back to hub home</ft-link
-          >
-        </ft-alert>
+        @if (preview()) {
+          <ft-alert class="hub-page__banner" status="info" heading="Preview">
+            {{
+              h.status === 'Published'
+                ? 'This is your published hub, as visitors see it.'
+                : 'This is how your hub will look. It’s a draft, so visitors can’t open it yet.'
+            }}
+            <ft-link ftAlertActions [href]="'/events/' + h.eventId + '/hub'"
+              >Back to hub home</ft-link
+            >
+          </ft-alert>
+        }
         @for (section of shown(); track section.kind) {
           @switch (section.kind) {
             @case ('Hero') {

@@ -1,8 +1,9 @@
 // Traces to: L2-163 (docs/detailed-designs/events/preview-and-publish-hub)
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { EVENT_HUBS_SERVICE, EventHubDto } from '@faithtech-community/api';
+import { AUTH_SERVICE, EVENT_HUBS_SERVICE, EventHubDto } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { HubPage } from './hub.page';
@@ -12,6 +13,7 @@ const hub: EventHubDto = {
   eventId: 'e1',
   status: 'Draft',
   publishedAt: null,
+  canManage: true,
   templateKey: 'blank',
   link: 'http://localhost/public/events/e1/hub',
   event: {
@@ -39,13 +41,17 @@ const hub: EventHubDto = {
   upcomingEvents: [],
 };
 
-const service = { get: vi.fn() };
+const service = { page: vi.fn() };
 
-async function setup(get: () => Observable<EventHubDto>) {
-  service.get.mockReset();
-  service.get.mockImplementation(get);
+async function setup(page: () => Observable<EventHubDto>, signedIn = true) {
+  service.page.mockReset();
+  service.page.mockImplementation(page);
   TestBed.configureTestingModule({
-    providers: [provideRouter([]), { provide: EVENT_HUBS_SERVICE, useValue: service }],
+    providers: [
+      provideRouter([]),
+      { provide: EVENT_HUBS_SERVICE, useValue: service },
+      { provide: AUTH_SERVICE, useValue: { isAuthenticated: signal(signedIn) } },
+    ],
   });
   const fixture = TestBed.createComponent(HubPage);
   fixture.componentRef.setInput('id', 'e1');
@@ -99,6 +105,24 @@ describe('HubPage', () => {
     host.querySelector<HTMLElement>('ft-button button')?.click();
     await new Promise((resolve) => setTimeout(resolve));
 
-    expect(service.get).toHaveBeenCalledTimes(2);
+    expect(service.page).toHaveBeenCalledTimes(2);
+  });
+
+  // L2-167 AC1: a visitor sees no Preview banner.
+  it('shows no Preview banner to a visitor', async () => {
+    const host = await setup(() => of({ ...hub, status: 'Published', canManage: false }));
+
+    expect(host.querySelector('.hub-page__banner')).toBeNull();
+    expect(host.querySelector('ft-hub-hero')).not.toBeNull();
+  });
+
+  // L2-166 AC2: an anonymous visitor is offered Sign in, back to the hub.
+  it('offers an anonymous visitor Sign in when the hub is not available', async () => {
+    const host = await setup(() => throwError(() => new HttpErrorResponse({ status: 404 })), false);
+
+    expect(host.textContent).toContain('Members can sign in to see it.');
+    expect(host.querySelector('a')?.getAttribute('href')).toBe(
+      `/sign-in?returnUrl=${encodeURIComponent('/public/events/e1/hub')}`,
+    );
   });
 });

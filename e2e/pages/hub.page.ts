@@ -13,6 +13,8 @@ export class HubPage {
   readonly notAvailable: Locator;
   readonly failed: Locator;
   readonly tryAgain: Locator;
+  readonly signIn: Locator;
+  readonly rsvp: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -23,10 +25,17 @@ export class HubPage {
     this.notAvailable = page.getByRole('heading', { name: 'This hub isn’t available' });
     this.failed = page.getByText('We couldn’t load the hub');
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
+    this.signIn = page.getByRole('main').getByRole('link', { name: 'Sign in' });
+    this.rsvp = page.getByRole('main').getByRole('link', { name: 'RSVP' });
   }
 
   async open(eventId: string): Promise<void> {
     await this.page.goto(`/public/events/${eventId}/hub`);
+  }
+
+  /** The page's meta description. */
+  description(): Promise<string | null> {
+    return this.page.locator('meta[name="description"]').getAttribute('content');
   }
 
   /** Text on the page, such as a section's line. */
