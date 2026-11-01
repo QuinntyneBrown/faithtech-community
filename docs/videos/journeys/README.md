@@ -145,6 +145,7 @@ the transcript and the chapters are embedded in the WebM (ADR 0037).
 | Video | Length | Rerun alone |
 |---|---|---|
 | [Create an event hub](create-event-hub/video.webm) · [poster](create-event-hub/poster.png) · [narration](create-event-hub/narration.md) | 1:28 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-event-hub -Engine kokoro -NoCaptions -Music` |
+| [Fill in hub sections](fill-in-hub-sections/video.webm) · [poster](fill-in-hub-sections/poster.png) · [narration](fill-in-hub-sections/narration.md) | 1:53 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey fill-in-hub-sections -Engine kokoro -NoCaptions -Music` |
 
 All are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
 mono, 48 kb/s, loudness-normalized). The chapters are embedded in each WebM and listed in its

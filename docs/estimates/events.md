@@ -10,4 +10,4 @@
 | rsvp | 5 days | 100% | B- |
 | event-check-in | 6 days | 100% | B+ |
 | create-event-hub | 4 days | 100% | B+ |
-| fill-in-hub-sections | 12 days | 0% | — |
+| fill-in-hub-sections | 12 days | 100% | B+ |
