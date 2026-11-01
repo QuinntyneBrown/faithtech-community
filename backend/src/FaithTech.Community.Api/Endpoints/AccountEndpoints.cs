@@ -89,18 +89,17 @@ public static class AccountEndpoints
         HttpContext context,
         IGoogleIdentityProvider google,
         GoogleCorrelation correlation,
-        IOptions<WebAppOptions> webApp,
-        IOptions<MarketingOptions> marketing,
+        GoogleOrigins origins,
         string? returnUrl,
         bool? keepSignedIn,
         bool? signUp)
     {
         var state = GoogleCorrelation.NewSecret();
         var nonce = GoogleCorrelation.NewSecret();
-        var authorizationUrl = google.BuildAuthorizationUrl(state, nonce, GoogleRedirectUri(webApp.Value));
+        var authorizationUrl = google.BuildAuthorizationUrl(state, nonce, origins.Callback);
         if (authorizationUrl is null)
         {
-            return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
+            return Results.Redirect(origins.Outcome("failed"));
         }
 
         correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false, signUp ?? false));
@@ -111,8 +110,7 @@ public static class AccountEndpoints
         HttpContext context,
         GoogleSignInHandler handler,
         GoogleCorrelation correlation,
-        IOptions<WebAppOptions> webApp,
-        IOptions<MarketingOptions> marketing,
+        GoogleOrigins origins,
         string? code,
         string? state,
         CancellationToken ct)
@@ -120,24 +118,19 @@ public static class AccountEndpoints
         var pending = correlation.ReadAndClear(context);
         if (pending is null || string.IsNullOrEmpty(code) || !GoogleCorrelation.StateMatches(pending, state))
         {
-            return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
+            return Results.Redirect(origins.Outcome("failed"));
         }
 
-        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce, pending.SignUp), ct);
+        var result = await handler.HandleAsync(new GoogleSignInCommand(code, origins.Callback, pending.Nonce, pending.SignUp), ct);
         if (!result.Succeeded)
         {
-            return Results.Redirect(GoogleOutcome(marketing.Value, result.Error == GoogleSignInError.Suspended ? "suspended" : "failed"));
+            return Results.Redirect(origins.Outcome(result.Error == GoogleSignInError.Suspended ? "suspended" : "failed"));
         }
 
         await StartSessionAsync(context, result.User!);
         var keep = pending.KeepSignedIn ? "1" : "0";
-        return Results.Redirect($"{webApp.Value.Origin}/auth/continue?returnUrl={Uri.EscapeDataString(pending.ReturnUrl)}&keepSignedIn={keep}");
+        return Results.Redirect($"{origins.Community}/auth/continue?returnUrl={Uri.EscapeDataString(pending.ReturnUrl)}&keepSignedIn={keep}");
     }
-
-    // The API sits behind the community app's origin, so Google returns there.
-    private static string GoogleRedirectUri(WebAppOptions webApp) => $"{webApp.Origin}/api/account/google/callback";
-
-    private static string GoogleOutcome(MarketingOptions marketing, string outcome) => $"{marketing.Origin}/?google={outcome}";
 
     /// <summary>Only a path inside the community app is kept; anything else lands on home.</summary>
     private static string AppPath(string? url) =>
