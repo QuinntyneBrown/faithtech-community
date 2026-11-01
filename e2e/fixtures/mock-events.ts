@@ -2,6 +2,7 @@ import { Route } from '@playwright/test';
 
 import { EventTypesContext, MockEventTypes } from './mock-event-types';
 import { firstRoleCarrying, holds } from './role-definitions';
+import { MockEventHubs } from './mock-event-hubs';
 
 /** An RSVP as the Rsvps table holds it: a member's profile id, or a guest's name and email. */
 export interface MockRsvp {
@@ -187,6 +188,8 @@ function fields(body: Record<string, unknown>): Partial<MockEvent> {
  */
 export class MockEvents {
   readonly events: MockEvent[] = [];
+  /** Event hubs (fixtures/mock-event-hubs.ts), one per event. */
+  readonly hubs: MockEventHubs;
   /** In-app notifications the events endpoints recorded (the Notifications table). */
   readonly notifications: {
     recipientId: string;
@@ -219,6 +222,11 @@ export class MockEvents {
     addAuditEntry: EventTypesContext['addAuditEntry'] = () => undefined,
   ) {
     const events = this.events;
+    this.hubs = new MockEventHubs({
+      now,
+      event: (id) => events.find((e) => e.id === id),
+      addAuditEntry,
+    });
     this.types = new MockEventTypes({
       get now() {
         return now();
@@ -303,6 +311,8 @@ export class MockEvents {
     body: Record<string, unknown>,
     caller: EventsCaller | null,
   ): Promise<void> | false {
+    const hub = this.hubs.handle(route, method, url, body, caller);
+    if (hub) return hub;
     if (method === 'GET' && url.pathname === '/api/events') return this.list(route, url, caller);
     if (method === 'POST' && url.pathname === '/api/events')
       return this.create(route, body, caller);
@@ -889,6 +899,7 @@ export class MockEvents {
       checkedInCount: seesList(caller) ? event.rsvps.filter((r) => r.checkedInAt).length : null,
       canCheckIn: seesEmails(caller),
       canViewCheckIn: seesList(caller),
+      ...this.hubs.detail(event, caller),
       rsvps: seesList(caller)
         ? rsvped(event)
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))

@@ -4,6 +4,7 @@ import { CAPABILITIES, CAPABILITY_LABELS, hasAny } from './capability';
 describe('CAPABILITY_LABELS', () => {
   it('names each capability as the define-role dialog shows it', () => {
     expect(CAPABILITY_LABELS.ManageEvents).toBe('Manage events');
+    expect(CAPABILITY_LABELS.ManageEventHubs).toBe('Manage event hubs');
     expect(CAPABILITY_LABELS.ViewPeopleDirectory).toBe('View people directory');
     expect(CAPABILITY_LABELS.AdministerOrganisation).toBe('Administer the organisation');
   });
@@ -13,7 +14,7 @@ describe('capabilities', () => {
   it('lists the platform catalogue', () => {
     expect(CAPABILITIES).toContain('ManageEvents');
     expect(CAPABILITIES).toContain('AdministerOrganisation');
-    expect(CAPABILITIES.length).toBe(19);
+    expect(CAPABILITIES.length).toBe(20);
   });
 
   it('holds any of the wanted capabilities', () => {

@@ -37,7 +37,7 @@ test.describe('Organisation settings: Roles', () => {
     await expect(roles.row('Volunteer')).toContainText('2 members');
     await expect(roles.row('Volunteer')).toContainText('Team list');
     await expect(roles.row('City Lead')).toContainText(
-      /Manage events, View attendees and \d+ more/,
+      /Manage events, Manage event hubs and \d+ more/,
     );
     await expect(roles.row('System Admin')).toContainText('Administer the organisation');
     await axe.check();
