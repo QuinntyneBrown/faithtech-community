@@ -15,7 +15,9 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Invites;
 
 /// <summary>What the invite link shows before anyone signs in (ADR 0006).</summary>
-public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount);
+/// <summary>The invite as its anonymous page shows it; <see cref="PreassignedRoleName"/> is the organisation's name for the role.</summary>
+public record InviteLookupDto(
+    string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount, string? PreassignedRoleName = null);
 
 /// <summary>Accepts an invite: with a name and password as a new account, or without them as the signed-in account.</summary>
 /// <summary>The body of <c>POST /api/invites/lookup</c>: the invite link's token, kept out of the URL.</summary>
@@ -69,7 +71,8 @@ public class AcceptInviteHandler(
             inviter?.Name ?? $"A {organisation.ShortName} lead",
             inviter?.HomeCity,
             invite.PreassignedRole?.ToString(),
-            await users.FindByEmailAsync(invite.Email) is not null);
+            await users.FindByEmailAsync(invite.Email) is not null,
+            (await PreassignedDefinitionAsync(invite, cancellationToken))?.Name);
     }
 
     public async Task<Result> AcceptAsync(AcceptInviteCommand command, CancellationToken cancellationToken = default)
