@@ -20,6 +20,7 @@ import {
   profileRolesOf,
   resetRoleDefinitions,
   roleDefinitions,
+  useProvisionedRoles,
 } from './role-definitions';
 
 import { MockAgile } from './mock-agile';
@@ -290,6 +291,62 @@ export class MockApi {
     };
     this.profiles.set(full.id, full);
     return full;
+  }
+
+  /**
+   * The hosts serve `organisation` as provisioning leaves it (L2-149 AC1): the roles Administrator and Member, the
+   * stages New and Confirmed, the event type Gathering, the resource types Deck, Image, Document and Other, and no
+   * chapters.
+   */
+  provision(organisation: MockOrganisation): void {
+    this.host.serve(organisation);
+    useProvisionedRoles();
+    this.partners.stages.stages.splice(
+      0,
+      Infinity,
+      {
+        id: 'stage-new',
+        key: 'new',
+        name: 'New',
+        sortOrder: 1,
+        isInitial: true,
+        kind: 'Open',
+        archivedAtUtc: null,
+      },
+      {
+        id: 'stage-confirmed',
+        key: 'confirmed',
+        name: 'Confirmed',
+        sortOrder: 2,
+        isInitial: false,
+        kind: 'Confirmed',
+        archivedAtUtc: null,
+      },
+    );
+    this.events.types.types.splice(0, Infinity, {
+      id: 'type-gathering',
+      key: 'gathering',
+      name: 'Gathering',
+      sortOrder: 1,
+      archivedAtUtc: null,
+    });
+    this.resources.types.types.splice(
+      0,
+      Infinity,
+      ...['deck', 'image', 'document', 'other'].map((key, index) => ({
+        id: `resource-type-${key}`,
+        key,
+        name: key[0].toUpperCase() + key.slice(1),
+        sortOrder: index + 1,
+        archivedAtUtc: null,
+      })),
+    );
+    this.chapters.chapters.splice(0, Infinity);
+  }
+
+  /** The invite provisioning sends the first administrator: no inviter, pre-assigned Administrator (L2-149 AC2). */
+  addProvisioningInvite(email: string): MockInvite {
+    return this.addInvite({ email, invitedBy: '', preassignedRole: 'administrator' }, 0);
   }
 
   /** An invite as the Invites table holds it; give `daysAgo` to age it. */
@@ -1672,7 +1729,7 @@ export class MockApi {
       json: {
         status: this.inviteStatus(invite),
         email: invite.email,
-        inviterName: inviter?.name ?? 'A FaithTech lead',
+        inviterName: inviter?.name ?? `A ${this.host.organisation.shortName} lead`,
         inviterChapterName: this.chapters.nameOf(inviter?.chapterId),
         preassignedRole: invite.preassignedRole,
         hasAccount: this.accounts.has(invite.email.toLowerCase()),
