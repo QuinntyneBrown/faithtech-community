@@ -18,7 +18,7 @@ public class CapabilityCatalogueTests(CommunityApiFactory factory) : IClassFixtu
 
         Assert.Equal(
             [
-                "ManageEvents", "ViewAttendees", "ManageAttendance", "KeepContacts", "ViewPartners", "ManagePartners",
+                "ManageEvents", "ManageEventHubs", "ViewAttendees", "ManageAttendance", "KeepContacts", "ViewPartners", "ManagePartners",
                 "InviteMembers", "ConnectLink", "OwnWorkspaces", "JoinWorkspaces", "ReadAllWorkspaces",
                 "ViewPeopleDirectory", "AssignRoles", "SendAnnouncements", "AddResources", "ViewReports", "ManageRoles",
                 "ManageOrganisationSettings", "AdministerOrganisation",

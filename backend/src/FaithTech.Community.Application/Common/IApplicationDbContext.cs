@@ -72,6 +72,10 @@ public interface IApplicationDbContext
     DbSet<PhotoBlobTask> PhotoBlobTasks { get; }
     DbSet<Event> Events { get; }
 
+    DbSet<EventHub> EventHubs { get; }
+
+    DbSet<HubSection> HubSections { get; }
+
     DbSet<Announcement> Announcements { get; }
 
     DbSet<Resource> Resources { get; }

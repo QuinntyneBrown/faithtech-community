@@ -65,6 +65,23 @@ public static class EventsEndpoints
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<CancelEventCommand>();
 
+        // Event hubs (L2-153 to L2-155, ADR 0036): addressed through their event, one per event.
+        events.MapPost("/{id:guid}/hub", async (Guid id, CreateEventHubHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, hubId) = await handler.HandleAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Created($"/api/events/{id}/hub", new { id = hubId }));
+        });
+
+        events.MapGet("/{id:guid}/hub", async (Guid id, GetEventHubHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, hub) = await handler.HandleAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(hub));
+        });
+
+        events.MapPut("/{id:guid}/hub", async (Guid id, SaveEventHubCommand command, SaveEventHubHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<SaveEventHubCommand>();
+
         events.MapPost("/{id:guid}/rsvps", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
             (await handler.RsvpAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 

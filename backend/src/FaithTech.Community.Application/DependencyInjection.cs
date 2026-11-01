@@ -133,6 +133,9 @@ public static class DependencyInjection
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();
+        services.AddScoped<CreateEventHubHandler>();
+        services.AddScoped<GetEventHubHandler>();
+        services.AddScoped<SaveEventHubHandler>();
         services.AddScoped<InAppNotificationsHandler>();
         services.AddScoped<INotificationPublisher, NotificationPublisher>();
         services.AddScoped<AnnouncementAccess>();

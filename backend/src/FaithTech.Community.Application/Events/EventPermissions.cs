@@ -30,6 +30,12 @@ public class EventPermissions(ICurrentUser current)
     /// <summary>Managing an event only because of AdministerOrganisation is an override, and is audited.</summary>
     public bool IsAdminOverride => AuthorizationRules.IsOverride(current, Capability.ManageEvents);
 
+    /// <summary>ManageEventHubs creates, reads and saves event hubs (L2-155 AC2), for every chapter's events (AC3).</summary>
+    public bool CanManageHubs => current.Has(Capability.ManageEventHubs);
+
+    /// <summary>Managing a hub only because of AdministerOrganisation is an override, and is audited (L2-155 AC2).</summary>
+    public bool IsHubOverride => AuthorizationRules.IsOverride(current, Capability.ManageEventHubs);
+
     /// <summary>The caller's profile id, or null for an anonymous caller or an unknown account.</summary>
     public Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(current.ProfileId);

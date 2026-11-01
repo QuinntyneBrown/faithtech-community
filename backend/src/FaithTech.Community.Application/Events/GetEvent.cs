@@ -47,7 +47,9 @@ public record EventDetailDto(
     IReadOnlyList<RsvpDto>? Rsvps,
     int? CheckedInCount = null,
     bool CanCheckIn = false,
-    bool CanViewCheckIn = false);
+    bool CanViewCheckIn = false,
+    Guid? HubId = null,
+    bool CanManageHub = false);
 
 /// <summary>Reads one event for a signed-in member; every member may see every event.</summary>
 public class GetEventHandler(IApplicationDbContext db, EventPermissions permissions)
@@ -88,12 +90,16 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
                         r.CreatedAt, r.CheckedInAt))];
         }
 
+        // The event page offers Create or Open event hub from these (L2-153 AC1).
+        var hubId = await db.EventHubs.AsNoTracking().Where(h => h.EventId == e.Id).Select(h => (Guid?)h.Id).SingleOrDefaultAsync(cancellationToken);
+
         return new EventDetailDto(
             e.Id, e.Title, e.Description, e.Type!.Key, e.Type.Name, e.StartsAt, e.EndsAt, e.Chapter?.Id, e.Chapter?.Name, e.Format.ToString(), e.Venue,
             e.OnlineLink, e.Capacity, e.Visibility.ToString(), e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason,
             cancelledBy, e.CancelledAt, host?.Name, hostRole,
             caller is { } me && e.Rsvps.Any(r => r.ProfileId == me),
             permissions.CanManageEvents, permissions.CanExportRsvps, rsvps,
-            permissions.CanSeeRsvpList ? e.CheckedInCount : null, permissions.CanCheckIn, permissions.CanViewCheckIn);
+            permissions.CanSeeRsvpList ? e.CheckedInCount : null, permissions.CanCheckIn, permissions.CanViewCheckIn,
+            hubId, permissions.CanManageHubs);
     }
 }
