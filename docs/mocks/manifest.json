@@ -380,7 +380,10 @@
       "route": "/events/:id/hub",
       "requirements": [
         "L2-154",
-        "L2-156"
+        "L2-156",
+        "L2-163",
+        "L2-164",
+        "L2-165"
       ],
       "states": [
         "default",
@@ -392,7 +395,12 @@
         "error",
         "forbidden",
         "no-hub",
-        "link-copied"
+        "link-copied",
+        "publishing",
+        "published",
+        "published-toast",
+        "publish-failed",
+        "unpublished-toast"
       ],
       "not_applicable": {
         "empty": "A hub always has its seven sections; an event with no hub is the no-hub state."
@@ -450,6 +458,28 @@
       ],
       "not_applicable": {
         "empty": "A public page always has an event."
+      }
+    },
+    {
+      "id": "hub-page",
+      "kind": "page",
+      "title": "Hub page",
+      "route": "/public/events/:id/hub",
+      "requirements": [
+        "L2-163",
+        "L2-164"
+      ],
+      "states": [
+        "preview-draft",
+        "preview-published",
+        "partial",
+        "empty",
+        "loading",
+        "error",
+        "not-available"
+      ],
+      "not_applicable": {
+        "default": "In this slice only people who manage hubs open the page, so it is always a preview: preview-draft (a draft hub, every section ready) is its default and preview-published the published one. Visitors' views come in slice 44."
       }
     },
     {
@@ -1362,7 +1392,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-158"
+        "L2-158",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1379,7 +1410,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-159"
+        "L2-159",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1403,7 +1435,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-160"
+        "L2-160",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1421,7 +1454,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-161"
+        "L2-161",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1442,7 +1476,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-160"
+        "L2-160",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1460,7 +1495,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-158"
+        "L2-158",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1478,7 +1514,8 @@
       "opens_from": "event-hub",
       "requirements": [
         "L2-157",
-        "L2-162"
+        "L2-162",
+        "L2-163"
       ],
       "states": [
         "default",
@@ -1488,6 +1525,23 @@
         "failed"
       ],
       "not_applicable": {}
+    },
+    {
+      "id": "unpublish-hub",
+      "kind": "dialog",
+      "title": "Unpublish hub",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-164"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Nothing is typed: the dialog only confirms."
+      }
     },
     {
       "id": "cancel-rsvp",

@@ -172,6 +172,20 @@
       </div>
           <h3>Outline</h3>
       <p><code>variant="outline"</code> (Angular) is a pill with an accent border and accent text on the surface, filling with <code>--color-accent-subtle</code> on hover. It is the person card's full-width <b>View profile</b> link (<a href="person-card.html">Person card</a>); use primary for the one main action of a page.</p>
+      <h3>Link button that opens a new tab</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <a class="btn btn--ghost btn--sm" href="../../mocks/pages/hub-page/partial.html" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Preview<span class="visually-hidden"> the hub (new tab)</span></a> <a class="btn" href="../../mocks/pages/hub-page/preview-draft.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Preview</a>
+        </div>
+        <div class="ds-example__caption"><span>An <code>&lt;a&gt;</code> styled as a button with a leading icon (<code>read-only-view</code>). The hub wizards' ghost small <b>Preview</b> opens the hub page in a new tab (<code>href</code> + <code>target="_blank"</code>, <code>rel="noopener"</code>) and says so in visually hidden text; the hub home's secondary <b>Preview</b> opens it in the same tab, so it needs no extra text.</span></div>
+        <details class="ds-example__code"><summary>HTML and Angular</summary><pre><code>&lt;a class="btn btn--ghost btn--sm" href="/public/events/{id}/hub" target="_blank" rel="noopener"&gt;
+  &lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;Preview&lt;span class="visually-hidden"&gt; the hub (new tab)&lt;/span&gt;
+&lt;/a&gt;
+
+&lt;ft-button variant="ghost" size="sm" [href]="hubLink" target="_blank"&gt;
+  &lt;ft-icon name="read-only-view" /&gt;Preview&lt;span class="visually-hidden"&gt; the hub (new tab)&lt;/span&gt;
+&lt;/ft-button&gt;</code></pre></details>
+      </div>
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
@@ -322,6 +336,7 @@
         <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> and <a href="../../mocks/pages/sign-in/busy.html">busy</a> (large block primary, busy state, show-password icon button)</li>
         <li><a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> and <a href="../../mocks/pages/event-form/busy.html">busy</a> (primary plus ghost Cancel link)</li>
         <li><a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a> (primary with leading icon, "Send to 41 people")</li>
+        <li><a href="../../mocks/dialogs/hub-hero/default.html">dialogs/hub-hero/default</a> and <a href="../../mocks/pages/event-hub/default.html">pages/event-hub/default</a> (ghost small and secondary <b>Preview</b> link buttons, one opening a new tab; <b>Publishing…</b> busy on <a href="../../mocks/pages/event-hub/publishing.html">publishing</a>)</li>
         <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> and <a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (danger buttons as links in danger zones)</li>
         <li><a href="../../mocks/dialogs/cancel-event/default.html">dialogs/cancel-event/default</a> and <a href="../../mocks/dialogs/cancel-event/busy.html">busy</a> (secondary plus danger footer, close button)</li>
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/busy.html">busy</a> (secondary plus primary footer)</li>

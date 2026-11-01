@@ -115,7 +115,7 @@
       <p class="ds-lead">An event hub is made of sections, each with a fixed shape and a fixed layout. Every section has one display that renders it on the hub, in the section preview and on a wizard’s review step. The displays are composition in the events library, built only from components-library primitives; there is no page builder and no styling panel.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill">Pattern</span></div>
       <ul class="ds-toc">
-        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#displays">The seven displays</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#displays">The seven displays</a></li><li><a href="#states">States</a></li><li><a href="#hub-page">Hub page</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
       </ul>
     </header>
 
@@ -168,6 +168,44 @@
         <div data-theme="light"><section class="hub-section" aria-labelledby="hs-giving"><h3 class="section-title" id="hs-giving">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg><span class="visually-hidden"> to FaithTech</span></a></div></div></section></div>
         <div data-theme="dark"><section class="hub-section" aria-labelledby="hs-giving-dark"><h3 class="section-title" id="hs-giving-dark">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg><span class="visually-hidden"> to FaithTech</span></a></div></div></section></div>
       </div>
+    </section>
+
+    <section class="ds-section" id="hub-page"><h2><a href="#hub-page">Hub page</a></h2>
+      <p>The hub page (<code>/public/events/:id/hub</code>, inside the public shell) stacks the displays of every visible, <b>Ready</b> section in the hub’s order, 48rem wide (<code>ft-stack width="lg"</code>) with <code>--space-8</code> between sections. Upcoming events is left out when there are no upcoming events. Nothing is refused at publish: an empty section is simply left out. The page adds no new component or token.</p>
+      <ol>
+        <li><b>Page heading</b>: a visually hidden <code>h1</code> “{event} hub”; the Hero already shows the event’s name, so the page does not repeat it. Each display keeps its <code>h3</code>.</li>
+        <li><b>Preview banner</b>: shown to people who manage hubs (in slice 43 that is everyone who can open the page). An <a href="../components/alert.html">alert</a> <code>info</code> with the heading “Preview”, the draft or the published sentence, and a small <b>Back to hub home</b> <a href="../components/button.html">button</a> link in its actions.</li>
+        <li><b>Sections</b>: the seven displays above, in order, each with its heading.</li>
+      </ol>
+      <h3>Preview of a draft</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="stack form-width--lg"><div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Preview</div><div class="alert__text">This is how your hub will look. It’s a draft, so visitors can’t open it yet.</div><div class="alert__actions"><a class="btn btn--sm" href="../../mocks/pages/event-hub/all-ready.html">Back to hub home</a></div></div></div><div class="stack" style="gap: var(--space-8);"><section class="hub-section" aria-labelledby="hp-hero"><div class="card stack"><span class="overline">FaithTech Community</span><h3 id="hp-hero">Toronto Builders Night</h3><p class="text-muted">Thu 6 Nov 2026 · 6:30 – 9:00 pm · Kestrel Labs, 220 King St W, Toronto</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/public-event/default.html">RSVP</a></div></div></section><section class="hub-section" aria-labelledby="hp-giving"><h3 class="section-title" id="hp-giving">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<span class="visually-hidden"> to FaithTech</span></a></div></div></section></div></div></div><div class="ds-example__caption"><span>A draft with only Hero and Giving ready: the other sections are left out. A published hub’s banner reads “This is your published hub, as visitors see it.”</span></div><details class="ds-example__code"><summary>Angular</summary><pre><code>&lt;!-- events library: the hub page (route /public/events/:id/hub, inside PublicShellComponent) --&gt;
+&lt;h1 class="visually-hidden"&gt;{{ hub.event.title }} hub&lt;/h1&gt;
+&lt;ft-stack width="lg"&gt;
+  @if (preview) {
+    &lt;ft-alert status="info" heading="Preview" polite&gt;
+      {{ hub.status === 'Published' ? 'This is your published hub, as visitors see it.'
+                                    : 'This is how your hub will look. It’s a draft, so visitors can’t open it yet.' }}
+      &lt;ft-button ftAlertActions size="sm" [href]="'/events/' + hub.eventId + '/hub'"&gt;Back to hub home&lt;/ft-button&gt;
+    &lt;/ft-alert&gt;
+  }
+  @if (shown.length) {
+    &lt;ft-stack gap="8"&gt;
+      @for (section of shown; track section.kind) { &lt;!-- the section's display: ft-hub-hero, ft-hub-agenda, ... --&gt; }
+    &lt;/ft-stack&gt;
+  } @else {
+    &lt;ft-empty-state icon="hub" heading="Nothing to show yet"&gt;Fill in a section on the hub home and it will appear here.&lt;/ft-empty-state&gt;
+  }
+&lt;/ft-stack&gt;</code></pre></details></div>
+      <h3>Nothing to show yet</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="stack form-width--lg"><div class="alert alert--info" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Preview</div><div class="alert__text">This is how your hub will look. It’s a draft, so visitors can’t open it yet.</div><div class="alert__actions"><a class="btn btn--sm" href="../../mocks/pages/event-hub/all-ready.html">Back to hub home</a></div></div></div><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span><h4 class="empty__title">Nothing to show yet</h4><p class="empty__text">Fill in a section on the hub home and it will appear here.</p></div></div></div><div class="ds-example__caption"><span>No section is ready: the banner stays, and an <a href="../components/empty-state.html">empty state</a> says what to do.</span></div></div>
+      <h3>Not available</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span><h4 class="empty__title">This hub isn’t available</h4><p class="empty__text">It may not be published yet, or the link may be wrong.</p></div></div><div class="ds-example__caption"><span>403 and 404 read the same, so the page never says whether a hub exists: an <a href="../components/empty-state.html">empty state</a> at heading level 1 on the page. Loading is <a href="../components/skeleton.html">skeleton</a> cards in a <code>status</code> “Loading hub”; a failed read is the error empty state “We couldn’t load the hub” with <b>Try again</b>.</span></div></div>
+      <h3>Preview, publish and share from the hub home</h3>
+      <ul>
+        <li>Every hub wizard puts a ghost, small <b>Preview</b> link button (<code>read-only-view</code> icon) at the top of its body. It opens the hub page in a new tab and says “the hub (new tab)” to screen readers. It shows what has been saved; the wizards save as you go.</li>
+        <li>The <b>Your hub</b> card carries <b>Preview</b> (secondary link, same tab) and <b>Publish</b> (primary; busy “Publishing…”) or <b>Unpublish</b> (secondary), which asks first in a danger <a href="../components/dialog.html">dialog</a> “Unpublish the hub?”. A published hub adds a “Published” date to the card’s <a href="../components/description-list.html">description list</a>.</li>
+        <li>Results are <a href="../components/toast.html">toasts</a>: “Hub published”, “Hub unpublished”, “Link copied”, and danger “We couldn’t publish the hub” with <b>Try again</b>.</li>
+      </ul>
     </section>
 
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
@@ -251,10 +289,11 @@
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <ul>
         <li>Mocks: <a href="../../mocks/pages/event-hub/default.html">event-hub/default</a>, <a href="../../mocks/pages/event-hub/all-ready.html">all-ready</a>, <a href="../../mocks/pages/event-hub/section-hidden.html">section-hidden</a>, <a href="../../mocks/dialogs/hub-section-preview/default.html">hub-section-preview</a>, <a href="../../mocks/dialogs/reorder-hub-sections/moved.html">reorder-hub-sections/moved</a>, <a href="../../mocks/dialogs/hub-hero/default.html">hub-hero</a>, <a href="../../mocks/dialogs/hub-agenda/review.html">hub-agenda/review</a>, <a href="../../mocks/dialogs/hub-agenda/out-of-range.html">hub-agenda/out-of-range</a>, <a href="../../mocks/dialogs/hub-venue/default.html">hub-venue</a>, <a href="../../mocks/dialogs/hub-people/review.html">hub-people/review</a>, <a href="../../mocks/dialogs/hub-links/default.html">hub-links</a>, <a href="../../mocks/dialogs/hub-giving/default.html">hub-giving</a>, <a href="../../mocks/dialogs/hub-upcoming/default.html">hub-upcoming</a>.</li>
+        <li>Hub page (slice 43): <a href="../../mocks/pages/hub-page/preview-draft.html">hub-page/preview-draft</a>, <a href="../../mocks/pages/hub-page/preview-published.html">preview-published</a>, <a href="../../mocks/pages/hub-page/partial.html">partial</a>, <a href="../../mocks/pages/hub-page/empty.html">empty</a>, <a href="../../mocks/pages/hub-page/not-available.html">not-available</a>, <a href="../../mocks/pages/event-hub/published.html">event-hub/published</a>, <a href="../../mocks/dialogs/unpublish-hub/default.html">unpublish-hub</a>.</li>
         <li>Content reference: the SoCal hackathon hub (<code>docs/events/socal-hackathon-2026/index.html</code>).</li>
-        <li>Requirements L2-156 to L2-162; proposal <code>docs/proposals/event-hubs.md</code>; ADR 0036.</li>
+        <li>Requirements L2-156 to L2-165; proposal <code>docs/proposals/event-hubs.md</code>; ADR 0036.</li>
       </ul>
-      <p>Drift: none. New in this update: <code>.hub-section</code>, <code>.hub-section__time</code> and <code>.hub-section__warning</code>.</p>
+      <p>Drift: none. Slice 42 added <code>.hub-section</code>, <code>.hub-section__time</code> and <code>.hub-section__warning</code>; slice 43 adds the Hub page section and no new rule.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-01</span><a href="#top">Back to top</a></footer>
