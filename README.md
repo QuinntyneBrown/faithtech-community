@@ -152,8 +152,10 @@ dotnet run --project backend/src/FaithTech.Community.Cli -- seed
 # Make an account that has signed up the first System Admin (idempotent, audited)
 dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin you@example.org
 
-# Platform operators (accounts listed in Platform:Operators) provision an organisation and read the platform audit log
+# Platform operators (accounts listed in Platform:Operators) provision, suspend and lift organisations and read the platform audit log
 dotnet run --project backend/src/FaithTech.Community.Cli -- org create --slug riverside --host app.riverside.org   --name "Riverside Church" --short-name Riverside --admin-email joel@riverside.org --operator you@example.org
+dotnet run --project backend/src/FaithTech.Community.Cli -- org suspend riverside --reason "Unpaid since March" --operator you@example.org
+dotnet run --project backend/src/FaithTech.Community.Cli -- org lift riverside --operator you@example.org
 dotnet run --project backend/src/FaithTech.Community.Cli -- org audit --operator you@example.org
 
 # Run the API

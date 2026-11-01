@@ -71,6 +71,11 @@ The code lives in `FaithTech.Community.Application/Organisations/Platform/`, wit
   - Provisioning's invite has no inviter (`InvitedBy` is empty): accepting it notifies no one, and the lookup names "A {short name} lead".
   - `IClientRedirects` (OpenIddict in Infrastructure) adds `https://{host}/auth/callback` and `https://{host}/` to the `web` client. `CommunitySeeder` keeps redirect URIs it did not write, so a re-seed never removes a provisioned host.
   - `POST /api/platform/organisations` answers 201 with `Location` and the organisation summary, or 200 with the summary when it exists. `org create` prints "Organisation {slug} created" or "Organisation {slug} exists" and exits 1 with the message otherwise. `--chapter-label` takes `Singular/Plural`.
+- Slice 28 decisions:
+  - `SuspendOrganisationHandler` holds both `SuspendAsync` and `LiftAsync`, as `LockAccountHandler` holds lock and unlock. Instead of a new `ITokenRevocation.RevokeOrganisationAsync`, it calls the existing `RevokeAsync(userId, organisationId)` for every account with a profile in the organisation, which revokes the sessions stamped with that organisation and leaves the rest (`L2-150` AC2).
+  - Both routes answer 204. A reason of 1 to 500 characters is required (400 "Enter a reason."), an unknown slug answers 404, and suspending an organisation that is not Active, or lifting one that is not Suspended, answers 409.
+  - `org suspend <slug> --reason <reason>` and `org lift <slug>` print "Organisation {slug} suspended" or "... lifted", and exit 1 with the message otherwise.
+  - The workers skip a suspended organisation in one place: `OrganisationWork.ForEachAsync`, which every worker runs through, now runs only Active organisations, so the rows of a suspended organisation are neither processed nor marked failed until it is lifted (`L2-150` AC4).
 
 ## Requirements
 
