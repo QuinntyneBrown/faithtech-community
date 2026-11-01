@@ -609,6 +609,88 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.EventHub", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("TemplateKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("UpdateBanner")
+                        .HasMaxLength(280)
+                        .HasColumnType("character varying(280)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("OrganisationId", "EventId")
+                        .IsUnique();
+
+                    b.ToTable("EventHubs", (string)null);
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.HubSection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<Guid>("EventHubId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Visible")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("EventHubId", "Kind")
+                        .IsUnique();
+
+                    b.ToTable("HubSections", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2472,6 +2554,36 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("Type");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.EventHub", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Events.Event", null)
+                        .WithMany()
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.HubSection", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Events.EventHub", null)
+                        .WithMany("Sections")
+                        .HasForeignKey("EventHubId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Events.Event", null)
@@ -3125,6 +3237,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Event", b =>
                 {
                     b.Navigation("Rsvps");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.EventHub", b =>
+                {
+                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.Partner", b =>

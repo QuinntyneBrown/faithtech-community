@@ -19,15 +19,35 @@
 .PARAMETER Missing
     Record only the journeys that have no video.webm yet.
 
+.PARAMETER Engine
+    The narration voice: edge (default; edge-tts, EDGE_VOICE) or kokoro (Kokoro-82M ONNX, run
+    locally; KOKORO_VOICE, default af_heart, at KOKORO_SPEED, default 1.0). Kokoro needs
+    `pip install kokoro-onnx soundfile` and the onnx-community/Kokoro-82M-v1.0-ONNX model in the
+    Hugging Face cache or KOKORO_MODEL_DIR (ADR 0037).
+
+.PARAMETER NoCaptions
+    Show no on-screen caption and write no captions.vtt. Chapters stay in the WebM; narration.md is
+    the transcript. Off by default, so existing journeys record as before.
+
+.PARAMETER Music
+    Mix a quiet instrumental bed under the narration: faded in and out, ducked under the voice and
+    cut to the video's length (ADR 0037). The track is downloaded into eng/videos/.run at record time
+    and never committed. Off by default.
+
 .EXAMPLE
     pwsh eng/videos/Record-JourneyVideos.ps1
 .EXAMPLE
     pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-up
+.EXAMPLE
+    pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-event-hub -Engine kokoro -NoCaptions -Music
 #>
 [CmdletBinding()]
 param(
     [string[]] $Journey,
     [switch] $Missing,
+    [ValidateSet('edge', 'kokoro')] [string] $Engine = 'edge',
+    [switch] $NoCaptions,
+    [switch] $Music,
     [int] $Port = 4310
 )
 
@@ -38,7 +58,25 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot '..' '..')).Path
 $OutDir = Join-Path $Root 'docs' 'videos' 'journeys'
 $RunDir = if ($env:DEMO_RUN_ROOT) { $env:DEMO_RUN_ROOT } else { Join-Path $PSScriptRoot '.run' }
 $Python = if ($env:PYTHON) { $env:PYTHON } elseif ($IsWindows) { 'python' } else { 'python3' }
-$Voice = if ($env:EDGE_VOICE) { $env:EDGE_VOICE } else { 'en-US-AndrewMultilingualNeural' }
+$Voice = if ($Engine -eq 'kokoro') {
+    if ($env:KOKORO_VOICE) { $env:KOKORO_VOICE } else { 'af_heart' }
+} elseif ($env:EDGE_VOICE) { $env:EDGE_VOICE } else { 'en-US-AndrewMultilingualNeural' }
+$KokoroSpeed = if ($env:KOKORO_SPEED) { $env:KOKORO_SPEED } else { '1.0' }
+# The music bed (ADR 0037): "Port of Spain Carnival Flow" from Pixabay, under the Pixabay Content
+# License, which allows it in videos without attribution but not on its own, so it is never committed.
+$MusicUrl = if ($env:DEMO_MUSIC_URL) { $env:DEMO_MUSIC_URL } else { 'https://cdn.pixabay.com/audio/2025/04/21/audio_226353a520.mp3' }
+$MusicVolume = 0.22
+# Speaks argv[1] with Kokoro-82M ONNX into argv[5] (24 kHz WAV): voice argv[2], speed argv[3], model folder argv[4].
+$KokoroScript = @'
+import os, sys, numpy as np, soundfile as sf
+from kokoro_onnx import Kokoro
+text, voice, speed, model, out = sys.argv[1:6]
+npz = out + '.voice.npz'
+np.savez(npz, **{voice: np.fromfile(os.path.join(model, 'voices', voice + '.bin'), dtype=np.float32).reshape(-1, 1, 256)})
+samples, rate = Kokoro(os.path.join(model, 'onnx', 'model.onnx'), npz).create(text, voice=voice, speed=float(speed), lang='en-us')
+os.remove(npz)
+sf.write(out, samples, rate)
+'@
 $MarginSeconds = 0.7
 $AllJourneys = Get-ChildItem (Join-Path $PSScriptRoot 'journeys') -Filter '*.story.ts' |
     ForEach-Object { $_.Name -replace '\.story\.ts$', '' } | Sort-Object
@@ -67,14 +105,42 @@ function Test-Prerequisites {
     foreach ($codec in 'libopus', 'libvpx') {
         if ($encoders -notmatch $codec) { throw "ffmpeg lacks $codec" }
     }
-    & $Python -c 'import edge_tts' 2>$null
-    if ($LASTEXITCODE -ne 0) { throw "edge-tts is missing: $Python -m pip install edge-tts" }
+    if ($Engine -eq 'kokoro') {
+        & $Python -c 'import kokoro_onnx, soundfile' 2>$null
+        if ($LASTEXITCODE -ne 0) { throw "Kokoro is missing: $Python -m pip install kokoro-onnx soundfile" }
+        if (-not (Test-Path (Join-Path (Get-KokoroModel) 'voices' "$Voice.bin"))) { throw "No Kokoro voice $Voice in $(Get-KokoroModel)" }
+    } else {
+        & $Python -c 'import edge_tts' 2>$null
+        if ($LASTEXITCODE -ne 0) { throw "edge-tts is missing: $Python -m pip install edge-tts" }
+    }
     if (-not (Test-Path (Join-Path $Root 'e2e' 'node_modules'))) {
         Invoke-Tool npm @('--prefix', (Join-Path $Root 'e2e'), 'ci') | Out-Null
     }
     if (-not (Test-Path (Join-Path $Root 'frontend' 'node_modules'))) {
         Invoke-Tool npm @('--prefix', (Join-Path $Root 'frontend'), 'ci') | Out-Null
     }
+}
+
+# The Kokoro-82M ONNX model folder (onnx/model.onnx and voices/*.bin).
+function Get-KokoroModel {
+    if ($env:KOKORO_MODEL_DIR) { return $env:KOKORO_MODEL_DIR }
+    $hub = if ($env:HF_HOME) { Join-Path $env:HF_HOME 'hub' } else { Join-Path $HOME '.cache' 'huggingface' 'hub' }
+    $snapshot = Get-ChildItem (Join-Path $hub 'models--onnx-community--Kokoro-82M-v1.0-ONNX' 'snapshots') -Directory -ErrorAction SilentlyContinue |
+        Where-Object { Test-Path (Join-Path $_.FullName 'onnx' 'model.onnx') } | Select-Object -First 1
+    if (-not $snapshot) {
+        throw 'No Kokoro model: huggingface-cli download onnx-community/Kokoro-82M-v1.0-ONNX onnx/model.onnx voices/af_heart.bin, or set KOKORO_MODEL_DIR'
+    }
+    return $snapshot.FullName
+}
+
+# The music bed, downloaded once into the run folder and never committed (ADR 0037).
+function Get-MusicBed {
+    $file = Join-Path $RunDir 'music' 'bed.mp3'
+    if (-not (Test-Path $file)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $file) | Out-Null
+        Invoke-WebRequest -Uri $MusicUrl -OutFile $file -UserAgent 'Mozilla/5.0'
+    }
+    return $file
 }
 
 function Get-Duration([string] $Path) {
@@ -115,8 +181,14 @@ function New-Narration([string] $Slug) {
     foreach ($clip in $manifest.clips) {
         $spoken = ConvertTo-Spoken $clip.text
         $hash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData(
-                [Text.Encoding]::UTF8.GetBytes("$Voice|$spoken"))).Substring(0, 16)
+                [Text.Encoding]::UTF8.GetBytes($(if ($Engine -eq 'kokoro') { "kokoro|$Voice|$KokoroSpeed|$spoken" } else { "$Voice|$spoken" })))).Substring(0, 16)
         $wav = Join-Path $dir 'clips' "$($clip.id)-$hash.wav"
+        if (-not (Test-Path $wav) -and $Engine -eq 'kokoro') {
+            $raw = [IO.Path]::ChangeExtension($wav, '.24k.wav')
+            Invoke-Tool $Python @('-c', $KokoroScript, $spoken, $Voice, $KokoroSpeed, (Get-KokoroModel), $raw) | Out-Null
+            Invoke-Tool ffmpeg @('-y', '-v', 'error', '-i', $raw, '-ar', '48000', '-ac', '1', $wav) | Out-Null
+            Remove-Item $raw
+        }
         if (-not (Test-Path $wav)) {
             $mp3 = [IO.Path]::ChangeExtension($wav, '.mp3')
             # The online voice service occasionally answers with no audio; retry before failing.
@@ -200,9 +272,23 @@ function Complete-Video([string] $Slug) {
         $labels += "[a$i]"
     }
     $filters += "${labels}amix=inputs=$($steps.Count):normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad,atrim=0:$length[out]"
-    $audio = Join-Path $dir 'narration.opus'
+    $voiceTrack = Join-Path $dir 'narration.opus'
     Invoke-Tool ffmpeg (@('-y', '-v', 'error') + $inputs + @('-filter_complex', ($filters -join ';'),
-            '-map', '[out]', '-ac', '1', '-c:a', 'libopus', '-b:a', '48k', $audio)) | Out-Null
+            '-map', '[out]', '-ac', '1', '-c:a', 'libopus', '-b:a', '48k', $voiceTrack)) | Out-Null
+    $audio = $voiceTrack
+    if ($Music) {
+        # The bed loops at a fixed gain well below the voice, fades in over 2 s and out over the last
+        # 3 s, and is ducked further while the voice speaks (a sidechain keyed from the narration).
+        $culture = [Globalization.CultureInfo]::InvariantCulture
+        $len = $length.ToString($culture)
+        $fadeOut = [Math]::Max(0, $length - 3).ToString($culture)
+        $mix = "[1:a]aresample=48000,aformat=channel_layouts=mono,volume=$($MusicVolume.ToString($culture)),atrim=0:$len,afade=t=in:d=2,afade=t=out:st=${fadeOut}:d=3[bed];" +
+            "[0:a]asplit=2[voice][key];[bed][key]sidechaincompress=threshold=0.02:ratio=6:attack=20:release=400[ducked];" +
+            "[voice][ducked]amix=inputs=2:normalize=0,alimiter=limit=0.95,atrim=0:$len[out]"
+        $audio = Join-Path $dir 'mix.opus'
+        Invoke-Tool ffmpeg @('-y', '-v', 'error', '-i', $voiceTrack, '-stream_loop', '-1', '-i', (Get-MusicBed),
+            '-filter_complex', $mix, '-map', '[out]', '-ac', '1', '-c:a', 'libopus', '-b:a', '64k', $audio) | Out-Null
+    }
 
     # Chapters (FFMETADATA) and WebVTT captions from the same corrected times.
     $meta = @(';FFMETADATA1', "title=FaithTech Community: $($manifest.title)")
@@ -216,7 +302,9 @@ function Complete-Video([string] $Slug) {
     }
     $metaFile = Join-Path $dir 'chapters.txt'
     Set-Content -Encoding utf8NoBOM $metaFile ($meta -join "`n")
-    Set-Content -Encoding utf8NoBOM (Join-Path $stage "captions.vtt") ($vtt -join "`n")
+    $captions = Join-Path $stage 'captions.vtt'
+    if ($NoCaptions) { Remove-Item -Force -ErrorAction SilentlyContinue $captions }
+    else { Set-Content -Encoding utf8NoBOM $captions ($vtt -join "`n") }
 
     $video = Join-Path $stage "video.webm"
     Invoke-Tool ffmpeg @('-y', '-v', 'error', '-i', $raw, '-i', $audio, '-f', 'ffmetadata', '-i', $metaFile,
@@ -228,12 +316,12 @@ function Complete-Video([string] $Slug) {
     Invoke-Tool ffmpeg @('-y', '-v', 'error', '-ss', "$posterAt", '-i', $video, '-frames:v', '1',
         (Join-Path $stage "poster.png")) | Out-Null
 
-    Test-Video $Slug $video $steps
+    Test-Video $Slug $video $steps $voiceTrack
     $steps | Select-Object id, chapter, start, duration |
         ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $dir 'chapters.json')
 }
 
-function Test-Video([string] $Slug, [string] $Video, [object[]] $Steps) {
+function Test-Video([string] $Slug, [string] $Video, [object[]] $Steps, [string] $VoiceTrack) {
     $probe = Invoke-Tool ffprobe @('-v', 'error', '-show_streams', '-show_format', '-show_chapters', '-of', 'json', $Video) |
         Out-String | ConvertFrom-Json
     $v = @($probe.streams | Where-Object codec_type -EQ 'video')
@@ -241,11 +329,14 @@ function Test-Video([string] $Slug, [string] $Video, [object[]] $Steps) {
     if ($v.Count -ne 1 -or $v[0].width -ne 1280 -or $v[0].height -ne 720) { throw "${Slug}: expected one 1280x720 video stream" }
     if ($a.Count -ne 1 -or $a[0].codec_name -ne 'opus') { throw "${Slug}: expected one Opus audio stream" }
     if ($probe.chapters.Count -ne $Steps.Count) { throw "${Slug}: expected $($Steps.Count) chapters" }
-    # Every paragraph must be audible where its caption is shown.
+    # Every paragraph must be audible where its step is shown, in the video and on the narration
+    # track alone, so a music bed can never pass for the voice.
     foreach ($step in $Steps) {
-        $level = & ffmpeg -v info -ss $step.start -t ([Math]::Max(1, $step.duration - 0.3)) -i $Video -map 0:a -af volumedetect -f null - 2>&1 |
-            Select-String 'mean_volume: (-?[0-9.]+)' | ForEach-Object { [double]$_.Matches[0].Groups[1].Value }
-        if ($null -eq $level -or $level -lt -35) { throw "${Slug}: '$($step.id)' is silent (mean $level dB)" }
+        foreach ($source in @($Video, $VoiceTrack) | Select-Object -Unique) {
+            $level = & ffmpeg -v info -ss $step.start -t ([Math]::Max(1, $step.duration - 0.3)) -i $source -map 0:a -af volumedetect -f null - 2>&1 |
+                Select-String 'mean_volume: (-?[0-9.]+)' | ForEach-Object { [double]$_.Matches[0].Groups[1].Value }
+            if ($null -eq $level -or $level -lt -35) { throw "${Slug}: '$($step.id)' is silent (mean $level dB)" }
+        }
     }
     $size = (Get-Item $Video).Length / 1MB
     Write-Host ("{0}: verified {1:N1}s, {2}x{3} {4} + opus, {5} chapters, {6:N1} MB" -f $Slug,
@@ -260,6 +351,8 @@ function Publish-Video([string] $Slug) {
     $dest = Join-Path $OutDir $Slug
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
     $files = Get-ChildItem $stage -File
+    # A captionless recording replaces any earlier captions, which would no longer match it.
+    if ($NoCaptions) { Remove-Item -Force -ErrorAction SilentlyContinue (Join-Path $dest 'captions.vtt') }
     foreach ($f in $files) {
         $target = Join-Path $dest $f.Name
         if (Test-Path $target) { Copy-Item $target $backup -Force }
@@ -282,6 +375,7 @@ foreach ($slug in $Journey) {
 # One Playwright run starts the dev server once on its own port and records every journey.
 $env:DEMO_RUN_DIR = $RunDir
 $env:DEMO_PORT = "$Port"
+if ($NoCaptions) { $env:DEMO_NO_CAPTIONS = '1' }
 Push-Location (Join-Path $Root 'e2e')
 try {
     $env:DEMO_JOURNEYS = $Journey -join ','
@@ -289,7 +383,7 @@ try {
     $recorded = $LASTEXITCODE
 } finally {
     Pop-Location
-    Remove-Item Env:DEMO_RUN_DIR, Env:DEMO_PORT, Env:DEMO_JOURNEYS -ErrorAction SilentlyContinue
+    Remove-Item Env:DEMO_RUN_DIR, Env:DEMO_PORT, Env:DEMO_JOURNEYS, Env:DEMO_NO_CAPTIONS -ErrorAction SilentlyContinue
 }
 
 $failed = @()

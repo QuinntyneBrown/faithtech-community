@@ -61,6 +61,17 @@
             <ft-icon name="edit" /> Edit
           </ft-button>
         }
+        <!-- Event hubs (L2-153 AC1): Create until the event has one, then Open. -->
+        @if (e.canManageHub && !e.hubId && !e.isCancelled) {
+          <ft-button ftPageHeaderActions (click)="createHub()">
+            <ft-icon name="hub" /> Create event hub
+          </ft-button>
+        }
+        @if (e.canManageHub && e.hubId) {
+          <ft-button ftPageHeaderActions [href]="'/events/' + e.id + '/hub'">
+            <ft-icon name="hub" /> Open event hub
+          </ft-button>
+        }
         <!-- One element per block: a block with several roots cannot project into the actions slot. -->
         @if (e.canManage && !e.isCancelled) {
           <ft-button ftPageHeaderActions variant="danger" (click)="cancelEvent()">

@@ -353,12 +353,16 @@
         "L2-022",
         "L2-024",
         "L2-025",
-        "L2-121"
+        "L2-121",
+        "L2-153",
+        "L2-154"
       ],
       "states": [
         "default",
         "rsvped",
         "lead",
+        "lead-hub-create",
+        "lead-hub-open",
         "attendance",
         "link-copied",
         "cancelled",
@@ -367,6 +371,26 @@
       ],
       "not_applicable": {
         "empty": "An event page always has an event; a missing one is the 404 page."
+      }
+    },
+    {
+      "id": "event-hub",
+      "kind": "page",
+      "title": "Event hub",
+      "route": "/events/:id/hub",
+      "requirements": [
+        "L2-154"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "forbidden",
+        "no-hub",
+        "link-copied"
+      ],
+      "not_applicable": {
+        "empty": "A hub always has its seven sections; an event with no hub is the no-hub state."
       }
     },
     {
@@ -1269,6 +1293,26 @@
         "invalid",
         "busy",
         "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "create-event-hub",
+      "kind": "dialog",
+      "title": "Create event hub",
+      "opens_from": "event",
+      "requirements": [
+        "L2-153"
+      ],
+      "states": [
+        "default",
+        "starting-point",
+        "sections",
+        "done",
+        "busy",
+        "failed",
+        "invalid",
+        "saved"
       ],
       "not_applicable": {}
     },

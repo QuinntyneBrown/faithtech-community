@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Create an event hub
+Person(lead, "Hub manager", "Member holding ManageEventHubs, e.g. a City Lead or Event Lead in FaithTech")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+Rel(lead, community, "Starts a hub from an event's page and finishes it from the hub home", "HTTPS")
+@enduml

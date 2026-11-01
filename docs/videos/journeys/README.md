@@ -137,6 +137,15 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | [Switch method](switch-method/video.webm) · [poster](switch-method/poster.png) · [captions](switch-method/captions.vtt) · [narration](switch-method/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey switch-method` |
 | [Archive and transfer workspaces](archive-and-transfer-workspaces/video.webm) · [poster](archive-and-transfer-workspaces/poster.png) · [captions](archive-and-transfer-workspaces/captions.vtt) · [narration](archive-and-transfer-workspaces/narration.md) | 1:19 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey archive-and-transfer-workspaces` |
 
+### Event hubs
+
+These journeys are narrated with the Kokoro `af_heart` voice over a quiet music bed, and have no captions: `narration.md` is
+the transcript and the chapters are embedded in the WebM (ADR 0037).
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Create an event hub](create-event-hub/video.webm) · [poster](create-event-hub/poster.png) · [narration](create-event-hub/narration.md) | 1:28 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-event-hub -Engine kokoro -NoCaptions -Music` |
+
 All are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
 mono, 48 kb/s, loudness-normalized). The chapters are embedded in each WebM and listed in its
 `captions.vtt`. The phone and tablet scenes in the app shell tour use a 390 or 768 pixel wide
@@ -144,7 +153,7 @@ viewport, so the rest of the frame is grey.
 
 ## Voice
 
-One narrator for every video: `en-US-AndrewMultilingualNeural`, synthesized with the free
+One narrator for every video except the event hubs (Kokoro `af_heart`, ADR 0037): `en-US-AndrewMultilingualNeural`, synthesized with the free
 [`edge-tts`](https://github.com/rany2/edge-tts) package (no key or subscription). Set `EDGE_VOICE`
 to try another voice. [`pronunciations.json`](pronunciations.json) maps written words to how they
 are spoken (for example FaithTech, PKCE and WCAG); captions keep the written form.

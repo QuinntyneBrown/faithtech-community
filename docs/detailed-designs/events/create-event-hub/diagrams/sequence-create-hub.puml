@@ -1,0 +1,42 @@
+@startuml
+title Create an event hub through the wizard
+actor "Hub manager" as lead
+participant "EventPage" as page
+participant "CreateEventHubDialog" as dlg
+participant "HttpEventHubsService" as svc
+participant "EventsEndpoints" as ep
+participant "CreateEventHubHandler" as h
+participant "SaveEventHubHandler" as s
+database "Community database" as db
+lead -> page : Create event hub
+page -> dlg : open(event)
+dlg --> lead : Step 1 of 4: the event's facts, read from the event
+lead -> dlg : Next
+dlg -> svc : create(eventId)
+svc -> ep : POST /api/events/{id}/hub
+ep -> h : Handle
+alt no ManageEventHubs (and not AdministerOrganisation)
+  h --> ep : Forbidden
+  ep --> dlg : 403
+else event of another organisation or unknown
+  h --> ep : NotFound (404)
+else cancelled, or already has a hub
+  h --> ep : Conflict "This event already has a hub."
+  ep --> dlg : 409, message shown on the step
+else allowed
+  h -> db : Insert EventHub (Draft, blank) and 7 visible HubSections
+  opt override
+    h -> db : Audit event_hub.created
+  end
+  ep --> dlg : 201 { id }
+end
+lead -> dlg : Next (Blank), untick Giving, Next
+dlg -> svc : save(eventId, { templateKey, sections })
+svc -> ep : PUT /api/events/{id}/hub
+ep -> s : Validated command
+s -> db : Update TemplateKey and section visibility
+ep --> dlg : 204
+dlg --> lead : Step 4: "Your hub is ready to fill in"
+lead -> dlg : Fill in sections now
+dlg -> page : navigate /events/{id}/hub
+@enduml

@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   EventDetailDto,
   EVENTS_SERVICE,
@@ -52,6 +53,9 @@ import {
   CancelEventDialog,
   CancelRsvpData,
   CancelRsvpDialog,
+  CreateEventHubData,
+  CreateEventHubDialog,
+  CreateEventHubResult,
 } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error';
@@ -93,6 +97,7 @@ export class EventPage {
   protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly dialogs = inject(DialogService);
+  private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
 
   /** Route parameter. */
@@ -250,6 +255,35 @@ export class EventPage {
     } finally {
       this.downloading.set(false);
     }
+  }
+
+  /** Starts the event's hub through the four-step wizard (L2-153). */
+  protected async createHub(): Promise<void> {
+    const e = this.event();
+    if (!e) return;
+    const ref = this.dialogs.open<CreateEventHubResult, CreateEventHubData>(CreateEventHubDialog, {
+      data: {
+        eventId: e.id,
+        title: e.title,
+        when: this.when(),
+        where: this.where(),
+        rsvpLink: this.publicUrl(),
+      },
+    });
+    const result = await firstValueFrom(ref.closed);
+    if (!result?.created) return;
+    if (result.next === 'fill-in') {
+      await this.router.navigate(['/events', e.id, 'hub']);
+      return;
+    }
+    if (result.next === 'later') {
+      this.toasts.show({
+        variant: 'success',
+        heading: 'Hub saved as a draft',
+        text: 'Open it from this page to finish it.',
+      });
+    }
+    await this.load(this.id(), false);
   }
 
   protected async cancelEvent(): Promise<void> {

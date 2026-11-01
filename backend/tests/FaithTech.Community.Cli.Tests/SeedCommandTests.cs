@@ -68,8 +68,8 @@ public class SeedCommandTests
         var definitions = await db.RoleDefinitions.OrderBy(d => d.SortOrder).ToListAsync();
         Assert.Equal(
             [
-                ("City Lead", "AddResources AssignRoles ConnectLink InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEvents ManagePartners OwnWorkspaces ViewAttendees ViewPartners ViewPeopleDirectory", true, true, false),
-                ("Event Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEvents ManagePartners ViewAttendees ViewPartners", true, true, false),
+                ("City Lead", "AddResources AssignRoles ConnectLink InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEventHubs ManageEvents ManagePartners OwnWorkspaces ViewAttendees ViewPartners ViewPeopleDirectory", true, true, false),
+                ("Event Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEventHubs ManageEvents ManagePartners ViewAttendees ViewPartners", true, true, false),
                 ("Create Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManagePartners ViewAttendees ViewPartners", true, true, false),
                 ("Communications Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManagePartners SendAnnouncements ViewAttendees ViewPartners", true, true, false),
                 ("Staff", "AddResources ReadAllWorkspaces ViewAttendees ViewPartners ViewPeopleDirectory ViewReports", false, false, true),

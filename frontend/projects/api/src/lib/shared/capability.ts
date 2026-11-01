@@ -4,6 +4,7 @@
  */
 export const CAPABILITIES = [
   'ManageEvents',
+  'ManageEventHubs',
   'ViewAttendees',
   'ManageAttendance',
   'KeepContacts',
@@ -29,6 +30,7 @@ export type Capability = (typeof CAPABILITIES)[number];
 /** Each capability's name, as the define-role dialog and the Roles page show it (docs/mocks/dialogs/define-role). */
 export const CAPABILITY_LABELS: Record<Capability, string> = {
   ManageEvents: 'Manage events',
+  ManageEventHubs: 'Manage event hubs',
   ViewAttendees: 'View attendees',
   ManageAttendance: 'Manage attendance',
   KeepContacts: 'Keep contacts',

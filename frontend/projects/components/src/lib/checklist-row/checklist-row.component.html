@@ -1,0 +1,11 @@
+<span class="ft-checklist-row__icon"><ft-icon [name]="look().icon" /></span>
+<div class="ft-checklist-row__body">
+  <div class="ft-checklist-row__title">{{ label() }}</div>
+  @if (description(); as d) {
+    <p class="ft-checklist-row__text">{{ d }}</p>
+  }
+</div>
+<div class="ft-checklist-row__end">
+  <ft-badge [variant]="look().variant">{{ look().text }}</ft-badge>
+  <ng-content select="[actions]" />
+</div>

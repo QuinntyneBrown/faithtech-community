@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Create an event hub
+Person(lead, "Hub manager", "Holds ManageEventHubs")
+System_Boundary(c, "Community platform") {
+  Container(spa, "Web app", "Angular", "Event page, Create event hub wizard, hub home (events library)")
+  Container(api, "Community API", "ASP.NET Core", "/api/events/{id}/hub; resolves the organisation from the host")
+  ContainerDb(db, "Community database", "PostgreSQL", "Events, EventHubs, HubSections")
+}
+Rel(lead, spa, "Uses", "HTTPS")
+Rel(spa, api, "POST, GET and PUT the hub", "JSON/HTTPS, bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

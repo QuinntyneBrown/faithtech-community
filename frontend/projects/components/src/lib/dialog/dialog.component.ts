@@ -38,6 +38,8 @@ export class DialogComponent {
   readonly tone = input<DialogTone>('neutral');
   /** While busy the Close button is disabled and Escape is ignored. */
   readonly busy = input(false);
+  /** The id of an element in the body that describes the dialog when it has no description, such as a stepper's status line. */
+  readonly describedBy = input<string | null>(null);
   readonly closed = output<void>();
 
   protected readonly titleId = `ft-dialog-title-${nextId}`;
@@ -51,7 +53,8 @@ export class DialogComponent {
     afterNextRender(() => {
       const container = this.element.nativeElement.closest('.cdk-dialog-container');
       container?.setAttribute('aria-labelledby', this.titleId);
-      if (this.description()) container?.setAttribute('aria-describedby', this.descriptionId);
+      const describedBy = this.description() ? this.descriptionId : this.describedBy();
+      if (describedBy) container?.setAttribute('aria-describedby', describedBy);
     });
   }
 }

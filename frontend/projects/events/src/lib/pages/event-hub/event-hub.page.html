@@ -1,0 +1,85 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+      <ft-breadcrumb-item [href]="'/events/' + id()">Event</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Hub</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <ft-page-header title="Event hub" />
+    <ft-card variant="flush">
+      <ft-list-skeleton label="Loading hub" [rows]="7" />
+    </ft-card>
+  }
+  @case ('error') {
+    <h1 class="visually-hidden">Event hub</h1>
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this hub"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('forbidden') {
+    <h1 class="visually-hidden">Event hub</h1>
+    <ft-empty-state
+      icon="locked"
+      heading="You can’t manage event hubs"
+      text="Ask someone who manages your organisation’s roles for access."
+    >
+      <ft-button actions variant="primary" [href]="'/events/' + id()">Back to event</ft-button>
+    </ft-empty-state>
+  }
+  @case ('no-hub') {
+    <h1 class="visually-hidden">Event hub</h1>
+    <ft-empty-state icon="hub" heading="This event has no hub yet">
+      <ft-button actions variant="primary" [href]="'/events/' + id()">Back to event</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (hub(); as h) {
+      <ft-breadcrumb>
+        <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+        <ft-breadcrumb-item [href]="'/events/' + h.eventId">{{ h.event.title }}</ft-breadcrumb-item>
+        <ft-breadcrumb-item>Hub</ft-breadcrumb-item>
+      </ft-breadcrumb>
+      <ft-page-header title="Event hub" [subtitle]="subtitle()" />
+      <ft-stack>
+        <ft-card heading="Your hub">
+          <ft-stack>
+            <ft-description-list>
+              <ft-description-list-item label="Status">
+                <ft-badge [variant]="h.status === 'Published' ? 'success' : 'neutral'">{{
+                  h.status
+                }}</ft-badge>
+              </ft-description-list-item>
+            </ft-description-list>
+            <ft-copy-field
+              label="Link"
+              [value]="h.link"
+              help="Visitors can open it once you publish."
+            />
+          </ft-stack>
+        </ft-card>
+        <ft-card variant="flush" heading="Sections">
+          <div class="hub-progress">
+            <ft-progress
+              heading="Sections ready"
+              [value]="ready()"
+              [max]="shown()"
+              [label]="progress()"
+              [caption]="progress()"
+            />
+          </div>
+          <ft-list label="Sections" class="hub-sections">
+            @for (row of rows(); track row.kind) {
+              <ft-checklist-row [label]="row.title" [description]="row.line" [state]="row.state" />
+            }
+          </ft-list>
+        </ft-card>
+      </ft-stack>
+    }
+  }
+}

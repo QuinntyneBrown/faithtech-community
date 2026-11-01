@@ -45,8 +45,8 @@ public static class FaithTechSeed
     [
         new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7001"), "CityLead", "City Lead", "Leads a city team and manages its roles",
             [
-                Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
-                Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.ConnectLink,
+                Capability.ManageEvents, Capability.ManageEventHubs, Capability.ViewAttendees, Capability.ManageAttendance,
+                Capability.KeepContacts, Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.ConnectLink,
                 Capability.OwnWorkspaces, Capability.JoinWorkspaces, Capability.ViewPeopleDirectory, Capability.AssignRoles,
                 Capability.AddResources,
             ],
@@ -54,8 +54,8 @@ public static class FaithTechSeed
             Grants: ["EventLead", "CreateLead", "CommunicationsLead", "Volunteer", "ProductEngineer", "Attendee"]),
         new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7002"), "EventLead", "Event Lead", "Creates and manages events",
             [
-                Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
-                Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.JoinWorkspaces,
+                Capability.ManageEvents, Capability.ManageEventHubs, Capability.ViewAttendees, Capability.ManageAttendance,
+                Capability.KeepContacts, Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.JoinWorkspaces,
                 Capability.AddResources,
             ],
             ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),

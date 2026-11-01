@@ -135,3 +135,13 @@
     animation: none;
   }
 }
+
+/* A secondary action kept apart on the left, such as a wizard's Save and finish later. */
+.dialog__footer-start {
+  display: flex;
+  margin-inline-end: auto;
+
+  &:empty {
+    display: none;
+  }
+}

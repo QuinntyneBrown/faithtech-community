@@ -43,6 +43,8 @@ const existing: EventDetailDto = {
   checkedInCount: null,
   canCheckIn: false,
   canViewCheckIn: false,
+  hubId: null,
+  canManageHub: false,
 };
 
 interface Overrides {

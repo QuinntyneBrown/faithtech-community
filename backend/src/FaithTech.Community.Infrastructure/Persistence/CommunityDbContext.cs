@@ -108,6 +108,10 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
     public DbSet<PhotoBlobTask> PhotoBlobTasks => Set<PhotoBlobTask>();
     public DbSet<Event> Events => Set<Event>();
 
+    public DbSet<EventHub> EventHubs => Set<EventHub>();
+
+    public DbSet<HubSection> HubSections => Set<HubSection>();
+
     public DbSet<Announcement> Announcements => Set<Announcement>();
 
     public DbSet<Resource> Resources => Set<Resource>();
@@ -466,6 +470,29 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             ev.HasIndex(e => e.StartsAt);
             ev.HasMany(e => e.Rsvps).WithOne().HasForeignKey(r => r.EventId).OnDelete(DeleteBehavior.Cascade);
             ev.Navigation(e => e.Rsvps).HasField("_rsvps").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        // Event hubs (ADR 0036): one per event, its sections as rows with JSON content.
+        builder.Entity<EventHub>(hub =>
+        {
+            hub.ToTable("EventHubs");
+            hub.Property(h => h.Id).ValueGeneratedNever();
+            hub.HasOne<Event>().WithMany().HasForeignKey(h => h.EventId).OnDelete(DeleteBehavior.Cascade);
+            hub.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(EventHub.EventId)).IsUnique();
+            hub.Property(h => h.Status).HasConversion<string>().HasMaxLength(16);
+            hub.Property(h => h.TemplateKey).HasMaxLength(64);
+            hub.Property(h => h.UpdateBanner).HasMaxLength(280);
+            hub.HasMany(h => h.Sections).WithOne().HasForeignKey(s => s.EventHubId).OnDelete(DeleteBehavior.Cascade);
+            hub.Navigation(h => h.Sections).HasField("_sections").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<HubSection>(section =>
+        {
+            section.ToTable("HubSections");
+            section.Property(s => s.Id).ValueGeneratedNever();
+            section.Property(s => s.Kind).HasConversion<string>().HasMaxLength(32);
+            section.Property(s => s.Content).HasColumnType("jsonb");
+            section.HasIndex(s => new { s.EventHubId, s.Kind }).IsUnique();
         });
 
         builder.Entity<Rsvp>(rsvp =>

@@ -60,6 +60,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Archive role dialog](components/archive-role-dialog.html) | Confirm archiving a role; shows the 409 reason inside the dialog. |
 | [Notification panel](components/notification-panel.html) | Bell panel with unread notices. |
 | [List](components/list.html) | People, contacts, invites and check-in lists. |
+| [Checklist row](components/checklist-row.html) | `ft-checklist-row`: one row per hub section with a state icon, a Ready, Needs info or Hidden badge and an actions slot. |
 | [Reorderable list](components/reorderable-list.html) | Chapters and taxonomies: drag handle, move up and down, row menu, live announcement. |
 | [Table](components/table.html) | Audit log and admin tables. |
 | [Description list](components/description-list.html) | Profile and contact facts. |
@@ -87,7 +88,8 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Toast](components/toast.html) | Info, success, warning, danger; with action. |
 | [Alert and banner](components/alert.html) | Inline alerts and page banners. |
 | [Inline message](components/inline-message.html) | Field errors and save status. |
-| [Progress](components/progress.html) | Determinate progress, attendance meter and bar chart. |
+| [Progress](components/progress.html) | Determinate progress, attendance meter, progress line ("3 of 6 sections ready") and bar chart. |
+| [Stepper](components/stepper.html) | `ft-stepper`: "Step 2 of 4" and the step name over one segment per step, for wizards. |
 | [Skeleton](components/skeleton.html) | Loading placeholders, including the loading list. |
 | [Empty state](components/empty-state.html) | First-run, no results, error; page-level heading for full-page errors. |
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |

@@ -4,6 +4,7 @@
  */
 export const CAPABILITIES = [
   'ManageEvents',
+  'ManageEventHubs',
   'ViewAttendees',
   'ManageAttendance',
   'KeepContacts',
@@ -29,6 +30,7 @@ export type Capability = (typeof CAPABILITIES)[number];
 /** Each capability's one-line description, as the API's catalogue gives it. */
 export const CAPABILITY_DESCRIPTIONS: Record<Capability, string> = {
   ManageEvents: 'Create, edit and cancel events.',
+  ManageEventHubs: 'Create, edit, publish and unpublish event hubs.',
   ViewAttendees: "See who has RSVP'd to events and who checked in.",
   ManageAttendance: 'Check people in, add walk-ins, see guest emails and export RSVPs.',
   KeepContacts: 'Keep private contacts and notes about people met.',
@@ -82,6 +84,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     name: 'City Lead',
     capabilities: [
       'ManageEvents',
+      'ManageEventHubs',
       'ViewAttendees',
       'ManageAttendance',
       'KeepContacts',
@@ -113,6 +116,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     name: 'Event Lead',
     capabilities: [
       'ManageEvents',
+      'ManageEventHubs',
       'ViewAttendees',
       'ManageAttendance',
       'KeepContacts',

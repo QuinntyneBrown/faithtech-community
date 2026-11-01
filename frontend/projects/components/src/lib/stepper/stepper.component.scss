@@ -1,0 +1,65 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.ft-stepper__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  font: var(--text-label);
+}
+
+.ft-stepper__count {
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ft-stepper__name {
+  color: var(--color-fg-default);
+}
+
+.ft-stepper__steps {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ft-stepper__step {
+  block-size: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle-hover);
+}
+
+.ft-stepper__step--done,
+.ft-stepper__step[aria-current='step'] {
+  background: var(--color-accent);
+}
+
+.ft-visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (forced-colors: active) {
+  .ft-stepper__step {
+    border: var(--border-width-hairline) solid CanvasText;
+  }
+
+  .ft-stepper__step--done,
+  .ft-stepper__step[aria-current='step'] {
+    background: Highlight;
+  }
+}

@@ -7,6 +7,7 @@ namespace FaithTech.Community.Domain.Organisations;
 public static class Capability
 {
     public const string ManageEvents = nameof(ManageEvents);
+    public const string ManageEventHubs = nameof(ManageEventHubs);
     public const string ViewAttendees = nameof(ViewAttendees);
     public const string ManageAttendance = nameof(ManageAttendance);
     public const string KeepContacts = nameof(KeepContacts);
@@ -30,6 +31,7 @@ public static class Capability
     public static IReadOnlyList<(string Key, string Description)> All { get; } =
     [
         (ManageEvents, "Create, edit and cancel events."),
+        (ManageEventHubs, "Create, edit, publish and unpublish event hubs."),
         (ViewAttendees, "See who has RSVP'd to events and who checked in."),
         (ManageAttendance, "Check people in, add walk-ins, see guest emails and export RSVPs."),
         (KeepContacts, "Keep private contacts and notes about people met."),

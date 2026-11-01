@@ -94,7 +94,7 @@ each merged slice ships.
 
 | # | Prompt | Journey | Video | Status |
 |---|---|---|---|---|
-| 41 | [41-create-an-event-hub.md](41-create-an-event-hub.md) | Create an event hub | `create-event-hub` | To do |
+| 41 | [41-create-an-event-hub.md](41-create-an-event-hub.md) | Create an event hub | `create-event-hub` | Done |
 | 42 | [42-fill-in-hub-sections.md](42-fill-in-hub-sections.md) | Fill in hub sections | `fill-in-hub-sections` | To do |
 | 43 | [43-preview-and-publish-a-hub.md](43-preview-and-publish-a-hub.md) | Preview and publish a hub | `preview-and-publish-hub` | To do |
 | 44 | [44-visit-an-event-hub.md](44-visit-an-event-hub.md) | Visit an event hub | `visit-event-hub` | To do |

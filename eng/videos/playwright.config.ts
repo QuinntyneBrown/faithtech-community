@@ -10,6 +10,7 @@ const port = Number(process.env['DEMO_PORT'] ?? 4310);
 const runDir = process.env['DEMO_RUN_DIR'] ?? join(__dirname, '.run');
 // DEMO_JOURNEYS limits the run to some journeys, e.g. "sign-up,verify-email".
 const journeys = process.env['DEMO_JOURNEYS']?.split(',').filter(Boolean);
+// DEMO_NO_CAPTIONS=1 (Record-JourneyVideos.ps1 -NoCaptions) reaches presenter.ts through the workers' environment.
 
 export default {
   testDir: './journeys',

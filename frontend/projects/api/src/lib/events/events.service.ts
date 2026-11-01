@@ -97,6 +97,10 @@ export interface EventDetailDto {
   /** Lead roles and System Admins check people in; Staff only view the check-in page (L2-117). */
   canCheckIn: boolean;
   canViewCheckIn: boolean;
+  /** The event's hub, if it has one; the page offers Create or Open event hub (L2-153 AC1). */
+  hubId: string | null;
+  /** Holders of ManageEventHubs manage the hub. */
+  canManageHub: boolean;
 }
 
 /** A public event as anyone with the link sees it: no RSVP list and no joining link (L2-023). */

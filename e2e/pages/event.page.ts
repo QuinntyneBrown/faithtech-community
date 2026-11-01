@@ -25,6 +25,8 @@ export class EventPage {
   readonly tryAgain: Locator;
   readonly checkIn: Locator;
   readonly viewCheckIn: Locator;
+  readonly createEventHub: Locator;
+  readonly openEventHub: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -50,6 +52,8 @@ export class EventPage {
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.checkIn = page.getByRole('link', { name: 'Check in', exact: true });
     this.viewCheckIn = page.getByRole('link', { name: 'View check-in' });
+    this.createEventHub = page.getByRole('button', { name: 'Create event hub' });
+    this.openEventHub = page.getByRole('link', { name: 'Open event hub' });
   }
 
   async open(id: string): Promise<void> {

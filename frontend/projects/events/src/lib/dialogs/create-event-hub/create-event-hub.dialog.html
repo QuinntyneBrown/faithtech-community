@@ -1,0 +1,88 @@
+<ft-dialog heading="Create event hub" [describedBy]="statusId" [busy]="!!busy()" (closed)="close()">
+  <ft-stack>
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (failed()) {
+      <ft-alert status="danger" heading="We couldn’t save your hub">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+    @if (refusal(); as message) {
+      <ft-alert status="danger">{{ message }}</ft-alert>
+    }
+    @switch (step()) {
+      @case (1) {
+        <h3 class="ft-wizard-question">Which event is this hub for?</h3>
+        <ft-description-list>
+          <ft-description-list-item label="Event">{{ data.title }}</ft-description-list-item>
+          <ft-description-list-item label="When">{{ data.when }}</ft-description-list-item>
+          <ft-description-list-item label="Where">{{ data.where }}</ft-description-list-item>
+          <ft-description-list-item label="RSVP link">{{ data.rsvpLink }}</ft-description-list-item>
+        </ft-description-list>
+        <p class="ft-wizard-help">
+          These come from the event. Change the event and the hub follows.
+        </p>
+      }
+      @case (2) {
+        <ft-radio-group legend="How do you want to start?" [formControl]="startingPoint">
+          <ft-radio
+            value="blank"
+            description="Start with empty sections and fill them in yourself."
+            initialFocus
+            >Blank</ft-radio
+          >
+          @for (soon of comingSoon; track soon) {
+            <ft-radio [value]="soon" description="Coming soon" [disabled]="true">{{
+              soon
+            }}</ft-radio>
+          }
+        </ft-radio-group>
+      }
+      @case (3) {
+        <ft-checkbox-group
+          legend="What should the hub include?"
+          hint="Untick anything you don’t need. You can change this later."
+          [formControl]="shown"
+        >
+          @for (section of sections; track section.kind) {
+            <ft-checkbox [value]="section.kind" [description]="section.line">{{
+              section.title
+            }}</ft-checkbox>
+          }
+        </ft-checkbox-group>
+      }
+      @case (4) {
+        <h3 class="ft-wizard-question">Your hub is ready to fill in</h3>
+        <p>
+          It’s a draft, so only people who manage event hubs can see it. Fill in the sections, then
+          publish when you’re ready.
+        </p>
+      }
+    }
+  </ft-stack>
+  <ft-button
+    ftDialogFooterStart
+    variant="ghost"
+    [loading]="busy() === 'later'"
+    [disabled]="!!busy() && busy() !== 'later'"
+    (click)="later()"
+  >
+    <ft-icon name="save" /> {{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}
+  </ft-button>
+  @if (step() > 1) {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="back()">Back</ft-button>
+  }
+  @if (step() < 4) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy() && busy() !== 'next'"
+      (click)="next()"
+    >
+      {{ busy() === 'next' ? 'Saving…' : 'Next' }}
+    </ft-button>
+  } @else {
+    <ft-button ftDialogFooter variant="primary" (click)="fillIn()">Fill in sections now</ft-button>
+  }
+</ft-dialog>
