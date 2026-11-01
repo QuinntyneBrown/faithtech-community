@@ -11,3 +11,4 @@ export * from './hub-links';
 export * from './hub-people';
 export * from './hub-upcoming';
 export * from './hub-section-preview';
+export * from './unpublish-hub';
