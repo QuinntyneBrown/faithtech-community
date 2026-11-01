@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Visit an event hub
+Person(visitor, "Visitor", "Anyone, signed in or not, on a public event")
+Person(member, "Member", "Signed-in member of the organisation")
+Person(lead, "Hub manager", "Member holding ManageEventHubs")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+Rel(visitor, community, "Opens a published hub of a public event", "HTTPS")
+Rel(member, community, "Opens published hubs, also on members-only events", "HTTPS")
+Rel(lead, community, "Previews any hub", "HTTPS")
+@enduml

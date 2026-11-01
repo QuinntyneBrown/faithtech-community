@@ -8,8 +8,13 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { EVENT_HUBS_SERVICE, EventHubDto, HubSectionDto } from '@faithtech-community/api';
+import { Meta, Title } from '@angular/platform-browser';
+import {
+  AUTH_SERVICE,
+  EVENT_HUBS_SERVICE,
+  EventHubDto,
+  HubSectionDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -19,6 +24,7 @@ import {
   LinkComponent,
   SkeletonComponent,
   StackComponent,
+  formatTimeRange,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -67,11 +73,19 @@ type State = 'loading' | 'loaded' | 'unavailable' | 'error';
 export class HubPage {
   private readonly hubs = inject(EVENT_HUBS_SERVICE);
   private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
+  /** Anonymous visitors are offered Sign in when a hub isn't available (L2-166 AC2). */
+  protected readonly signedIn = inject(AUTH_SERVICE).isAuthenticated;
 
   readonly id = input.required<string>();
 
   protected readonly state = signal<State>('loading');
   protected readonly hub = signal<EventHubDto | null>(null);
+  /** Read by a hub manager, the page is the preview (L2-163 AC2); visitors see no banner (L2-167 AC1). */
+  protected readonly preview = computed(() => !!this.hub()?.canManage);
+  protected readonly signInHref = computed(
+    () => `/sign-in?returnUrl=${encodeURIComponent(`/public/events/${this.id()}/hub`)}`,
+  );
   /** The sections a visitor would see, in order (L2-163 AC1). */
   protected readonly shown = computed<HubSectionDto[]>(() => {
     const hub = this.hub();
@@ -103,10 +117,10 @@ export class HubPage {
   private async load(id: string): Promise<void> {
     this.state.set('loading');
     try {
-      const hub = await firstValueFrom(this.hubs.get(id));
+      const hub = await firstValueFrom(this.hubs.page(id));
       if (id !== this.id()) return;
       this.hub.set(hub);
-      this.title.setTitle(`${hub.event.title} hub`);
+      this.describe(hub);
       this.state.set('loaded');
     } catch (error) {
       if (id !== this.id()) return;
@@ -114,5 +128,19 @@ export class HubPage {
         error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404);
       this.state.set(unavailable ? 'unavailable' : 'error');
     }
+  }
+
+  /**
+   * The document title is the event's title, and the meta description the Hero subtitle or the event's date, time and
+   * place (L2-167 AC1); the preview keeps "{event} hub".
+   */
+  private describe(hub: EventHubDto): void {
+    const e = hub.event;
+    this.title.setTitle(hub.canManage ? `${e.title} hub` : e.title);
+    const subtitle = sectionContent(hub, 'Hero')?.subtitle;
+    const place = e.format === 'Online' ? 'Online' : e.venue;
+    const description =
+      subtitle || [formatTimeRange(e.startsAt, e.endsAt), place].filter(Boolean).join(' · ');
+    this.meta.updateTag({ name: 'description', content: description });
   }
 }

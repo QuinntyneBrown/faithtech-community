@@ -27,6 +27,16 @@ class HostComponent {
 })
 class DescriptionHostComponent {}
 
+@Component({
+  imports: [ListComponent, ListItemComponent],
+  template: `<ft-list label="Agenda">
+    <ft-list-item label="Doors open" state="finished" />
+    <ft-list-item label="Build time" state="current" />
+    <ft-list-item label="Code freeze" />
+  </ft-list>`,
+})
+class StateHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -55,6 +65,18 @@ describe('ListComponent', () => {
 });
 
 describe('ListItemComponent', () => {
+  // docs/design-system/components/list.html, Row states: a highlighted current row and a muted finished row.
+  it('shows a row as current or finished, and plain by default', () => {
+    const fixture = TestBed.createComponent(StateHostComponent);
+    fixture.detectChanges();
+    const [finished, current, plain] = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('ft-list-item'),
+    );
+    expect(finished.classList).toContain('ft-list-item--finished');
+    expect(current.classList).toContain('ft-list-item--current');
+    expect(plain.className).not.toMatch(/--current|--finished/);
+  });
+
   it('renders a link when href is set and plain text otherwise', () => {
     const { el } = setup();
     const items = el.querySelectorAll('ft-list-item');

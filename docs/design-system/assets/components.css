@@ -1256,6 +1256,15 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
   .list__item:has(.list__actions) .list__actions { width: 100%; justify-content: flex-start; padding-inline-start: calc(var(--size-avatar-md) + var(--space-3)); }
 }
 @media (prefers-reduced-motion: reduce) { .list__item--moved { animation: none; } }
+/* List row states (ListItemComponent `state`, slice 44): the live agenda on the hub page (patterns/event-hub-sections.html,
+   Live agenda). Current: the row happening now, a subtle background and an accent bar on the start edge, with
+   aria-current="time" and a "Happening now" badge so colour is never the only signal. Finished: the title drops to
+   muted text and a visually hidden "Finished" is read out. .list__status is the row's status line under the meta
+   (the [meta] slot). Nothing moves, so there is nothing to reduce for reduced motion. */
+.list__item--current { background: var(--color-bg-subtle); box-shadow: inset var(--space-1) 0 0 var(--color-accent); }
+.list__item--finished .list__title { color: var(--color-fg-muted); }
+.list__status { margin-top: var(--space-1); }
+@media (forced-colors: active) { .list__item--current { border-inline-start: var(--space-1) solid Highlight; } }
 /* A row menu anchored to its trigger. */
 .menu-anchor { position: relative; }
 .menu--row { right: 0; top: 100%; }

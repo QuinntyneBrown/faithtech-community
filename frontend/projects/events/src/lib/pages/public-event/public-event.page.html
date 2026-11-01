@@ -39,6 +39,15 @@
             e.cancellationReason
           }}</ft-alert>
         }
+        <!-- The published hub (L2-167 AC2, AC3): the day's information has its own page. -->
+        @if (e.hubLink) {
+          <ft-card heading="Event hub">
+            <ft-button ftCardActions [href]="'/public/events/' + e.id + '/hub'">
+              <ft-icon name="hub" /> Open the event hub
+            </ft-button>
+            <p>The agenda, venue, people and links for the day, in one place.</p>
+          </ft-card>
+        }
         <ft-split>
           <ft-card ftSplitMain heading="About">
             <ft-stack>

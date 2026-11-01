@@ -79,6 +79,12 @@ public static class EventsEndpoints
             return result.ToHttp(() => Results.Ok(hub));
         });
 
+        // The hub page (L2-166, ADR 0040): anyone may ask; the handler answers only what the caller may see, 404 otherwise.
+        // Kept out of /api/public so a signed-in member's token is sent.
+        events.MapGet("/{id:guid}/hub/page", async (Guid id, GetEventHubHandler handler, CancellationToken cancellationToken) =>
+                await handler.PageAsync(id, cancellationToken) is { } hub ? Results.Ok(hub) : Results.NotFound())
+            .AllowAnonymous();
+
         events.MapPut("/{id:guid}/hub", async (Guid id, SaveEventHubCommand command, SaveEventHubHandler handler, CancellationToken cancellationToken) =>
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventHubCommand>();

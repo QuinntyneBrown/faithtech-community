@@ -34,7 +34,8 @@ public record HubUpcomingEventDto(
 /// <summary>A hub as its home shows it (L2-154 AC1), sections in order.</summary>
 public record EventHubDto(
     Guid Id, Guid EventId, string Status, string TemplateKey, string Link, HubEventFactsDto Event, IReadOnlyList<HubSectionDto> Sections,
-    HubOrganisationDto? Organisation = null, IReadOnlyList<HubUpcomingEventDto>? UpcomingEvents = null, DateTimeOffset? PublishedAt = null);
+    HubOrganisationDto? Organisation = null, IReadOnlyList<HubUpcomingEventDto>? UpcomingEvents = null, DateTimeOffset? PublishedAt = null,
+    bool CanManage = false);
 
 public record HubSectionVisibility(string? Kind, bool Visible);
 
@@ -107,7 +108,12 @@ public class CreateEventHubHandler(IApplicationDbContext db, EventPermissions pe
 /// section states and the upcoming events are computed, and nothing another feature owns is copied (ADR 0038).
 /// </summary>
 public class GetEventHubHandler(
-    IApplicationDbContext db, EventPermissions permissions, ICurrentOrganisation organisation, IPhotoStorage photos, TimeProvider time)
+    IApplicationDbContext db,
+    EventPermissions permissions,
+    ICurrentOrganisation organisation,
+    ICurrentUser user,
+    IPhotoStorage photos,
+    TimeProvider time)
 {
     public async Task<(Result Result, EventHubDto? Hub)> HandleAsync(Guid eventId, CancellationToken cancellationToken = default)
     {
@@ -116,39 +122,83 @@ public class GetEventHubHandler(
             return (Result.Forbidden(), null);
         }
 
-        var e = await db.Events.AsNoTracking().SingleOrDefaultAsync(x => x.Id == eventId, cancellationToken);
-        var hub = e is null
-            ? null
-            : await db.EventHubs.AsNoTracking().Include(h => h.Sections).SingleOrDefaultAsync(h => h.EventId == eventId, cancellationToken);
+        var (e, hub) = await FindAsync(eventId, cancellationToken);
         if (e is null || hub is null)
         {
             return (Result.NotFound(), null);
         }
 
+        return (Result.Ok(), await BuildAsync(e, hub, visitor: false, cancellationToken));
+    }
+
+    /// <summary>
+    /// The hub page's read (L2-166, ADR 0040), open to anonymous callers. A holder of ManageEventHubs reads any hub of the
+    /// organisation; anyone else only a Published hub, and on a members-only event only as a member. Everything else is
+    /// null (404, never 403). Only the shown sections are answered, and People carry no profile id for anonymous callers.
+    /// </summary>
+    public async Task<EventHubDto?> PageAsync(Guid eventId, CancellationToken cancellationToken = default)
+    {
+        var (e, hub) = await FindAsync(eventId, cancellationToken);
+        if (e is null || hub is null)
+        {
+            return null;
+        }
+
+        if (permissions.CanManageHubs)
+        {
+            return await BuildAsync(e, hub, visitor: true, cancellationToken) with { CanManage = true };
+        }
+
+        var readable = hub.Status == EventHubStatus.Published && (e.Visibility == EventVisibility.Public || user.IsMember);
+        return readable ? await BuildAsync(e, hub, visitor: true, cancellationToken) : null;
+    }
+
+    private async Task<(Event? Event, EventHub? Hub)> FindAsync(Guid eventId, CancellationToken cancellationToken)
+    {
+        var e = await db.Events.AsNoTracking().SingleOrDefaultAsync(x => x.Id == eventId, cancellationToken);
+        var hub = e is null
+            ? null
+            : await db.EventHubs.AsNoTracking().Include(h => h.Sections).SingleOrDefaultAsync(h => h.EventId == eventId, cancellationToken);
+        return (e, hub);
+    }
+
+    /// <summary>The hub with the event's facts read now; for a visitor, only the shown sections (L2-163 AC1).</summary>
+    private async Task<EventHubDto> BuildAsync(Event e, EventHub hub, bool visitor, CancellationToken cancellationToken)
+    {
         var org = await db.Organisations.AsNoTracking().SingleAsync(o => o.Id == organisation.Id, cancellationToken);
         var origin = organisation.Origin;
         var facts = new HubEventFactsDto(
             e.Title, e.StartsAt, e.EndsAt, e.Format.ToString(), e.Venue, e.OnlineLink, $"{origin}/public/events/{e.Id}", e.IsCancelled);
+        var count = HubContent.Read<UpcomingEventsContent>(hub.Sections.Single(s => s.Kind == HubSectionKind.UpcomingEvents).Content).Count
+            ?? HubContent.DefaultUpcoming;
+        var upcoming = await UpcomingAsync(e, count, cancellationToken);
+        var withProfileIds = !visitor || user.IsMember;
         var sections = new List<HubSectionDto>();
         foreach (var s in hub.Sections.OrderBy(s => s.Order))
         {
-            sections.Add(new HubSectionDto(s.Kind.ToString(), s.Visible, HubContent.State(s, e, org), await ContentAsync(s, cancellationToken)));
+            var state = HubContent.State(s, e, org);
+            var shown = state == "Ready"
+                && (s.Kind != HubSectionKind.UpcomingEvents || upcoming.Count > 0);
+            if (visitor && !shown)
+            {
+                continue;
+            }
+
+            sections.Add(new HubSectionDto(s.Kind.ToString(), s.Visible, state, await ContentAsync(s, withProfileIds, cancellationToken)));
         }
 
-        var count = HubContent.Read<UpcomingEventsContent>(hub.Sections.Single(s => s.Kind == HubSectionKind.UpcomingEvents).Content).Count
-            ?? HubContent.DefaultUpcoming;
-        return (Result.Ok(), new EventHubDto(
+        return new EventHubDto(
             hub.Id, e.Id, hub.Status.ToString(), hub.TemplateKey, $"{origin}{EventHubRules.Path(e.Id)}", facts, sections,
             new HubOrganisationDto(org.Name, org.ShortName, org.GivingLink, org.GivingText),
-            await UpcomingAsync(e, count, cancellationToken), hub.PublishedAt));
+            upcoming, hub.PublishedAt);
     }
 
-    private async Task<object> ContentAsync(HubSection section, CancellationToken cancellationToken) => section.Kind switch
+    private async Task<object> ContentAsync(HubSection section, bool withProfileIds, CancellationToken cancellationToken) => section.Kind switch
     {
         HubSectionKind.Hero => HubContent.Read<HeroContent>(section.Content),
         HubSectionKind.Agenda => new AgendaContent(HubContent.Read<AgendaContent>(section.Content).Items ?? []),
         HubSectionKind.Venue => HubContent.Read<VenueContent>(section.Content),
-        HubSectionKind.People => await PeopleAsync(HubContent.Read<PeopleContent>(section.Content), cancellationToken),
+        HubSectionKind.People => await PeopleAsync(HubContent.Read<PeopleContent>(section.Content), withProfileIds, cancellationToken),
         HubSectionKind.Links => HubContent.Read<LinksContent>(section.Content),
         HubSectionKind.Giving => HubContent.Read<GivingContent>(section.Content),
         HubSectionKind.UpcomingEvents => new UpcomingEventsContent(
@@ -157,7 +207,7 @@ public class GetEventHubHandler(
     };
 
     /// <summary>Members are read from Profiles each time; a profile that no longer exists here drops out (L2-161 AC2).</summary>
-    private async Task<HubPeopleDto> PeopleAsync(PeopleContent content, CancellationToken cancellationToken)
+    private async Task<HubPeopleDto> PeopleAsync(PeopleContent content, bool withProfileIds, CancellationToken cancellationToken)
     {
         var people = content.People ?? [];
         var ids = people.Where(p => p.ProfileId is not null).Select(p => p.ProfileId!.Value).Distinct().ToList();
@@ -171,7 +221,7 @@ public class GetEventHubHandler(
                 if (profiles.TryGetValue(id, out var profile))
                 {
                     var photo = profile.Photos.FirstOrDefault(p => p.IsFeatured);
-                    shown.Add(new HubPersonDto(id, profile.Name, null, person.Role!, photo is null ? null : photos.GetReadUrl(photo.BlobName)));
+                    shown.Add(new HubPersonDto(withProfileIds ? id : null, profile.Name, null, person.Role!, photo is null ? null : photos.GetReadUrl(photo.BlobName)));
                 }
             }
             else

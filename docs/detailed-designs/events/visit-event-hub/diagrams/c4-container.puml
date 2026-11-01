@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Visit an event hub
+Person(visitor, "Visitor or member")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Public event page, member event page, hub page with the live agenda")
+  Container(api, "Community API", "ASP.NET Core", "GET /api/events/{id}/hub/page (anonymous allowed); hubLink on event reads")
+  ContainerDb(db, "Database", "PostgreSQL", "Events, hubs and sections, filtered by organisation")
+}
+Rel(visitor, spa, "Opens /public/events/{id}/hub", "HTTPS")
+Rel(spa, api, "Reads the hub page, with the member's token when signed in", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
+@enduml

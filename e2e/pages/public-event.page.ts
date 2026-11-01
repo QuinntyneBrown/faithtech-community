@@ -19,6 +19,7 @@ export class PublicEventPage {
   readonly addToCalendar: Locator;
   readonly loadError: Locator;
   readonly tryAgain: Locator;
+  readonly openHub: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -37,6 +38,7 @@ export class PublicEventPage {
     this.addToCalendar = page.getByRole('link', { name: 'Add to calendar (.ics)' }).first();
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load this event' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
+    this.openHub = page.getByRole('link', { name: 'Open the event hub' });
   }
 
   async open(id: string): Promise<void> {

@@ -402,6 +402,16 @@ export class MockApi {
     await this.page.clock.setFixedTime(this.now);
   }
 
+  /** Starts the browser's clock at `at` with its timers faked, so a test can move time on (the hub's live agenda). */
+  async startBrowserClock(at: string): Promise<void> {
+    await this.page.clock.install({ time: new Date(at) });
+  }
+
+  /** Moves the browser's clock on by `ms`, firing the timers due on the way. */
+  async advanceBrowserClock(ms: number): Promise<void> {
+    await this.page.clock.runFor(ms);
+  }
+
   /** A notification for `recipientId`, `minutesAgo` before the fake's "now". */
   addNotification(
     notification: Partial<MockNotification> & { recipientId: string; title: string },

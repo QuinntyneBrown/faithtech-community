@@ -129,6 +129,8 @@ export interface EventHubDto {
   status: 'Draft' | 'Published';
   /** When it was last published; null for a draft (L2-164 AC2). */
   publishedAt: string | null;
+  /** On the page read: whether the caller manages hubs, so the page is the preview (L2-166 AC3). */
+  canManage?: boolean;
   templateKey: string;
   link: string;
   event: HubEventFactsDto;
@@ -168,6 +170,10 @@ export interface EventHubsService {
   ): Observable<void>;
   /** Puts the sections in this order (L2-156 AC4); 400 unless it names every kind exactly once. */
   reorder(eventId: string, kinds: HubSectionKind[]): Observable<void>;
+  /**
+   * The hub page's read (L2-166): open to anyone, answering only the shown sections; 404 for a hub the caller may not see.
+   */
+  page(eventId: string): Observable<EventHubDto>;
   /** Publishes the hub, refusing nothing (L2-164 AC1); publishing a published hub refreshes `publishedAt`. */
   publish(eventId: string): Observable<void>;
   /** Returns the hub to Draft and keeps its sections (L2-164 AC3). */

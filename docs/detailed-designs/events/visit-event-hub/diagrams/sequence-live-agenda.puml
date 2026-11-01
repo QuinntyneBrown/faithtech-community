@@ -1,0 +1,17 @@
+@startuml
+title The live agenda
+participant "HubAgendaComponent" as a
+participant "agendaStates" as s
+participant "Live region" as lr
+actor "Visitor" as v
+a -> s : states(items, eventEnd, now)
+s --> a : Finished / Now / Next / Later per row
+a --> v : rows with Happening now and Up next badges
+loop every 30 seconds
+  a -> s : states(items, eventEnd, now)
+  alt session in progress changed
+    a -> lr : "Happening now: {title}" or "This event has finished."
+    lr --> v : announced politely
+  end
+end
+@enduml

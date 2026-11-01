@@ -11,7 +11,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   templateUrl: './list-item.component.html',
   styleUrl: './list-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { role: 'listitem', '[class.ft-list-item--link]': '!!href()' },
+  host: {
+    role: 'listitem',
+    '[class.ft-list-item--link]': '!!href()',
+    '[class.ft-list-item--current]': "state() === 'current'",
+    '[class.ft-list-item--finished]': "state() === 'finished'",
+  },
 })
 export class ListItemComponent {
   readonly label = input.required<string>();
@@ -19,4 +24,9 @@ export class ListItemComponent {
   readonly meta = input<string | null>(null);
   /** Longer text under the meta line; line breaks are kept. */
   readonly description = input<string | null>(null);
+  /**
+   * A row's place in time, such as an agenda's: `current` is highlighted with an accent bar, `finished` is muted. The
+   * state is never shown by colour alone; put its words in the `[meta]` slot.
+   */
+  readonly state = input<'default' | 'current' | 'finished'>('default');
 }

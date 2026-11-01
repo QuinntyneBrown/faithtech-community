@@ -1,0 +1,28 @@
+@startuml
+title Open the hub page
+actor "Visitor or member" as v
+participant "PublicEventPage" as pe
+participant "HubPage" as page
+participant "HttpEventHubsService" as svc
+participant "Community API" as api
+participant "GetEventHubHandler" as h
+v -> pe : open /public/events/{id}
+pe --> v : "Event hub" card (hubLink set)
+v -> page : Open the event hub
+page -> svc : page(eventId)
+svc -> api : GET /api/events/{id}/hub/page (token when signed in)
+api -> h : PageAsync(eventId)
+alt manager
+  h --> api : any hub, canManage = true
+  api --> page : EventHubDto
+  page --> v : Preview banner and sections
+else Published, and public event or member
+  h --> api : shown sections; no profile ids when anonymous
+  api --> page : EventHubDto
+  page --> v : sections in order; title and meta from the event
+else otherwise
+  h --> api : null
+  api --> svc : 404
+  page --> v : "This hub isn't available" (anonymous: Sign in)
+end
+@enduml

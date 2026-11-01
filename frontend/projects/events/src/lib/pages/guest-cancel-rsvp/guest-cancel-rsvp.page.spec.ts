@@ -21,6 +21,7 @@ const event: PublicEventDto = {
   isFull: false,
   isCancelled: false,
   cancellationReason: null,
+  hubLink: null,
 };
 
 async function setup(

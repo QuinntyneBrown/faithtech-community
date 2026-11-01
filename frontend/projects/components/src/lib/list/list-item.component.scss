@@ -14,6 +14,21 @@
   background: var(--color-bg-subtle);
 }
 
+:host(.ft-list-item--current) {
+  background: var(--color-bg-subtle);
+  box-shadow: inset var(--space-1) 0 0 var(--color-accent);
+}
+
+:host(.ft-list-item--finished) .ft-list-item__title {
+  color: var(--color-fg-muted);
+}
+
+@media (forced-colors: active) {
+  :host(.ft-list-item--current) {
+    border-inline-start: var(--space-1) solid Highlight;
+  }
+}
+
 .ft-list-item__leading:empty,
 .ft-list-item__meta-slot:empty,
 .ft-list-item__trailing:empty {

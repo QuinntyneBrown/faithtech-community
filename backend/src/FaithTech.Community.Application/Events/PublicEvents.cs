@@ -26,7 +26,8 @@ public record PublicEventDto(
     int RsvpCount,
     bool IsFull,
     bool IsCancelled,
-    string? CancellationReason);
+    string? CancellationReason,
+    string? HubLink = null);
 
 public record GuestRsvpCommand(string? Name, string? Email);
 
@@ -81,8 +82,16 @@ public class PublicEventsHandler(
             ? null
             : new PublicEventDto(
                 e.Id, e.Title, e.Description, e.Type!.Key, e.Type.Name, e.StartsAt, e.EndsAt, e.Chapter?.Name, e.Format.ToString(), e.Venue,
-                e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason);
+                e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason,
+                await HubLinkAsync(db, organisation, e.Id, cancellationToken));
     }
+
+    /// <summary>The hub page's URL when the event has a Published hub, otherwise null (L2-167 AC2, AC3).</summary>
+    internal static async Task<string?> HubLinkAsync(
+        IApplicationDbContext db, ICurrentOrganisation organisation, Guid eventId, CancellationToken cancellationToken) =>
+        await db.EventHubs.AsNoTracking().AnyAsync(h => h.EventId == eventId && h.Status == EventHubStatus.Published, cancellationToken)
+            ? $"{organisation.Origin}{EventHubRules.Path(eventId)}"
+            : null;
 
     /// <summary>One RSVP per event and email, whatever its case (AC5); each RSVP sends a fresh confirmation and cancel link.</summary>
     public async Task<Result> RsvpAsync(Guid id, GuestRsvpCommand command, CancellationToken cancellationToken = default)
