@@ -9,4 +9,5 @@ export * from './hub-agenda';
 export * from './hub-venue';
 export * from './hub-links';
 export * from './hub-people';
+export * from './hub-upcoming';
 export * from './hub-section-preview';

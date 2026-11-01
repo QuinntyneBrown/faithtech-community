@@ -22,6 +22,9 @@
     @case ('Giving') {
       <ft-hub-giving [hub]="data.hub" />
     }
+    @case ('UpcomingEvents') {
+      <ft-hub-upcoming [events]="data.hub.upcomingEvents" />
+    }
   }
   <ft-button ftDialogFooter (click)="ref.close()">Close</ft-button>
   <ft-button ftDialogFooter variant="primary" [object]="title" (click)="ref.close('edit')"

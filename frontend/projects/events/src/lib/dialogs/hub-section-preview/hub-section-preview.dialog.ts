@@ -9,6 +9,7 @@ import {
   HubHeroComponent,
   HubLinksComponent,
   HubPeopleComponent,
+  HubUpcomingComponent,
   HubVenueComponent,
   hubSection,
   sectionContent,
@@ -27,6 +28,7 @@ export const PREVIEWABLE: readonly HubSectionKind[] = [
   'People',
   'Links',
   'Giving',
+  'UpcomingEvents',
 ];
 
 /**
@@ -43,6 +45,7 @@ export const PREVIEWABLE: readonly HubSectionKind[] = [
     HubHeroComponent,
     HubLinksComponent,
     HubPeopleComponent,
+    HubUpcomingComponent,
     HubVenueComponent,
   ],
   templateUrl: './hub-section-preview.dialog.html',

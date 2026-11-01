@@ -47,6 +47,7 @@ import {
   HubHeroDialog,
   HubLinksDialog,
   HubPeopleDialog,
+  HubUpcomingDialog,
   HubVenueDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
@@ -78,6 +79,7 @@ const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
   People: HubPeopleDialog,
   Links: HubLinksDialog,
   Giving: HubGivingDialog,
+  UpcomingEvents: HubUpcomingDialog,
 };
 
 /** The two-step wizards, opened in the wide panel (docs/mocks/dialogs/hub-agenda, hub-people). */
