@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Start a hub from a template
+Person(lead, "Hub manager", "Member holding ManageEventHubs")
+Person(seed, "Platform seed", "Runs the FaithTech seed through the Cli")
+System(community, "Community platform", "Hosts the organisation's events, hubs and hub templates")
+Rel(lead, community, "Starts a hub from a template, Blank or a past hub", "HTTPS")
+Rel(seed, community, "Adds FaithTech's Hackathon, Meetup and Workshop templates", "Cli")
+@enduml

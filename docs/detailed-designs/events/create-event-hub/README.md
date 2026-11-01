@@ -89,4 +89,4 @@ The acceptance criteria are in `docs/specs/L2.md`. They build on `L2-020` (event
 - **When the hub is created.** Resolved: on step 1's **Next**, or on **Save and finish later** from step 1, so closing the wizard before that leaves nothing behind and every later step has a hub to save to.
 - **Preview on step 4.** Deferred to slice 43, which builds the preview; step 4 offers **Fill in sections now** until then.
 - **Time zone.** Events carry no time zone today, so times show in the viewer's time zone, as on the event page; a per-event time zone is deferred to the agenda's live highlight (slices 42 and 44).
-- **Starting points.** Hackathon, Meetup, Workshop and Copy a past hub show as "Coming soon" until slice 45.
+- **Starting points.** Slice 45 (`events/start-hub-from-template`, ADR 0041) turns on the organisation's templates and Copy a past hub; the save's `templateKey` becomes optional there.

@@ -1,0 +1,24 @@
+@startuml
+title Copy a past hub
+actor "Hub manager" as lead
+participant "CreateEventHubDialog" as w
+participant "Community API" as api
+participant "StartEventHubHandler" as h
+lead -> w : choose Copy a past hub
+w -> api : GET /api/event-hubs?search=&excludeEventId={id}
+api --> w : hubs, newest first (max 20)
+lead -> w : type "Builders", pick Toronto Builders Night
+w -> api : POST /api/events/{id}/hub/start { copyFromEventId }
+api -> h : HandleAsync
+alt source is this organisation's, has a hub, is another event
+  h -> h : shift = new start - source start
+  h -> h : copy every section; move Agenda rows and code freeze by shift
+  h --> api : EventHubDto (Draft)
+  api --> w : hub
+  w --> lead : step 3 ticked as the copy shows sections
+else otherwise
+  h --> api : 400 "Choose a hub to copy."
+  api --> w : 400
+  w --> lead : message on the step
+end
+@enduml

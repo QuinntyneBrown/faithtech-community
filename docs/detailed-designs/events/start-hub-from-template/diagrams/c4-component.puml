@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Start a hub from a template
+Container_Boundary(spa, "Web app") {
+  Component(wizard, "CreateEventHubDialog", "Angular dialog (events)", "Step 2: templates, Blank, Copy with search; step 3 ticked from the answer")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "templates, pastHubs, start")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints / EventHubsEndpoints", "Minimal API", "GET templates, GET hubs, POST start")
+  Component(start, "StartEventHubHandler", "Application", "Blank, template with minutes to instants, copy with shift; audited")
+  Component(list, "ListHubTemplatesHandler / ListEventHubsHandler", "Application", "Organisation's templates and hubs")
+  Component(hub, "EventHub.Start", "Domain", "Sets order, visibility and content of every section")
+  Component(tpl, "HubTemplate", "Domain", "Name, description, order, JSON sections")
+  Component(ctx, "CommunityDbContext", "EF Core", "Filtered by organisation")
+}
+Rel(wizard, svc, "Calls")
+Rel(svc, ep, "HTTPS")
+Rel(ep, start, "Dispatches")
+Rel(ep, list, "Dispatches")
+Rel(start, hub, "Start")
+Rel(start, tpl, "Reads defaults")
+Rel(start, ctx, "Reads and saves")
+Rel(list, ctx, "Reads")
+@enduml

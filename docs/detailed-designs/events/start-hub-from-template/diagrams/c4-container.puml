@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Start a hub from a template
+Person(lead, "Hub manager")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Create event hub wizard, step 2 starting points")
+  Container(api, "Community API", "ASP.NET Core", "Templates list, past hubs list, POST /hub/start")
+  Container(cli, "Cli", ".NET", "Migrates and seeds")
+  ContainerDb(db, "Database", "PostgreSQL", "HubTemplates, EventHubs, HubSections, filtered by organisation")
+}
+Rel(lead, spa, "Chooses a starting point", "HTTPS")
+Rel(spa, api, "Lists templates and past hubs; applies the starting point", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Creates HubTemplates; seeds FaithTech's templates", "EF Core")
+@enduml
