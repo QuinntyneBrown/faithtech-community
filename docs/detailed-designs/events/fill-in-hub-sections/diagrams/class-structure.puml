@@ -1,0 +1,45 @@
+@startuml
+title Class structure — Fill in hub sections
+package "Domain.Events" {
+  class EventHub {
+    +Id : Guid
+    +EventId : Guid
+    +Status : EventHubStatus
+    +Sections : IReadOnlyList<HubSection>
+    +Reorder(kinds, now)
+  }
+  class HubSection {
+    +Kind : HubSectionKind
+    +Order : int
+    +Visible : bool
+    +Content : string (jsonb)
+    +Fill(json, now)
+  }
+}
+package "Domain.Organisations" {
+  class Organisation {
+    +GivingLink : string?
+    +GivingText : string?
+    +SetGiving(link, text)
+  }
+}
+package "Application.Events" {
+  class SaveHubSectionHandler {
+    +Handle(eventId, kind, json) : Result
+  }
+  class ReorderHubSectionsHandler {
+    +Handle(eventId, kinds) : Result
+  }
+  class HubContent <<static>> {
+    +Parse(kind, json) : (object?, errors)
+    +State(section, event, organisation) : HubSectionState
+  }
+  class "HeroContent / AgendaContent / VenueContent\nPeopleContent / LinksContent / GivingContent\nUpcomingEventsContent" as Contents
+  class "Content validators" as Validators
+}
+EventHub "1" *-- "7" HubSection
+SaveHubSectionHandler ..> HubContent
+HubContent ..> Contents
+HubContent ..> Validators
+ReorderHubSectionsHandler ..> EventHub
+@enduml

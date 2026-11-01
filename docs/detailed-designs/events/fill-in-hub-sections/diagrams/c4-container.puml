@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Fill in hub sections
+Person(lead, "Hub manager")
+System_Boundary(c, "Community platform") {
+  Container(spa, "Web app", "Angular", "events library: hub home, section wizards, display components")
+  Container(api, "Community API", "ASP.NET Core", "Hub section endpoints; content validated per kind")
+  ContainerDb(db, "Community database", "PostgreSQL", "EventHubs, HubSections (jsonb content), Organisations")
+}
+Rel(lead, spa, "Uses", "HTTPS")
+Rel(spa, api, "GET/PUT /api/events/{id}/hub..., /api/organisation", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

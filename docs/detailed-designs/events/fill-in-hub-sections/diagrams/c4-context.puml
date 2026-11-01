@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Fill in hub sections
+Person(lead, "Hub manager", "Member holding ManageEventHubs, e.g. a City Lead or Event Lead in FaithTech")
+Person(admin, "Settings manager", "Member holding ManageOrganisationSettings")
+System(community, "Community platform", "Hosts the organisation's events, profiles and hubs")
+Rel(lead, community, "Fills in, hides, shows and reorders hub sections", "HTTPS")
+Rel(admin, community, "Sets the organisation's giving link and text", "HTTPS")
+@enduml
