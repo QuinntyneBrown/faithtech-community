@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Organisations.Platform;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Events;
@@ -15,7 +16,8 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 namespace FaithTech.Community.Infrastructure.Persistence;
 
 /// <summary>Idempotent seed data: safe to run on every deployment.</summary>
-public class CommunitySeeder(IOpenIddictApplicationManager applications, CommunityDbContext db, OrganisationSeeder organisations, TimeProvider time)
+public class CommunitySeeder(
+    IOpenIddictApplicationManager applications, CommunityDbContext db, OrganisationSeeder organisations, OrganisationScope scope, TimeProvider time)
 {
     public const string WebClientId = "web";
 
@@ -354,28 +356,48 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     }
 
     /// <summary>
-    /// Makes an existing account a System Admin, so a new deployment has its first administrator (L2-009 AC6).
-    /// Idempotent; the grant is audited with the command line as its source. Returns false for an unknown email.
+    /// Makes an existing account an administrator of the organisation with <paramref name="organisationSlug"/>, so a
+    /// deployment has its first administrator (L2-009 AC6): it grants that organisation's first role carrying
+    /// AdministerOrganisation (System Admin in FaithTech's seed) to the account's profile there. Idempotent; the grant is
+    /// audited in that organisation with the command line as its source. Answers the organisation's name, or why not.
     /// </summary>
-    public async Task<bool> GrantSystemAdminAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<GrantAdministratorResult> GrantAdministratorAsync(string email, string organisationSlug, CancellationToken cancellationToken = default)
     {
+        var slug = organisationSlug.Trim().ToLowerInvariant();
+        // FaithTech is seeded first if the database has not been seeded yet, as before organisations existed.
+        if (slug == FaithTechSeed.Slug)
+        {
+            await SeedOrganisationAsync(cancellationToken);
+        }
+
+        var organisation = await db.Organisations.AsNoTracking().SingleOrDefaultAsync(o => o.Slug == slug, cancellationToken);
+        if (organisation is null)
+        {
+            return new(GrantAdministratorOutcome.NoOrganisation, null);
+        }
+
+        // Every query and write from here on is the organisation's own (ADR 0032).
+        scope.Set(organisation);
         var normalized = email.Trim().ToUpperInvariant();
         var profileId = await db.Users.Where(u => u.NormalizedEmail == normalized)
             .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => (Guid?)p.Id).SingleOrDefaultAsync(cancellationToken);
         if (profileId is null)
         {
-            return false;
+            return new(GrantAdministratorOutcome.NoAccount, organisation.Name);
         }
 
         var profile = await db.Profiles.SingleAsync(p => p.Id == profileId, cancellationToken);
         if (profile.Roles.Any(r => r.Definition?.Carries(Capability.AdministerOrganisation) == true))
         {
-            return true;
+            return new(GrantAdministratorOutcome.Granted, organisation.Name);
         }
 
-        // The organisation's first role carrying AdministerOrganisation (System Admin in FaithTech's seed), seeded first if
-        // the database has not been seeded yet.
-        await SeedFaithTechListsAsync(cancellationToken);
+        // FaithTech's definitions are seeded first if the database has not been seeded yet; provisioning wrote the others'.
+        if (organisation.Id == FaithTechSeed.OrganisationId)
+        {
+            await SeedFaithTechListsAsync(cancellationToken);
+        }
+
         var administrator = (await db.RoleDefinitions.Where(d => d.ArchivedAtUtc == null).OrderBy(d => d.SortOrder).ToListAsync(cancellationToken))
             .First(d => d.Carries(Capability.AdministerOrganisation));
         var before = profile.Roles.Select(r => r.Definition!.Key).Order().ToArray();
@@ -386,6 +408,16 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             Guid.Empty, "role.granted", "Profile", profile.Id.ToString(),
             JsonSerializer.Serialize(new { Roles = before }), JsonSerializer.Serialize(new { Roles = after }), now, "cli"));
         await db.SaveChangesAsync(cancellationToken);
-        return true;
+        return new(GrantAdministratorOutcome.Granted, organisation.Name);
     }
 }
+
+public enum GrantAdministratorOutcome
+{
+    Granted,
+    NoOrganisation,
+    NoAccount,
+}
+
+/// <summary>What <see cref="CommunitySeeder.GrantAdministratorAsync"/> did, with the organisation's name when it exists.</summary>
+public record GrantAdministratorResult(GrantAdministratorOutcome Outcome, string? OrganisationName);

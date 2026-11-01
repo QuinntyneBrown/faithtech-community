@@ -7,9 +7,9 @@ import {
   MemberCandidateDto,
   OrganisationNames,
   problemDetails,
-  ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMethod,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -50,6 +50,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateWorkspaceDialog {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<WorkspaceDto>>(DialogRef);
   private readonly agile = inject(AGILE_SERVICE);
@@ -71,7 +72,7 @@ export class CreateWorkspaceDialog {
   }
 
   protected roles(candidate: MemberCandidateDto): string {
-    return candidate.roles.map((r) => ROLE_LABELS[r]).join(', ');
+    return candidate.roles.map((r) => this.organisationRoles.label(r)).join(', ');
   }
 
   protected async create(): Promise<void> {

@@ -3,12 +3,12 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AUTH_SERVICE,
   ORGANISATION_SERVICE,
-  ROLE_LABELS,
   chapterFilterOptions,
   TEAM_SERVICE,
   TeamMemberDto,
   TeamRoleFilter,
   hasAny,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -67,6 +67,7 @@ const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TeamPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly team = inject(TEAM_SERVICE);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
   private readonly organisations = inject(ORGANISATION_SERVICE);
@@ -129,7 +130,7 @@ export class TeamPage {
 
   /** Each role as its badge reads, "{role} · {chapter}" when tagged (L2-141 AC3). */
   protected labels(member: TeamMemberDto): string[] {
-    return member.roleBadges ?? member.roles.map((r) => ROLE_LABELS[r]);
+    return member.roleBadges ?? member.roles.map((r) => this.organisationRoles.label(r));
   }
 
   protected chooseRole(value: TeamRoleFilter | null): void {

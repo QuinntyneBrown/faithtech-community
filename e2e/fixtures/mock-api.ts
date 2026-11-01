@@ -1748,6 +1748,11 @@ export class MockApi {
         inviterChapterName: this.chapters.nameOf(inviter?.chapterId),
         preassignedRole: invite.preassignedRole,
         hasAccount: this.accounts.has(invite.email.toLowerCase()),
+        // The organisation's name for the role, as AcceptInviteHandler answers it.
+        preassignedRoleName: invite.preassignedRole
+          ? (roleDefinitions().find((d) => d.key === invite.preassignedRole && !d.archived)?.name ??
+            null)
+          : null,
       },
     });
   }

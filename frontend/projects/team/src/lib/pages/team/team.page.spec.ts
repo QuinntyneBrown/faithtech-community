@@ -56,7 +56,66 @@ async function setup(
           { id: 'c-vancouver', name: 'Vancouver' },
         ]
       : [],
-    roles: [],
+    // The FaithTech seed's names for the role keys the members hold (L2-151).
+    roles: [
+      {
+        id: 'role-CityLead',
+        key: 'CityLead',
+        name: 'City Lead',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-EventLead',
+        key: 'EventLead',
+        name: 'Event Lead',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-CreateLead',
+        key: 'CreateLead',
+        name: 'Create Lead',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-CommunicationsLead',
+        key: 'CommunicationsLead',
+        name: 'Communications Lead',
+        description: '',
+        chapterScopable: false,
+      },
+      { id: 'role-Staff', key: 'Staff', name: 'Staff', description: '', chapterScopable: false },
+      {
+        id: 'role-Volunteer',
+        key: 'Volunteer',
+        name: 'Volunteer',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-ProductEngineer',
+        key: 'ProductEngineer',
+        name: 'Product Engineer',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-Attendee',
+        key: 'Attendee',
+        name: 'Attendee',
+        description: '',
+        chapterScopable: false,
+      },
+      {
+        id: 'role-SystemAdmin',
+        key: 'SystemAdmin',
+        name: 'System Admin',
+        description: '',
+        chapterScopable: false,
+      },
+    ],
   };
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({

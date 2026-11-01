@@ -29,7 +29,8 @@ public static class CliApp
         Func<string, string?>? environment = null,
         TextReader? input = null,
         TextWriter? output = null,
-        IReadOnlyList<string>? operators = null)
+        IReadOnlyList<string>? operators = null,
+        string? defaultOrganisationSlug = null)
     {
         environment ??= Environment.GetEnvironmentVariable;
         input ??= Console.In;
@@ -69,14 +70,24 @@ public static class CliApp
             case "seed":
                 await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().SeedAsync(webAppOrigin);
                 return 0;
-            case "grant-admin" when args.Length == 2:
-                if (await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().GrantSystemAdminAsync(args[1]))
+            case "grant-admin" when args.Length is 2 or 3:
                 {
-                    return 0;
+                    var slug = args.ElementAtOrDefault(2) ?? defaultOrganisationSlug ?? FaithTechSeed.Slug;
+                    var granted = await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().GrantAdministratorAsync(args[1], slug);
+                    switch (granted.Outcome)
+                    {
+                        case GrantAdministratorOutcome.Granted:
+                            await output.WriteLineAsync($"{args[1]} is an administrator in {granted.OrganisationName}.");
+                            return 0;
+                        case GrantAdministratorOutcome.NoOrganisation:
+                            Console.Error.WriteLine($"No organisation has the slug {slug}.");
+                            return 1;
+                        default:
+                            Console.Error.WriteLine($"No account uses {args[1]} in {granted.OrganisationName}. Sign up first, then grant the role.");
+                            return 1;
+                    }
                 }
 
-                Console.Error.WriteLine($"No account uses {args[1]}. Sign up first, then grant the role.");
-                return 1;
             case "seed-load-users" when args.Length == 2:
                 return await SeedLoadUsersAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1], environment(LoadTestPasswordVariable));
             case "seed-search-records" when args.Length == 2:
@@ -96,7 +107,7 @@ public static class CliApp
                 await CreateSchemaAsync(db);
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>|seed-report-records <members>|wall-hash|wall-key|org audit [--take <n>] --operator <email>>");
+                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email> [organisation-slug]|seed-load-users <count>|seed-search-records <count>|seed-report-records <members>|wall-hash|wall-key|org create|suspend|lift|audit ... --operator <email>>");
                 return 1;
         }
     }

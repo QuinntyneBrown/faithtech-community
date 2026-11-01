@@ -55,7 +55,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 26 | [26-platform-operators-audit-and-account-lock.md](26-platform-operators-audit-and-account-lock.md) | Operators, platform audit, account lock | `L2-148`, `L2-132` AC6, `L2-152` AC4 | Done |
 | 27 | [27-provision-an-organisation.md](27-provision-an-organisation.md) | `org create` and the operator API | `L2-149` | Done |
 | 28 | [28-suspend-and-lift-an-organisation.md](28-suspend-and-lift-an-organisation.md) | Suspend and lift, workers skip | `L2-150` | Done |
-| 29 | [29-faithtech-regression-and-close-out.md](29-faithtech-regression-and-close-out.md) | `grant-admin` by slug, production seed, regression sweep, journeys, estimates | `L2-151` AC5, AC6 | To do |
+| 29 | [29-faithtech-regression-and-close-out.md](29-faithtech-regression-and-close-out.md) | `grant-admin` by slug, production seed, regression sweep, journeys, estimates | `L2-151` AC5, AC6 | Done |
 
 Every acceptance criterion from `L2-130` to `L2-152` is assigned to at least one slice. If a criterion is split, each
 slice says which half it owns. When a slice merges, its prompt changes its row to "Done".

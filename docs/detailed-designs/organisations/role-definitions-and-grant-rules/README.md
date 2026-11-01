@@ -62,7 +62,7 @@ The slice runs from the Roles page and the role dialogs in the web app to the `R
 - **`ProfilePage`** (`profiles`) — builds the options from `GET /api/organisation` filtered by `grantableRoleIds` and passes `grantChapterIds` from `/api/me`; the invite dialog and the People page apply the same filter (`L2-137` AC5). `role.ts` loses `assignableRoles`. Slice 14 built this in `role-actions.ts` (`injectRoleChoices`, `addableRoles`, `removableRoles`, `openRoleDialog`): the add-role caption reads "These are the roles your {role} role may grant. An administrator can grant any role.", or, for an administrator, "As an administrator you can grant any role. The change is recorded in the audit log, and {first name} isn’t notified." The People subtitle lists the grantable role names, and a row holding a role the caller may not change reads "Only an administrator can change".
 - **`mock-api.ts`** (`e2e/fixtures/`) — holds the definitions and grant rules as data, answers the five definition routes and the rewritten role routes, and computes `grantableRoleIds` by the same rule. Since slice 14 the definitions are per-test data in `role-definitions.ts`, reset for every test, which a spec extends with `api.defineRole` and names with `api.roleId`; the definition routes come with slices 16 and 17.
 
-Mocks: `organisation/roles` and the define-role, edit-grants and archive-role dialogs in every state are named by `L2-147` AC4 and are not yet written; the page follows them once they exist.
+Mocks: `docs/mocks/pages/organisation-roles/` and the `define-role`, `edit-grants` and `archive-role` dialogs in `docs/mocks/dialogs/` cover every state `L2-147` AC4 names; the page follows them.
 
 ## Requirements
 

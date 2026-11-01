@@ -17,7 +17,6 @@ import {
   INVITES_SERVICE,
   OrganisationNames,
   problemDetails,
-  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -133,8 +132,7 @@ export class AcceptInvitePage {
     this.stale().text(this.invite()?.inviterName ?? 'the lead who invited you'),
   );
   protected readonly roleLabel = computed(() => {
-    const role = this.invite()?.preassignedRole;
-    return role ? ROLE_LABELS[role] : null;
+    return this.invite()?.preassignedRoleName ?? null;
   });
   protected readonly where = computed(() => {
     const city = this.invite()?.inviterChapterName;

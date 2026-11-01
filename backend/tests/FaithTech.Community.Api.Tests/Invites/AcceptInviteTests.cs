@@ -28,6 +28,21 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.Equal(HttpStatusCode.NotFound, (await factory.CreateClient().PostAsJsonAsync("/api/invites/lookup", new { token = "nope" })).StatusCode);
     }
 
+    // Traces to: L2-011 AC1; L2-151 AC5 sweep. The page is anonymous, so the lookup names the role as the organisation calls it.
+    [Fact]
+    public async Task The_lookup_names_the_preassigned_role_by_the_organisations_definition()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var (_, token) = await factory.AddInviteAsync(grace, "ana.lopez@example.org", Role.ProductEngineer);
+        var (_, plain) = await factory.AddInviteAsync(grace, "ben.lopez@example.org");
+
+        var named = await factory.CreateClient().PostAsJsonAsync("/api/invites/lookup", new { token });
+        var none = await factory.CreateClient().PostAsJsonAsync("/api/invites/lookup", new { token = plain });
+
+        Assert.Equal("Product Engineer", (await named.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>()).GetProperty("preassignedRoleName").GetString());
+        Assert.Equal(System.Text.Json.JsonValueKind.Null, (await none.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>()).GetProperty("preassignedRoleName").ValueKind);
+    }
+
     [Fact]
     public async Task Stale_links_report_their_status()
     {

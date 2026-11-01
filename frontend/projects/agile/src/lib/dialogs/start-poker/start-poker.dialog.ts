@@ -8,9 +8,9 @@ import {
   OrganisationNames,
   PokerSessionDto,
   problemDetails,
-  ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMemberDto,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -51,6 +51,7 @@ export interface StartPokerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StartPokerDialog {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PokerSessionDto>>(DialogRef);
   protected readonly data = inject<StartPokerData>(DIALOG_DATA);
@@ -74,7 +75,7 @@ export class StartPokerDialog {
   }
 
   protected roles(member: WorkspaceMemberDto): string {
-    return member.roles.map((r) => ROLE_LABELS[r]).join(', ');
+    return member.roles.map((r) => this.organisationRoles.label(r)).join(', ');
   }
 
   protected async start(): Promise<void> {

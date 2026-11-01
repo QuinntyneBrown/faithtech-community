@@ -7,7 +7,7 @@ import {
   problemDetails,
   ResourceDto,
   RESOURCES_SERVICE,
-  ROLE_LABELS,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -37,6 +37,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransferOwnershipDialog {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<ResourceDto>>(DialogRef);
   protected readonly resource = inject<ResourceDto>(DIALOG_DATA);
@@ -75,7 +76,7 @@ export class TransferOwnershipDialog {
           .map((m) => ({
             id: m.id,
             name: m.name,
-            detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
+            detail: [m.roles.map((r) => this.organisationRoles.label(r)).join(', '), m.chapterName]
               .filter(Boolean)
               .join(' · '),
           })),

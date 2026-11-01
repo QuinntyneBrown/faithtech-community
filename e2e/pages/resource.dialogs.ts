@@ -65,6 +65,11 @@ export class AddResourceDialog {
       .getByRole('checkbox', { name, exact: true });
   }
 
+  /** The labels of the roles the resource can be shared with, in order. */
+  get roles(): Locator {
+    return this.dialog.getByRole('group', { name: 'Roles' }).locator('label');
+  }
+
   async addTag(tag: string): Promise<void> {
     await this.tags.fill(tag);
     await this.tags.press('Enter');

@@ -1,7 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { OrganisationNames, ResourceDto, RESOURCES_SERVICE } from '@faithtech-community/api';
+import {
+  OrganisationNames,
+  ResourceDto,
+  RESOURCES_SERVICE,
+  OrganisationRoles,
+} from '@faithtech-community/api';
 import {
   AvatarComponent,
   BannerComponent,
@@ -32,7 +37,7 @@ import {
   EditResourceData,
   TransferOwnershipDialog,
 } from '../../dialogs';
-import { fileOrHost, roleLabel, saveBlob, typeIcon, visibilityLine } from '../../resource-format';
+import { fileOrHost, saveBlob, typeIcon, visibilityLine } from '../../resource-format';
 import { ThumbnailCache } from '../../thumbnail-cache';
 
 type State = 'loading' | 'loaded' | 'missing' | 'error';
@@ -66,6 +71,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourcePage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly dialogs = inject(DialogService);
@@ -81,7 +87,7 @@ export class ResourcePage {
   protected readonly typeIcon = typeIcon;
   protected readonly fileOrHost = fileOrHost;
   protected readonly visibilityLine = visibilityLine;
-  protected readonly roleLabel = roleLabel;
+  protected readonly roleLabel = (key: string): string => this.organisationRoles.label(key);
   protected readonly formatDay = formatDay;
   protected readonly colorFor = avatarColorFor;
 
@@ -101,7 +107,9 @@ export class ResourcePage {
     const r = this.resource()!;
     if (!r.sharedVia) return null;
     const who =
-      r.sharedVia === 'you' ? 'you' : `everyone who has the ${roleLabel(r.sharedVia)} role`;
+      r.sharedVia === 'you'
+        ? 'you'
+        : `everyone who has the ${this.organisationRoles.label(r.sharedVia)} role`;
     return `${r.ownerName} shared this with ${who}. You can open and download it, but not share it on.`;
   });
 

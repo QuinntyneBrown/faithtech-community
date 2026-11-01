@@ -18,8 +18,7 @@ import {
   NotePageRef,
   NOTES_SERVICE,
   OrganisationNames,
-  Role,
-  ROLE_LABELS,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   BannerComponent,
@@ -94,6 +93,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotePage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   protected readonly organisation = inject(OrganisationNames);
   private readonly notes = inject(NOTES_SERVICE);
   private readonly toasts = inject(ToastService);
@@ -142,7 +142,7 @@ export class NotePage {
     const via =
       p.sharedVia === 'you'
         ? 'you'
-        : `everyone who has the ${ROLE_LABELS[p.sharedVia as Role] ?? p.sharedVia} role`;
+        : `everyone who has the ${this.organisationRoles.label(p.sharedVia)} role`;
     return `${p.ownerName} shared this with ${via}. You can read it, but only ${p.ownerName} can change it.`;
   });
   /** Pages the viewer may open by id: the API's link targets plus every "[[" suggestion seen since. */

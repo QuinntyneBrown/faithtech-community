@@ -15,8 +15,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {
   ORGANISATION_SERVICE,
   RESOURCES_SERVICE,
-  ROLE_LABELS,
-  SHAREABLE_ROLES,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   CheckboxComponent,
@@ -61,6 +60,7 @@ import { ResourceDetailsForm } from './resource-details';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourceDetailsComponent implements OnInit {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly organisation = inject(ORGANISATION_SERVICE);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
@@ -87,7 +87,9 @@ export class ResourceDetailsComponent implements OnInit {
       ? `${archived.name} was archived. It stays on this resource until you choose another type.`
       : this.typeHint();
   });
-  protected readonly roles = SHAREABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }));
+  protected readonly roles = computed(() =>
+    this.organisationRoles.roles().map((r) => ({ value: r.key, label: r.name })),
+  );
   protected readonly tagSuggestions = signal<TagSuggestion[]>([]);
   protected readonly people = signal<PersonOption[]>([]);
   protected readonly searching = signal(false);
@@ -155,7 +157,7 @@ export class ResourceDetailsComponent implements OnInit {
         members.map((m) => ({
           id: m.id,
           name: m.name,
-          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
+          detail: [m.roles.map((r) => this.organisationRoles.label(r)).join(', '), m.chapterName]
             .filter(Boolean)
             .join(' · '),
         })),

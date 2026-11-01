@@ -23,17 +23,6 @@ export const NOTE_BLOCK_TYPES = [
 ] as const;
 export type NoteBlockType = (typeof NOTE_BLOCK_TYPES)[number];
 
-/** The roles a page can be shared with (L2-093 AC2). */
-export const NOTE_SHAREABLE_ROLES: Role[] = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Staff',
-];
-
 /** A run of text with its marks; `pageId` makes it a page link whose text the server fills (L2-090). */
 export interface NoteSpan {
   text: string;

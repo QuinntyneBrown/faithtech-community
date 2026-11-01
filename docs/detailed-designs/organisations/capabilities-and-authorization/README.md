@@ -147,6 +147,6 @@ A role removal or a definition edit first takes the last-administrator lease whe
 ## Open questions
 
 - `ProfileRole` rows that reference an archived definition contribute nothing to the capability set but stay on the profile and the badges, so archival is refused while holders exist (`L2-136` AC4); the design keeps the rows rather than deleting them.
-- Role labels and descriptions stay in `role.ts` until slice 14: profile, team and announcement DTOs still carry role keys, and the role pickers and share dialogs offer keys; slice 14 brings names, descriptions and grantable roles from `GET /api/organisation`.
+- **Decided (slices 14 and 29):** `role.ts` keeps only the `Role` type, a definition key. DTOs still carry role keys; `OrganisationRoles` in `api` names them from `GET /api/organisation`, and the share and audience pickers offer the organisation's non-archived definitions (`L2-061` AC1, `L2-093` AC2, `L2-029` AC1). The anonymous invite page takes `preassignedRoleName` from the lookup.
 - `WorkspaceAccess.Staff` is renamed `Reader` because the rank no longer corresponds to a role; the test names that read "Staff" change with it.
 - The audit log's category filter for overrides stays as today; whether an override by a holder of `AdministerOrganisation` who also holds the specific capability should be recorded is settled by `L2-135` AC5: it is not.

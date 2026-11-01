@@ -62,7 +62,7 @@
       />
     </ft-form-field>
     <ft-checkbox-group legend="Roles" [formControl]="f.controls.roles">
-      @for (role of roles; track role.value) {
+      @for (role of roles(); track role.value) {
         <ft-checkbox [value]="role.value">{{ role.label }}</ft-checkbox>
       }
     </ft-checkbox-group>

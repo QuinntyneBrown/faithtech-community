@@ -13,10 +13,10 @@ import {
   ADMIN_USERS_SERVICE,
   AGILE_SERVICE,
   AdminUserSummary,
-  ROLE_LABELS,
   Role,
   UserStatus,
   WorkspaceSummaryDto,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AvatarColor,
@@ -74,6 +74,7 @@ const STATUS_BADGES: Record<UserStatus, BadgeVariant> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminUsersPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly users = inject(ADMIN_USERS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly agile = inject(AGILE_SERVICE);
@@ -122,7 +123,7 @@ export class AdminUsersPage {
   }
 
   protected roleLabel(role: Role): string {
-    return ROLE_LABELS[role];
+    return this.organisationRoles.label(role);
   }
 
   protected badge(status: UserStatus): BadgeVariant {

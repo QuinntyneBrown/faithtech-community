@@ -4,8 +4,8 @@ import {
   INVITES_SERVICE,
   InviteDto,
   InviteStatus,
-  ROLE_LABELS,
   hasAny,
+  OrganisationRoles,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -62,6 +62,7 @@ const BADGES: Record<InviteStatus, { variant: BadgeVariant; label: string }> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InvitesPage {
+  private readonly organisationRoles = inject(OrganisationRoles);
   private readonly invites = inject(INVITES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -92,7 +93,9 @@ export class InvitesPage {
 
   /** "Product Engineer · Sent Tue 20 Oct · expires Tue 3 Nov", worded as the mock words it. */
   protected meta(invite: InviteDto): string {
-    const role = invite.preassignedRole ? ROLE_LABELS[invite.preassignedRole] : 'No role';
+    const role = invite.preassignedRole
+      ? this.organisationRoles.label(invite.preassignedRole)
+      : 'No role';
     const status = {
       Pending: `Sent ${this.day(invite.createdAt)} · expires ${this.day(invite.expiresAt)}`,
       Accepted: `Accepted ${this.day(invite.acceptedAt)}`,
