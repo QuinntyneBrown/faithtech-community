@@ -123,6 +123,10 @@ public static class EventsEndpoints
         events.MapDelete("/{id:guid}/hub/update", async (Guid id, HubQuickEditsHandler handler, CancellationToken cancellationToken) =>
             (await handler.ClearUpdateAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
+        events.MapPost("/{id:guid}/hub/agenda/move", async (
+                Guid id, MoveHubSessionCommand command, HubQuickEditsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.MoveSessionAsync(id, command, cancellationToken)).ToHttp(Results.NoContent));
+
         // Hub sections (L2-156, L2-157, ADR 0038): the order, then one section's content validated against its kind's schema.
         events.MapPut("/{id:guid}/hub/sections/order", async (
                 Guid id, ReorderHubSectionsCommand command, ReorderHubSectionsHandler handler, CancellationToken cancellationToken) =>

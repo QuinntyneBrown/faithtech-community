@@ -43,6 +43,9 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import {
+  MoveHubSessionData,
+  MoveHubSessionDialog,
+  MovedSession,
   PostHubUpdateData,
   PostHubUpdateDialog,
   HubSectionPreviewData,
@@ -53,7 +56,7 @@ import {
   UnpublishHubData,
   UnpublishHubDialog,
 } from '../../dialogs';
-import { HubSectionWizardData, hubSection } from '../../hub-sections';
+import { HubSectionWizardData, hubSection, sectionContent } from '../../hub-sections';
 import { HUB_WIZARDS as WIZARDS, WIDE_HUB_WIZARDS as WIDE } from '../hub-wizards';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'no-hub';
@@ -121,6 +124,12 @@ export class EventHubPage {
   protected readonly hub = signal<EventHubDto | null>(null);
   protected readonly publishing = signal(false);
   protected readonly clearing = signal(false);
+  /** Move a session is offered only when the Agenda is shown and has rows (L2-188 AC3). */
+  protected readonly agendaRows = computed(() => {
+    const hub = this.hub();
+    const shown = hub?.sections.some((s) => s.kind === 'Agenda' && s.visible);
+    return shown ? (sectionContent(hub!, 'Agenda')?.items?.length ?? 0) : 0;
+  });
 
   protected readonly subtitle = computed(() => {
     const h = this.hub();
@@ -235,6 +244,26 @@ export class EventHubPage {
       variant: 'success',
       heading: 'Update posted',
       text: 'It shows at the top of the hub now.',
+    });
+    await this.load(this.id(), true);
+  }
+
+  /** Move a session (L2-190): one dialog; the server moves the later rows when asked. */
+  protected async moveSession(): Promise<void> {
+    const hub = this.hub();
+    if (!hub) return;
+    const ref = this.dialogs.open<MovedSession, MoveHubSessionData>(MoveHubSessionDialog, {
+      data: { hub },
+    });
+    const moved = await firstValueFrom(ref.closed);
+    if (!moved) return;
+    const later = moved.later
+      ? `, and ${moved.later === 1 ? 'the later session' : `the ${moved.later} later sessions`} moved too`
+      : '';
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Session moved',
+      text: `${moved.title} is now ${formatTime(moved.startsAt)}${later}.`,
     });
     await this.load(this.id(), true);
   }

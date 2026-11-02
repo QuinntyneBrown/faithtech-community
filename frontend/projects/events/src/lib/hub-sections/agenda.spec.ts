@@ -3,9 +3,11 @@ import {
   agendaInstant,
   agendaStates,
   agendaSummary,
+  firstUpcomingRow,
   inTimeOrder,
   outsideWarning,
   parseSchedule,
+  shiftOffer,
   timeInputInstant,
   timeInputValue,
 } from './agenda';
@@ -118,5 +120,32 @@ describe('agendaStates', () => {
 
   it('has no states for an empty agenda', () => {
     expect(agendaStates([], end, at(19))).toEqual([]);
+  });
+});
+
+// L2-190 AC1, AC2: Move a session chooses the first row that hasn't started and words the offer to move the later rows.
+describe('moving a session', () => {
+  const rows = [
+    { startsAt: '2026-11-06T23:30:00.000Z' },
+    { startsAt: '2026-11-07T00:00:00.000Z' },
+    { startsAt: '2026-11-07T01:00:00.000Z' },
+  ];
+
+  it('chooses the first row that hasn’t started, or the first when all have', () => {
+    expect(firstUpcomingRow(rows, new Date('2026-11-06T20:00:00.000Z'))).toBe(0);
+    expect(firstUpcomingRow(rows, new Date('2026-11-06T23:45:00.000Z'))).toBe(1);
+    expect(firstUpcomingRow(rows, new Date('2026-11-07T03:00:00.000Z'))).toBe(0);
+    expect(firstUpcomingRow([], new Date())).toBe(0);
+  });
+
+  it.each([
+    [2, 30, 'Also move the 2 later sessions 30 minutes later'],
+    [1, 30, 'Also move the later session 30 minutes later'],
+    [3, -15, 'Also move the 3 later sessions 15 minutes earlier'],
+    [2, 60, 'Also move the 2 later sessions 1 hour later'],
+    [2, 1, 'Also move the 2 later sessions 1 minute later'],
+    [2, 135, 'Also move the 2 later sessions 2 hours 15 minutes later'],
+  ])('offers %i later rows moved by %i minutes as “%s”', (later, minutes, label) => {
+    expect(shiftOffer(later, minutes)).toBe(label);
   });
 });

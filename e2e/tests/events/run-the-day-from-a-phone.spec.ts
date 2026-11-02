@@ -3,7 +3,7 @@ import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { EventHubPage } from '../../pages/event-hub.page';
 import { HubPage } from '../../pages/hub.page';
-import { PostHubUpdateDialog } from '../../pages/hub-quick-edit.dialogs';
+import { MoveHubSessionDialog, PostHubUpdateDialog } from '../../pages/hub-quick-edit.dialogs';
 import { hasHorizontalScroll } from '../../pages/viewport';
 
 test.use({ timezoneId: 'America/Toronto', viewport: { width: 360, height: 780 } });
@@ -126,5 +126,120 @@ test.describe('Run the day from a phone: the update', () => {
     await hub.open(event.id);
     await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
     await expect(hub.update).toHaveCount(0);
+  });
+});
+
+/** The evening's five rows, from 6:30 pm Toronto time, with the code freeze at 8:00 pm. */
+function fillAgenda(api: MockApi, eventId: string) {
+  const at = (minutes: number) =>
+    new Date(Date.parse('2026-11-06T23:30:00.000Z') + minutes * 60_000).toISOString();
+  api.events.hubs.fill(eventId, 'Agenda', {
+    items: [
+      { startsAt: at(0), title: 'Doors open', detail: null },
+      { startsAt: at(30), title: 'Build time', detail: null },
+      { startsAt: at(90), title: 'Code freeze', detail: null },
+      { startsAt: at(105), title: 'Demos and feedback', detail: null },
+      { startsAt: at(135), title: 'Wrap up and prayer', detail: null },
+    ],
+  });
+  api.events.hubs.fill(eventId, 'Links', {
+    submissionUrl: 'https://forms.faithtech.com/toronto-builders-night/submit',
+    feedbackUrl: 'https://forms.faithtech.com/toronto-builders-night/feedback',
+    codeFreezeAt: at(90),
+  });
+}
+
+test.describe('Run the day from a phone: move a session', () => {
+  // L2-190 AC1 to AC3, L2-188 AC4: on a phone a lead moves Code freeze 30 minutes later and the later sessions follow.
+  test('a lead moves a session and the later sessions follow', async ({ page, api, axe }) => {
+    const { event, grace } = arrange(api);
+    fillAgenda(api, event.id);
+    const home = new EventHubPage(page);
+    const dialog = new MoveHubSessionDialog(page);
+    const hub = new HubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.moveSession.click();
+    await expect(dialog.session).toHaveValue('0');
+    await expect(dialog.time).toHaveValue('18:30');
+    await expect(dialog.shiftLater).toHaveCount(0);
+    await dialog.session.selectOption({ label: '8:00 pm · Code freeze' });
+    await expect(dialog.time).toHaveValue('20:00');
+    await dialog.time.fill('20:30');
+    await expect(dialog.shiftLater).toBeChecked();
+    await expect(
+      dialog.dialog.getByText('Also move the 2 later sessions 30 minutes later'),
+    ).toBeVisible();
+    expect(await hasHorizontalScroll(page)).toBe(false);
+    await axe.check();
+    await dialog.move.click();
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(home.toast('Session moved')).toBeVisible();
+    await hub.open(event.id);
+    await expect(hub.agendaRow('Build time')).toContainText('7:00');
+    await expect(hub.agendaRow('Code freeze')).toContainText('8:30');
+    await expect(hub.agendaRow('Demos and feedback')).toContainText('8:45');
+    await expect(hub.agendaRow('Wrap up and prayer')).toContainText('9:15');
+  });
+
+  // L2-190 AC2, AC3: unticking the offer moves only the chosen session.
+  test('unticking the offer moves only the chosen session', async ({ page, api }) => {
+    const { event, grace } = arrange(api);
+    fillAgenda(api, event.id);
+    const home = new EventHubPage(page);
+    const dialog = new MoveHubSessionDialog(page);
+    const hub = new HubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.moveSession.click();
+    await dialog.session.selectOption({ label: '7:00 pm · Build time' });
+    await dialog.time.fill('18:45');
+    await expect(
+      dialog.dialog.getByText('Also move the 3 later sessions 15 minutes earlier'),
+    ).toBeVisible();
+    await dialog.shiftLater.uncheck();
+    await dialog.move.click();
+    await expect(home.toast('Session moved')).toBeVisible();
+
+    await hub.open(event.id);
+    await expect(hub.agendaRow('Build time')).toContainText('6:45');
+    await expect(hub.agendaRow('Code freeze')).toContainText('8:00');
+  });
+
+  // L2-190 AC4: no time is refused on the field; a failed move keeps the choice and offers Try again.
+  test('a move without a time is refused and a failed move keeps the choice', async ({
+    page,
+    api,
+  }) => {
+    const { event, grace } = arrange(api);
+    fillAgenda(api, event.id);
+    const home = new EventHubPage(page);
+    const dialog = new MoveHubSessionDialog(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.moveSession.click();
+    await dialog.time.fill('');
+    await dialog.move.click();
+    await expect(dialog.error('Enter a time.')).toBeVisible();
+
+    api.events.hubs.failNextQuickEdit();
+    await dialog.time.fill('19:00');
+    await dialog.move.click();
+    await expect(dialog.failed).toBeVisible();
+    await expect(dialog.time).toHaveValue('19:00');
+    await dialog.tryAgain.click();
+    await expect(dialog.dialog).toBeHidden();
+    await expect(home.toast('Session moved')).toBeVisible();
+  });
+
+  // L2-188 AC3: with no agenda rows there is nothing to move.
+  test('a hub without agenda rows offers no Move a session', async ({ page, api }) => {
+    const { event, grace } = arrange(api);
+    const home = new EventHubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await expect(home.postUpdate).toBeVisible();
+    await expect(home.moveSession).toHaveCount(0);
   });
 });

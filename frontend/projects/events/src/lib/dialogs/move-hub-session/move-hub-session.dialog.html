@@ -1,0 +1,33 @@
+<ft-dialog
+  heading="Move a session"
+  icon="events"
+  description="Change one session’s time. Later sessions can move by the same amount."
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); move()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="We couldn’t move the session">
+          Check your connection and try again.
+          <ft-button ftAlertActions size="sm" (click)="move()">Try again</ft-button>
+        </ft-alert>
+      }
+      <ft-form-field label="Which session?" [error]="sessionError()">
+        <ft-select formControlName="session" [options]="options" />
+      </ft-form-field>
+      <ft-form-field label="New time" [error]="timeError()">
+        <ft-text-field formControlName="time" type="time" [readonly]="busy()" />
+      </ft-form-field>
+      @if (offer(); as o) {
+        <ft-checkbox-group legend="Later sessions" [legendHidden]="true" formControlName="shift">
+          <ft-checkbox value="later" [description]="o.rows">{{ o.label }}</ft-checkbox>
+        </ft-checkbox-group>
+      }
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="move()">
+    {{ busy() ? 'Moving…' : 'Move session' }}
+  </ft-button>
+</ft-dialog>

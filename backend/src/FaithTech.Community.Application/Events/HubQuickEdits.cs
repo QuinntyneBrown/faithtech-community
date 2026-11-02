@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
@@ -8,6 +9,41 @@ namespace FaithTech.Community.Application.Events;
 
 /// <summary>The day-of update banner (L2-189 AC1 to AC3).</summary>
 public record SetHubUpdateCommand(string? Text);
+
+/// <summary>Moves the agenda row at <see cref="Index"/> to <see cref="StartsAt"/>, and the rows after it too (L2-190 AC3).</summary>
+public record MoveHubSessionCommand(int? Index, DateTimeOffset? StartsAt, bool ShiftLater);
+
+/// <summary>The rule for moving a session (L2-190 AC3, ADR 0044); pure, so it is tested with fixed times.</summary>
+public static class AgendaShift
+{
+    /// <summary>
+    /// Sets the row's time and, with <paramref name="shiftLater"/>, adds the same difference to every later row that has a
+    /// time. A code freeze that was a moved row's time takes that row's new time; otherwise it is unchanged.
+    /// </summary>
+    public static (AgendaContent Agenda, DateTimeOffset? CodeFreezeAt) Move(
+        IReadOnlyList<AgendaItem> items, DateTimeOffset? codeFreezeAt, int index, DateTimeOffset startsAt, bool shiftLater)
+    {
+        var delta = startsAt - (items[index].StartsAt ?? startsAt);
+        var freeze = codeFreezeAt;
+        var moved = items.Select((item, i) =>
+        {
+            var shifts = i == index || (shiftLater && i > index && item.StartsAt is not null);
+            if (!shifts)
+            {
+                return item;
+            }
+
+            var at = i == index ? startsAt : item.StartsAt!.Value + delta;
+            if (codeFreezeAt is not null && item.StartsAt == codeFreezeAt)
+            {
+                freeze = at;
+            }
+
+            return item with { StartsAt = at };
+        }).ToList();
+        return (new AgendaContent(moved), freeze);
+    }
+}
 
 /// <summary>
 /// Quick edits a lead makes on the day (L2-188 to L2-190, ADR 0044). They need ManageEventHubs, change the hub at once and
@@ -52,6 +88,41 @@ public partial class HubQuickEditsHandler(IApplicationDbContext db, EventPermiss
 
         hub!.ClearUpdate(time.GetUtcNow());
         Audit(actor!.Value, hub, new { Update = (string?)null });
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
+
+    public async Task<Result> MoveSessionAsync(Guid eventId, MoveHubSessionCommand command, CancellationToken cancellationToken = default)
+    {
+        var (hub, actor, refusal) = await HubAsync(eventId, cancellationToken);
+        if (refusal is not null)
+        {
+            return refusal;
+        }
+
+        var agenda = hub!.Sections.Single(s => s.Kind == HubSectionKind.Agenda);
+        var items = HubContent.Read<AgendaContent>(agenda.Content).Items ?? [];
+        if (command.Index is not { } index || index < 0 || index >= items.Count)
+        {
+            return Result.Invalid("index", "Choose a session from the agenda.");
+        }
+
+        if (command.StartsAt is not { } startsAt)
+        {
+            return Result.Invalid("startsAt", "Enter a time.");
+        }
+
+        var links = hub.Sections.Single(s => s.Kind == HubSectionKind.Links);
+        var linksContent = HubContent.Read<LinksContent>(links.Content);
+        var (moved, freeze) = AgendaShift.Move(items, linksContent.CodeFreezeAt, index, startsAt, command.ShiftLater);
+        var now = time.GetUtcNow();
+        hub.FillSection(HubSectionKind.Agenda, JsonSerializer.Serialize(moved, HubContent.Json), now);
+        if (freeze != linksContent.CodeFreezeAt)
+        {
+            hub.FillSection(HubSectionKind.Links, JsonSerializer.Serialize(linksContent with { CodeFreezeAt = freeze }, HubContent.Json), now);
+        }
+
+        Audit(actor!.Value, hub, new { Moved = items[index].Title, StartsAt = startsAt, command.ShiftLater });
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }

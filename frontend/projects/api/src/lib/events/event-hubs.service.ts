@@ -327,6 +327,14 @@ export interface EventHubDto {
   updateBanner?: string | null;
 }
 
+/** Moves an agenda row to a new time, and with `shiftLater` every row after it by the same amount (L2-190 AC3). */
+export interface MoveHubSessionRequest {
+  /** The row's place in the agenda. */
+  index: number;
+  startsAt: string;
+  shiftLater: boolean;
+}
+
 /**
  * What the wizard saves on every Next and on Save and finish later (L2-153 AC5, AC7); a kind left out keeps its
  * visibility.
@@ -399,6 +407,8 @@ export interface EventHubsService {
   setUpdate(eventId: string, text: string): Observable<void>;
   /** Removes the day-of update (L2-189 AC4). */
   clearUpdate(eventId: string): Observable<void>;
+  /** Moves a session (L2-190 AC3); 400 `index` or `startsAt`. A code freeze at a moved row's time follows it. */
+  moveSession(eventId: string, request: MoveHubSessionRequest): Observable<void>;
   /**
    * Where the hub page reads a map or slide (L2-182 AC3): served only for a resource a shown section names, to whoever may
    * see the page. `thumbnail` asks for the image's small version.

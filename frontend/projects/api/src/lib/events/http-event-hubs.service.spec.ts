@@ -63,6 +63,18 @@ describe('HttpEventHubsService', () => {
     req.flush(null);
   });
 
+  // L2-190 AC3: a move posts the row, its new time and whether later rows follow.
+  it('moves a session on the hub’s agenda', () => {
+    const move = { index: 2, startsAt: '2026-11-07T01:30:00.000Z', shiftLater: true };
+    service.moveSession('e1', move).subscribe();
+
+    const req = controller.expectOne('/api/events/e1/hub/agenda/move');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(move);
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(null);
+  });
+
   it('lets the hub home show its own forbidden state', () => {
     service.get('e1').subscribe();
 

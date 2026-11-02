@@ -66,6 +66,11 @@
                 <ft-icon name="announcements" /> Post an update
               </ft-button>
             }
+            @if (agendaRows()) {
+              <ft-button [block]="true" (click)="moveSession()">
+                <ft-icon name="events" /> Move a session
+              </ft-button>
+            }
           </ft-stack>
         </ft-card>
         <ft-card heading="Your hub">
