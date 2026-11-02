@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toronto Builders Night hub</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="hub-archive">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-197 L2-198">
+<meta name="mock:note" content="The archive’s index.html for a community night, opened from disk with no app or connection: the header, the saved note, the agenda as a plain list, the venue, people with their photos, giving and the upcoming events.">
+<link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+<meta name="description" content="An evening of building, demos and prayer with the Toronto chapter.">
+<style>
+:root {
+  --color-bg-canvas: #f6f7f9;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-sunken: #eef0f3;
+  --color-fg-default: #1a1e26;
+  --color-fg-muted: #5e6675;
+  --color-fg-link: #6d28d9;
+  --color-border-default: #dfe3e8;
+  --color-accent: #7c3aed;
+  --color-fg-on-accent: #ffffff;
+  --color-accent-subtle: #f5f3ff;
+  --color-fg-accent: #6d28d9;
+  --color-focus-ring: #7c3aed;
+  --color-info-bg: #ebf2ff;
+  --color-info-fg: #1e3fae;
+  --color-info-border: #8ab4ff;
+  --font-family-sans: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 9999px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: #0f1216;
+    --color-bg-surface: #1a1e26;
+    --color-bg-surface-sunken: #14181e;
+    --color-fg-default: #e9ecf1;
+    --color-fg-muted: #b3bac5;
+    --color-fg-link: #c4b5fd;
+    --color-border-default: #2f3640;
+    --color-accent: #c4b5fd;
+    --color-fg-on-accent: #2e1065;
+    --color-accent-subtle: #2e1065;
+    --color-fg-accent: #c4b5fd;
+    --color-focus-ring: #c4b5fd;
+    --color-info-bg: #0f1f3d;
+    --color-info-fg: #adc6ff;
+    --color-info-border: #1e3fae;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg-canvas: #0f1216;
+  --color-bg-surface: #1a1e26;
+  --color-bg-surface-sunken: #14181e;
+  --color-fg-default: #e9ecf1;
+  --color-fg-muted: #b3bac5;
+  --color-fg-link: #c4b5fd;
+  --color-border-default: #2f3640;
+  --color-accent: #c4b5fd;
+  --color-fg-on-accent: #2e1065;
+  --color-accent-subtle: #2e1065;
+  --color-fg-accent: #c4b5fd;
+  --color-focus-ring: #c4b5fd;
+  --color-info-bg: #0f1f3d;
+  --color-info-fg: #adc6ff;
+  --color-info-border: #1e3fae;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg-canvas); color: var(--color-fg-default); font: 1rem/1.5 var(--font-family-sans); }
+a { color: var(--color-fg-link); }
+a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: 0.25rem; }
+.skip-link { position: absolute; left: 1rem; top: -4rem; padding: 0.5rem 1rem; background: var(--color-bg-surface); border-radius: var(--radius-md); }
+.skip-link:focus { top: 1rem; }
+.archive { max-width: 52rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+h1, h2, h3 { line-height: 1.25; margin: 0; }
+h1 { font-size: clamp(1.75rem, 6vw, 2.25rem); }
+h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+p { margin: 0; }
+.stack > * + * { margin-top: 0.5rem; }
+.overline { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-fg-muted); }
+.muted { color: var(--color-fg-muted); }
+.saved { margin: 1rem 0 0; padding: 0.75rem 1rem; border: 1px solid var(--color-info-border); border-radius: var(--radius-md); background: var(--color-info-bg); color: var(--color-info-fg); }
+.hero, .card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; }
+.hero { padding: 1.75rem 1.5rem; }
+main > section { margin-top: 2rem; }
+.rows { list-style: none; margin: 0; padding: 0; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); }
+.rows > li { display: flex; gap: 1rem; align-items: flex-start; padding: 0.75rem 1rem; border-top: 1px solid var(--color-border-default); }
+.rows > li:first-child { border-top: 0; }
+.rows .lead { flex: none; min-width: 4.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rows .end { margin-left: auto; flex: none; }
+.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.button { display: inline-block; padding: 0.5rem 1.25rem; border-radius: var(--radius-full); background: var(--color-accent); color: var(--color-fg-on-accent); font-weight: 600; text-decoration: none; }
+.avatar { width: 2.5rem; height: 2.5rem; flex: none; border-radius: var(--radius-full); object-fit: cover; display: grid; place-items: center; background: var(--color-accent-subtle); color: var(--color-fg-accent); font-weight: 600; font-size: 0.875rem; }
+img { max-width: 100%; height: auto; display: block; border-radius: var(--radius-md); }
+.plain { list-style: none; margin: 0; padding: 0; }
+figure { margin: 0; }
+figcaption { margin-top: 0.25rem; font-size: 0.875rem; color: var(--color-fg-muted); }
+.table { overflow-x: auto; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; vertical-align: top; padding: 0.75rem 1rem; border-top: 1px solid var(--color-border-default); }
+thead th { border-top: 0; background: var(--color-bg-surface-sunken); font-size: 0.875rem; }
+footer { margin-top: 3rem; font-size: 0.875rem; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+caption { padding: 0.75rem 1rem; text-align: left; }
+@media (max-width: 40rem) {
+  thead { display: none; }
+  table, tbody, tr, th, td { display: block; }
+  tbody tr { border-top: 1px solid var(--color-border-default); padding: 0.5rem 0; }
+  tbody th, tbody td { border-top: 0; padding: 0.25rem 1rem; }
+  td[data-label]::before { content: attr(data-label); display: block; font-size: 0.75rem; font-weight: 600; color: var(--color-fg-muted); }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="archive">
+<header class="hero stack">
+<p class="overline">FaithTech</p>
+<h1>Toronto Builders Night</h1>
+<p>An evening of building, demos and prayer with the Toronto chapter.</p>
+<p class="muted">Fri 6 Nov 2026 · 6:30 – 9:00 pm · Centre for Social Innovation, 192 Spadina Ave, Toronto</p>
+</header>
+<p class="saved" role="note">A copy of the hub, saved Mon 9 Nov 2026. It opens without the app; links to other sites need a connection. Times are in America/Toronto.</p>
+<main id="main">
+<section aria-labelledby="s-agenda"><h2 id="s-agenda">Agenda</h2><ol class="rows"><li><time class="lead" datetime="2026-11-06T18:30:00-05:00">6:30 pm</time><div><strong>Doors open</strong><p class="muted">Pizza and introductions.</p></div></li><li><time class="lead" datetime="2026-11-06T19:00:00-05:00">7:00 pm</time><div><strong>Welcome and prayer</strong></div></li><li><time class="lead" datetime="2026-11-06T19:15:00-05:00">7:15 pm</time><div><strong>Lightning demos</strong><p class="muted">Five minutes each, then questions.</p></div></li><li><time class="lead" datetime="2026-11-06T20:15:00-05:00">8:15 pm</time><div><strong>Build time</strong></div></li><li><time class="lead" datetime="2026-11-06T21:00:00-05:00">9:00 pm</time><div><strong>Doors close</strong></div></li></ol></section>
+<section aria-labelledby="s-venue"><h2 id="s-venue">Where</h2><div class="card stack"><p><strong>Centre for Social Innovation, 192 Spadina Ave, Toronto</strong></p><p>Use the Spadina entrance and take the elevator to the 3rd floor.</p><p><a href="https://www.google.com/maps/search/?api=1&amp;query=Centre%20for%20Social%20Innovation%2C%20192%20Spadina%20Ave%2C%20Toronto">Open in maps</a></p></div></section>
+<section aria-labelledby="s-people"><h2 id="s-people">People</h2><h3 style="margin: 1rem 0 0.5rem">Speakers</h3><ul class="rows"><li><img class="avatar" src="../../assets/photos/people/grace-okonkwo.jpg" alt=""><div><strong>Grace Okonkwo</strong><p class="muted">City Lead, Toronto</p></div></li><li><span class="avatar" aria-hidden="true">SA</span><div><strong>Samuel Adeyemi</strong><p class="muted">Product engineer at Kestrel Labs</p></div></li></ul></section>
+<section aria-labelledby="s-giving"><h2 id="s-giving">Giving</h2><div class="card stack"><p>Thank you for helping us gather builders across Toronto.</p><p class="muted">Gifts fund city events, hackathons and the Create Cycle.</p><p><a class="button" href="https://faithtech.com/give">Give to FaithTech</a></p></div></section>
+<section aria-labelledby="s-upcomingevents"><h2 id="s-upcomingevents">Upcoming events</h2><ul class="rows"><li><span class="lead">Thu 3 Dec</span><div><a href="https://community.faithtech.example/public/events/7a1d/"><strong>Toronto Advent Prayer Night</strong></a><p class="muted">7:00 – 8:30 pm · Centre for Social Innovation</p></div></li><li><span class="lead">Sat 16 Jan</span><div><a href="https://community.faithtech.example/public/events/9b2e/"><strong>Toronto Create Day</strong></a><p class="muted">9:00 am – 5:00 pm · Toronto</p></div></li></ul></section>
+</main>
+<footer><p>Saved from FaithTech. The live hub: <a href="https://community.faithtech.example/public/events/3f2b6c1e-8a4d-4f0e-9b7a-2c5d1e6f7a80/hub">https://community.faithtech.example/public/events/3f2b6c1e-8a4d-4f0e-9b7a-2c5d1e6f7a80/hub</a></p></footer>
+</div>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Hub archive (index.html)</span>
+  <ul class="mock-bar__states"><li><a href="default.html" aria-current="page">default</a></li><li><a href="hackathon.html">hackathon</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+@startuml
+title Open the archive offline
+actor "Anyone with the file" as reader
+participant "Browser (file://)" as browser
+participant "{slug}-hub/index.html" as index
+participant "images/, slides/" as files
+reader -> browser : unzip, open index.html
+browser -> index : parse (no script, inline styles)
+index -> files : <img src="slides/01.jpg">, <img src="images/parking-1.png">
+browser --> reader : header, saved note, every shown section; light or dark from the system
+reader -> browser : a link to another site
+browser --> reader : needs a connection
+@enduml

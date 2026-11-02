@@ -153,6 +153,7 @@ the transcript and the chapters are embedded in the WebM (ADR 0037).
 | [Edit hub templates](edit-hub-templates/video.webm) · [poster](edit-hub-templates/poster.png) · [narration](edit-hub-templates/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey edit-hub-templates -Engine kokoro -NoCaptions -Music` |
 | [Run the day from a phone](run-the-day-from-a-phone/video.webm) · [poster](run-the-day-from-a-phone/poster.png) · [narration](run-the-day-from-a-phone/narration.md) | 1:15 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey run-the-day-from-a-phone -Engine kokoro -NoCaptions -Music` |
 | [Share a hub by QR code](share-hub-by-qr-code/video.webm) · [poster](share-hub-by-qr-code/poster.png) · [narration](share-hub-by-qr-code/narration.md) | 1:22 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey share-hub-by-qr-code -Engine kokoro -NoCaptions -Music` |
+| [Download a hub archive](download-hub-archive/video.webm) · [poster](download-hub-archive/poster.png) · [narration](download-hub-archive/narration.md) | 1:15 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey download-hub-archive -Engine kokoro -NoCaptions -Music` |
 
 All are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
 mono, 48 kb/s, loudness-normalized). The chapters are embedded in each WebM and listed in its

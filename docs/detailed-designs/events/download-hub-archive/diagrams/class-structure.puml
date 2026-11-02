@@ -1,0 +1,54 @@
+@startuml
+title Class structure — Download a hub archive
+package "Application/Events" {
+  class HubArchiveHandler {
+    +HandleAsync(eventId, timeZone) : (Result, HubArchiveFile?)
+  }
+  class HubArchive <<record>> {
+    +Hub : EventHubDto
+    +TimeZone : TimeZoneInfo
+    +SavedAt : DateTimeOffset
+    +Slides : IReadOnlyDictionary<Guid, HubArchiveEntry>
+    +Maps : IReadOnlyDictionary<Guid, HubArchiveEntry>
+    +Photos : IReadOnlyDictionary<Guid, HubArchiveEntry>
+    +Folder : string
+  }
+  class HubArchiveEntry <<record>> {
+    +Path : string
+    +Open : Func<CancellationToken, Task<Stream>>
+  }
+  class HubArchiveFile <<record>> {
+    +FileName : string
+    +Content : byte[]
+  }
+  interface IHubArchiveWriter {
+    +WriteAsync(HubArchive, Stream, CancellationToken) : Task
+  }
+  class GetEventHubHandler {
+    +PageAsync(eventId) : EventHubDto?
+  }
+  class EventPermissions {
+    +CanManageHubs : bool
+    +IsHubOverride : bool
+  }
+}
+package "Infrastructure/Events" {
+  class HubArchiveWriter {
+    +WriteAsync(HubArchive, Stream, CancellationToken) : Task
+    -Page(HubArchive) : string
+  }
+}
+package "events (Angular)" {
+  class EventHubPage {
+    #archiving : Signal<boolean>
+    #downloadArchive() : Promise<void>
+  }
+}
+HubArchiveHandler ..> GetEventHubHandler
+HubArchiveHandler ..> EventPermissions
+HubArchiveHandler ..> IHubArchiveWriter
+HubArchiveHandler ..> HubArchive : builds
+HubArchive *-- HubArchiveEntry
+HubArchiveHandler ..> HubArchiveFile : returns
+HubArchiveWriter ..|> IHubArchiveWriter
+@enduml

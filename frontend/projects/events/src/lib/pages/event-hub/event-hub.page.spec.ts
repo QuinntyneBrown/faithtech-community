@@ -1,4 +1,4 @@
-// Traces to: L2-154, L2-156 (docs/detailed-designs/events/create-event-hub, fill-in-hub-sections)
+// Traces to: L2-154, L2-156, L2-196 (docs/detailed-designs/events/create-event-hub, fill-in-hub-sections, download-hub-archive)
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { EVENT_HUBS_SERVICE, EventHubDto } from '@faithtech-community/api';
@@ -46,6 +46,7 @@ const service = {
   reorder: vi.fn(),
   publish: vi.fn(),
   unpublish: vi.fn(),
+  archive: vi.fn(),
 };
 const toasts = { show: vi.fn() };
 
@@ -184,5 +185,52 @@ describe('EventHubPage', () => {
     expect(host.textContent).toContain('Sun 1 Nov · 3:40 pm');
     expect(host.textContent).toContain('Visitors can open it now.');
     expect(host.textContent).toContain('Unpublish');
+  });
+
+  const downloadArchive = (host: HTMLElement) =>
+    Array.from(host.querySelectorAll<HTMLButtonElement>('ft-button button'))
+      .find((b) => b.textContent?.includes('Download archive'))!
+      .click();
+
+  // L2-196 AC3, AC5: Download archive saves "{slug}-hub.zip" from the browser's time zone and says so.
+  it('downloads the archive in the browser’s time zone and says where it went', async () => {
+    const host = await setup();
+    service.archive.mockReturnValue(of(new Blob(['PK'])));
+    const save = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    URL.createObjectURL = vi.fn(() => 'blob:archive');
+    URL.revokeObjectURL = vi.fn();
+
+    downloadArchive(host);
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(service.archive).toHaveBeenCalledWith(
+      'e1',
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
+    expect(save).toHaveBeenCalled();
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Archive downloaded',
+      text: 'toronto-builders-night-hub.zip is in your downloads.',
+    });
+    save.mockRestore();
+  });
+
+  // L2-196 AC4: a failed archive offers Try again on its toast.
+  it('offers Try again when the archive fails', async () => {
+    const host = await setup();
+    service.archive.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+    downloadArchive(host);
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'danger',
+        heading: 'We couldn’t make the archive',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+      }),
+    );
   });
 });

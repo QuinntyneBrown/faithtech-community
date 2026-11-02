@@ -17,6 +17,7 @@ export class EventHubPage {
   readonly reorder: Locator;
   readonly preview: Locator;
   readonly share: Locator;
+  readonly downloadArchive: Locator;
   readonly publish: Locator;
   readonly unpublish: Locator;
   readonly publishedAt: Locator;
@@ -48,6 +49,10 @@ export class EventHubPage {
     this.preview = page.getByRole('link', { name: 'Preview', exact: true });
     // Share on the Your hub card (L2-193 AC1).
     this.share = page.getByRole('button', { name: 'Share', exact: true });
+    // Download archive after Share, "Preparing archive…" while busy (L2-196 AC1, AC2).
+    this.downloadArchive = page.getByRole('button', {
+      name: /^(Download archive|Preparing archive…)$/,
+    });
     this.publish = page.getByRole('button', { name: /^(Publish|Publishing…)$/ });
     this.unpublish = page.getByRole('button', { name: 'Unpublish', exact: true });
     this.publishedAt = page
@@ -72,6 +77,12 @@ export class EventHubPage {
   /** An item of the open row menu, such as "Hide section". */
   menuItem(name: string): Locator {
     return this.page.getByRole('menuitem', { name, exact: true });
+  }
+
+  /** The Your hub card's action names, in order (Preview, Share, Download archive, Publish…). */
+  async cardActionNames(): Promise<string[]> {
+    const actions = this.share.locator('xpath=ancestor::ft-cluster[1]');
+    return (await actions.locator('a, button').allTextContents()).map((t) => t.trim());
   }
 
   /** A row button by its visible name and the section, such as Show Giving or Fill in Agenda. */

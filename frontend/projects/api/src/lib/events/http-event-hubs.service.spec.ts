@@ -7,7 +7,7 @@ import { apiTestProviders } from '../shared/api-test-providers';
 import { EVENT_HUBS_SERVICE } from './event-hubs.service';
 import { HttpEventHubsService } from './http-event-hubs.service';
 
-// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4; L2-156 AC4; L2-157 AC2; L2-182 AC3.
+// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4; L2-156 AC4; L2-157 AC2; L2-182 AC3; L2-196 AC3, AC5.
 describe('HttpEventHubsService', () => {
   let service: HttpEventHubsService;
   let controller: HttpTestingController;
@@ -113,6 +113,22 @@ describe('HttpEventHubsService', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({ kinds: ['Agenda', 'Hero'] });
     req.flush(null);
+  });
+
+  // L2-196 AC3, AC5: the archive is a blob, asked for in the browser's time zone, keeping failures on screen.
+  it('asks for the hub archive as a blob in the given time zone', () => {
+    let received: Blob | undefined;
+    service.archive('e1', 'America/Toronto').subscribe((blob) => (received = blob));
+
+    const req = controller.expectOne(
+      (r) =>
+        r.url === '/api/events/e1/hub/archive' && r.params.get('timeZone') === 'America/Toronto',
+    );
+    expect(req.request.method).toBe('GET');
+    expect(req.request.responseType).toBe('blob');
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(new Blob(['PK']));
+    expect(received).toBeInstanceOf(Blob);
   });
 
   it('names a hub file, and its thumbnail, under the event’s hub', () => {

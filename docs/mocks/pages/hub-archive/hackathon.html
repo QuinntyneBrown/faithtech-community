@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaithTech SoCal × Baptize The World Hackathon hub</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="hub-archive">
+<meta name="mock:state" content="hackathon">
+<meta name="mock:requirements" content="L2-197 L2-198">
+<meta name="mock:note" content="The archive of a hackathon hub: parking maps and slides are files inside the zip (images/, slides/), a PDF slide is a link to its file, and the judging table and every shown section are static.">
+<link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+<meta name="description" content="One day to build for the church: lament, discern, build and steward.">
+<style>
+:root {
+  --color-bg-canvas: #f6f7f9;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-sunken: #eef0f3;
+  --color-fg-default: #1a1e26;
+  --color-fg-muted: #5e6675;
+  --color-fg-link: #6d28d9;
+  --color-border-default: #dfe3e8;
+  --color-accent: #7c3aed;
+  --color-fg-on-accent: #ffffff;
+  --color-accent-subtle: #f5f3ff;
+  --color-fg-accent: #6d28d9;
+  --color-focus-ring: #7c3aed;
+  --color-info-bg: #ebf2ff;
+  --color-info-fg: #1e3fae;
+  --color-info-border: #8ab4ff;
+  --font-family-sans: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 9999px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg-canvas: #0f1216;
+    --color-bg-surface: #1a1e26;
+    --color-bg-surface-sunken: #14181e;
+    --color-fg-default: #e9ecf1;
+    --color-fg-muted: #b3bac5;
+    --color-fg-link: #c4b5fd;
+    --color-border-default: #2f3640;
+    --color-accent: #c4b5fd;
+    --color-fg-on-accent: #2e1065;
+    --color-accent-subtle: #2e1065;
+    --color-fg-accent: #c4b5fd;
+    --color-focus-ring: #c4b5fd;
+    --color-info-bg: #0f1f3d;
+    --color-info-fg: #adc6ff;
+    --color-info-border: #1e3fae;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --color-bg-canvas: #0f1216;
+  --color-bg-surface: #1a1e26;
+  --color-bg-surface-sunken: #14181e;
+  --color-fg-default: #e9ecf1;
+  --color-fg-muted: #b3bac5;
+  --color-fg-link: #c4b5fd;
+  --color-border-default: #2f3640;
+  --color-accent: #c4b5fd;
+  --color-fg-on-accent: #2e1065;
+  --color-accent-subtle: #2e1065;
+  --color-fg-accent: #c4b5fd;
+  --color-focus-ring: #c4b5fd;
+  --color-info-bg: #0f1f3d;
+  --color-info-fg: #adc6ff;
+  --color-info-border: #1e3fae;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg-canvas); color: var(--color-fg-default); font: 1rem/1.5 var(--font-family-sans); }
+a { color: var(--color-fg-link); }
+a:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; border-radius: 0.25rem; }
+.skip-link { position: absolute; left: 1rem; top: -4rem; padding: 0.5rem 1rem; background: var(--color-bg-surface); border-radius: var(--radius-md); }
+.skip-link:focus { top: 1rem; }
+.archive { max-width: 52rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+h1, h2, h3 { line-height: 1.25; margin: 0; }
+h1 { font-size: clamp(1.75rem, 6vw, 2.25rem); }
+h2 { font-size: 1.5rem; margin-bottom: 0.75rem; }
+h3 { font-size: 1.125rem; }
+p { margin: 0; }
+.stack > * + * { margin-top: 0.5rem; }
+.overline { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-fg-muted); }
+.muted { color: var(--color-fg-muted); }
+.saved { margin: 1rem 0 0; padding: 0.75rem 1rem; border: 1px solid var(--color-info-border); border-radius: var(--radius-md); background: var(--color-info-bg); color: var(--color-info-fg); }
+.hero, .card { background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; }
+.hero { padding: 1.75rem 1.5rem; }
+main > section { margin-top: 2rem; }
+.rows { list-style: none; margin: 0; padding: 0; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); }
+.rows > li { display: flex; gap: 1rem; align-items: flex-start; padding: 0.75rem 1rem; border-top: 1px solid var(--color-border-default); }
+.rows > li:first-child { border-top: 0; }
+.rows .lead { flex: none; min-width: 4.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rows .end { margin-left: auto; flex: none; }
+.grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.button { display: inline-block; padding: 0.5rem 1.25rem; border-radius: var(--radius-full); background: var(--color-accent); color: var(--color-fg-on-accent); font-weight: 600; text-decoration: none; }
+.avatar { width: 2.5rem; height: 2.5rem; flex: none; border-radius: var(--radius-full); object-fit: cover; display: grid; place-items: center; background: var(--color-accent-subtle); color: var(--color-fg-accent); font-weight: 600; font-size: 0.875rem; }
+img { max-width: 100%; height: auto; display: block; border-radius: var(--radius-md); }
+.plain { list-style: none; margin: 0; padding: 0; }
+figure { margin: 0; }
+figcaption { margin-top: 0.25rem; font-size: 0.875rem; color: var(--color-fg-muted); }
+.table { overflow-x: auto; background: var(--color-bg-surface); border: 1px solid var(--color-border-default); border-radius: var(--radius-md); }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; vertical-align: top; padding: 0.75rem 1rem; border-top: 1px solid var(--color-border-default); }
+thead th { border-top: 0; background: var(--color-bg-surface-sunken); font-size: 0.875rem; }
+footer { margin-top: 3rem; font-size: 0.875rem; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+caption { padding: 0.75rem 1rem; text-align: left; }
+@media (max-width: 40rem) {
+  thead { display: none; }
+  table, tbody, tr, th, td { display: block; }
+  tbody tr { border-top: 1px solid var(--color-border-default); padding: 0.5rem 0; }
+  tbody th, tbody td { border-top: 0; padding: 0.25rem 1rem; }
+  td[data-label]::before { content: attr(data-label); display: block; font-size: 0.75rem; font-weight: 600; color: var(--color-fg-muted); }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="archive">
+<header class="hero stack">
+<p class="overline">FaithTech</p>
+<h1>FaithTech SoCal × Baptize The World Hackathon</h1>
+<p>One day to build for the church: lament, discern, build and steward.</p>
+<p class="muted">Sat 24 Oct 2026 · 9:00 am – 6:00 pm · The Robertson Triangle, 3390 Robertson Pl, Los Angeles</p>
+</header>
+<p class="saved" role="note">A copy of the hub, saved Mon 26 Oct 2026. It opens without the app; links to other sites need a connection. Times are in America/Los_Angeles.</p>
+<main id="main">
+<section aria-labelledby="s-agenda"><h2 id="s-agenda">Agenda</h2><ol class="rows"><li><time class="lead" datetime="2026-10-24T09:00:00-07:00">9:00 am</time><div><strong>Doors open</strong></div></li><li><time class="lead" datetime="2026-10-24T09:15:00-07:00">9:15 am</time><div><strong>Worship</strong></div></li><li><time class="lead" datetime="2026-10-24T09:45:00-07:00">9:45 am</time><div><strong>Baptize The World and the tracks</strong></div></li><li><time class="lead" datetime="2026-10-24T12:30:00-07:00">12:30 pm</time><div><strong>Build</strong><p class="muted">Prayer pause at 2:00.</p></div></li><li><time class="lead" datetime="2026-10-24T16:15:00-07:00">4:15 pm</time><div><strong>Demos</strong></div></li><li><time class="lead" datetime="2026-10-24T17:30:00-07:00">5:30 pm</time><div><strong>Commissioning</strong></div></li></ol></section>
+<section aria-labelledby="s-venue"><h2 id="s-venue">Where</h2><div class="card stack"><p><strong>The Robertson Triangle, 3390 Robertson Pl, Los Angeles</strong></p><p>Enter from the Robertson Pl courtyard; the hall is on your left.</p><p><a href="https://www.google.com/maps/search/?api=1&amp;query=The%20Robertson%20Triangle%2C%203390%20Robertson%20Pl%2C%20Los%20Angeles">Open in maps</a></p></div></section>
+<section aria-labelledby="s-parking"><h2 id="s-parking">Parking</h2><p>Arrive by 8:45 to park on site.</p><div class="grid" style="margin-top: 0.75rem"><article class="card stack"><h3>On-site parking</h3><a href="../../../events/socal-hackathon-2026/parking/onsite.jpg"><img src="../../../events/socal-hackathon-2026/parking/onsite.jpg" alt="Map of On-site parking"></a><p>Lots A, B and C around the venue.</p></article><article class="card stack"><h3>Nearby street parking</h3><a href="../../../events/socal-hackathon-2026/parking/community.jpg"><img src="../../../events/socal-hackathon-2026/parking/community.jpg" alt="Map of Nearby street parking"></a><p>Free street parking and six public garages.</p></article></div></section>
+<section aria-labelledby="s-tracks"><h2 id="s-tracks">Tracks</h2><div class="grid"><article class="card stack"><p class="overline">Track 1 · Primary focus</p><h3>Mobile-first church onboarding</h3><p>Help a newcomer find their way into a church family from their phone.</p><p><a href="https://github.com/FaithTechGlobalLabs/faithtech-socal-hackathon">Track 1 brief and test data</a></p></article><article class="card stack"><p class="overline">Track 2</p><h3>Testimony sharing</h3><p>Make it easy to tell what God has done, safely.</p></article><article class="card stack"><p class="overline">Track 3</p><h3>Post-baptism discipleship</h3><p>Walk with someone in the weeks after baptism.</p></article></div></section>
+<section aria-labelledby="s-rules"><h2 id="s-rules">Rules</h2><ol class="rows"><li><span class="lead">1</span><div><strong>Start fresh</strong><p class="muted">Write the code today.</p></div></li><li><span class="lead">2</span><div><strong>Test data only</strong></div></li><li><span class="lead">3</span><div><strong>Code freeze at 4:00</strong><p class="muted">Push to a public repo.</p></div></li></ol></section>
+<section aria-labelledby="s-links"><h2 id="s-links">Submission and feedback</h2><div class="card stack"><p class="actions"><a class="button" href="https://form.typeform.com/to/submit">Submit your project</a><a href="https://form.typeform.com/to/feedback">Give feedback</a></p><p class="muted">Code freeze at 4:00 pm</p></div></section>
+<section aria-labelledby="s-judging"><h2 id="s-judging">Judging and honors</h2><p style="margin-bottom: 0.75rem">Judges score each team 1 to 5 on each criterion.</p><div class="table"><table><caption class="overline">How judges score</caption><thead><tr><th scope="col">Number</th><th scope="col">Criterion</th><th scope="col">The question</th><th scope="col">Scores a 5 when</th></tr></thead><tbody><tr><td>01</td><th scope="row">Redemptive potential (40%)</th><td data-label="The question">Does it bring people closer to Jesus and each other?</td><td data-label="Scores a 5 when">It clearly serves the church’s mission.</td></tr><tr><td>02</td><th scope="row">Usable by the end user (30%)</th><td data-label="The question">Could the person it is for use it today?</td><td data-label="Scores a 5 when">A first-time user finishes the task unaided.</td></tr><tr><td>03</td><th scope="row">Technical viability (30%)</th><td data-label="The question">Does it work, and could it keep working?</td><td data-label="Scores a 5 when">It runs end to end on real devices.</td></tr></tbody></table></div><h3 style="margin: 1rem 0 0.5rem">Honors</h3><div class="grid"><article class="card stack"><p class="overline">Honor 01 · Top score</p><h3>Most Redemptive</h3></article><article class="card stack"><p class="overline">Honor 02 · Mentors’ pick</p><h3>Most Collaborative</h3></article></div></section>
+<section aria-labelledby="s-people"><h2 id="s-people">People</h2><h3 style="margin: 1rem 0 0.5rem">Mentors</h3><ul class="rows"><li><span class="avatar" aria-hidden="true">TJ</span><div><strong>Travis Johnson</strong><p class="muted">Engineering lead</p></div></li><li><span class="avatar" aria-hidden="true">HD</span><div><strong>Holly Dunlap</strong><p class="muted">Product designer</p></div></li></ul><h3 style="margin: 1rem 0 0.5rem">Judges</h3><ul class="rows"><li><span class="avatar" aria-hidden="true">JE</span><div><strong>Jesse Eshleman</strong><p class="muted">FaithTech</p></div></li></ul></section>
+<section aria-labelledby="s-slides"><h2 id="s-slides">Slides</h2><ol class="plain grid"><li><figure><a href="../../../events/socal-hackathon-2026/slides/01.jpg"><img src="../../../events/socal-hackathon-2026/slides/01.jpg" alt="Slide 1: FaithTech SoCal × Baptize The World Hackathon"></a><figcaption>1. FaithTech SoCal × Baptize The World Hackathon</figcaption></figure></li><li><figure><a href="../../../events/socal-hackathon-2026/slides/02.jpg"><img src="../../../events/socal-hackathon-2026/slides/02.jpg" alt="Slide 2: Before we build"></a><figcaption>2. Before we build</figcaption></figure></li><li><figure><a href="../../../events/socal-hackathon-2026/slides/03.jpg"><img src="../../../events/socal-hackathon-2026/slides/03.jpg" alt="Slide 3: Worship"></a><figcaption>3. Worship</figcaption></figure></li><li class="card"><a href="../../../events/socal-hackathon-2026/README.md">4. Track briefs (PDF)</a></li></ol></section>
+<section aria-labelledby="s-giving"><h2 id="s-giving">Giving</h2><div class="card stack"><p>Help us bring hackathons to more cities.</p><p class="muted">Gifts fund city events, hackathons and the Create Cycle.</p><p><a class="button" href="https://faithtech.com/give">Give to FaithTech</a></p></div></section>
+</main>
+<footer><p>Saved from FaithTech. The live hub: <a href="https://community.faithtech.example/public/events/5c9e2a71-0d3b-4e6f-8a12-7b4c3d2e1f00/hub">https://community.faithtech.example/public/events/5c9e2a71-0d3b-4e6f-8a12-7b4c3d2e1f00/hub</a></p></footer>
+</div>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Hub archive (index.html)</span>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="hackathon.html" aria-current="page">hackathon</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

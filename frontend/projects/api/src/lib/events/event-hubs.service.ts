@@ -403,6 +403,11 @@ export interface EventHubsService {
   publish(eventId: string): Observable<void>;
   /** Returns the hub to Draft and keeps its sections (L2-164 AC3). */
   unpublish(eventId: string): Observable<void>;
+  /**
+   * The hub as a zip to keep (L2-196, L2-197, ADR 0046): a static page with its images and slides, its times in
+   * `timeZone` (an IANA name, such as "America/Toronto").
+   */
+  archive(eventId: string, timeZone: string): Observable<Blob>;
   /** Shows a day-of update at the top of the hub at once (L2-189 AC3); 400 `text` when empty or over 280 characters. */
   setUpdate(eventId: string, text: string): Observable<void>;
   /** Removes the day-of update (L2-189 AC4). */

@@ -12,6 +12,7 @@ using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Admin;
 using FaithTech.Community.Infrastructure.Calendar;
+using FaithTech.Community.Infrastructure.Events;
 using FaithTech.Community.Infrastructure.Csv;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -104,6 +105,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
         services.AddScoped<IIcsCalendarWriter, IcsCalendarWriter>();
+        services.AddSingleton<IHubArchiveWriter, HubArchiveWriter>();
         services.AddSingleton<ICsvWriter, CsvWriter>();
 
         services.AddSingleton<IFullTextSearch, PostgresFullTextSearch>();

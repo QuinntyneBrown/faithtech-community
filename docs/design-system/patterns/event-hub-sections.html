@@ -117,7 +117,7 @@
       <p class="ds-lead">An event hub is made of sections, each with a fixed shape and a fixed layout. Every section has one display that renders it on the hub, in the section preview and on a wizard’s review step. The displays are composition in the events library, built only from components-library primitives; there is no page builder and no styling panel.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill">Pattern</span></div>
       <ul class="ds-toc">
-        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#displays">The seven displays</a></li><li><a href="#optional-displays">The ten optional displays</a></li><li><a href="#states">States</a></li><li><a href="#hub-page">Hub page</a></li><li><a href="#live-agenda">Live agenda</a></li><li><a href="#hub-link">Open the event hub</a></li><li><a href="#starting-point">Starting a hub</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#displays">The seven displays</a></li><li><a href="#optional-displays">The ten optional displays</a></li><li><a href="#states">States</a></li><li><a href="#hub-page">Hub page</a></li><li><a href="#live-agenda">Live agenda</a></li><li><a href="#hub-link">Open the event hub</a></li><li><a href="#starting-point">Starting a hub</a></li><li><a href="#saved-copy">Saved copy</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
       </ul>
     </header>
 
@@ -319,6 +319,16 @@ readonly announcement = linkedSignal&lt;..., string&gt;({ source: () =&gt; this.
       </div>
     </section>
 
+    <section class="ds-section" id="saved-copy"><h2><a href="#saved-copy">Saved copy (hub archive)</a></h2>
+      <p><b>Download archive</b> on the hub home (L2-196) saves a zip whose <code>index.html</code> is the hub as visitors see it, written by the server, not composed from the components library: it must open from disk with no app, no script and no connection (L2-197, ADR 0046). It keeps the pattern’s order and words: the same section headings (Agenda, Where, Parking, …, Giving, Upcoming events), the same row shape (a time or number lead, a bold title, a muted detail), cards for tracks, stages, honors and parking options, and the judging table.</p>
+      <ul>
+        <li><b>Tokens by value.</b> One inline <code>&lt;style&gt;</code> declares the token roles it uses (<code>--color-bg-canvas</code>, <code>--color-bg-surface</code>, <code>--color-fg-default</code>, <code>--color-fg-muted</code>, <code>--color-fg-link</code>, <code>--color-border-default</code>, <code>--color-accent</code>, <code>--color-fg-on-accent</code>, <code>--color-accent-subtle</code>, <code>--color-info-*</code>, <code>--radius-md</code>, <code>--radius-lg</code>, <code>--radius-full</code>, <code>--font-family-sans</code>) with their light values, and their dark values under <code>prefers-color-scheme: dark</code>. Rules read the roles, never the hex values. When a token’s value changes, the archive’s copy changes with it.</li>
+        <li><b>Static.</b> The agenda has no Happening now or Up next; the slide viewer becomes a numbered grid of the slide images, each linking to its file, and a PDF slide is a link; parking maps link to their full image. Maps, photos and slides are files beside <code>index.html</code> (<code>images/</code>, <code>slides/</code>).</li>
+        <li><b>Saved note.</b> An info note under the header says when the copy was saved, that links to other sites need a connection, and which time zone its times are in.</li>
+        <li><b>Accessible as a page.</b> One <code>h1</code> (the event), an <code>h2</code> per section, a skip link to <code>main</code>, alt text on every image (“Map of {option}”, “Slide {n}: {title}”, decorative avatars with <code>alt=""</code> beside the name), a visible focus outline, and contrast from the token values. At phone width the judging table stacks into labelled rows.</li>
+      </ul>
+      <p>See <a href="../../mocks/pages/hub-archive/default.html">hub-archive/default</a> and <a href="../../mocks/pages/hub-archive/hackathon.html">hub-archive/hackathon</a>.</p>
+    </section>
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
         <li>Every display is one column at every width and fills the hub’s content column; nothing scrolls sideways at 360px.</li>
