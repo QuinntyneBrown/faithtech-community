@@ -17,4 +17,4 @@
 | build-hackathon-hub | 12 days | 100% | B+ |
 | edit-hub-templates | 6 days | 100% | B+ |
 | run-the-day-from-a-phone | 5 days | 100% | B+ |
-| share-hub-by-qr-code | 1 day | 0% | — |
+| share-hub-by-qr-code | 1 day | 100% | B+ |

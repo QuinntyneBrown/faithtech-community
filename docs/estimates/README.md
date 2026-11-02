@@ -15,7 +15,7 @@
 | [contacts](contacts.md) | 30 days | 100% | B |
 | [partners](partners.md) | 19 days | 100% | B- |
 | [team](team.md) | 2 days | 100% | A- |
-| [events](events.md) | 81 days | 99% | B |
+| [events](events.md) | 81 days | 100% | B |
 | [notifications](notifications.md) | 9 days | 100% | B- |
 | [announcements](announcements.md) | 8 days | 100% | B- |
 | [search](search.md) | 4 days | 90% | B |

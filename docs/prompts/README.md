@@ -102,7 +102,7 @@ each merged slice ships.
 | 46 | [46-build-a-hackathon-hub.md](46-build-a-hackathon-hub.md) | Build a hackathon hub | `build-hackathon-hub` | Done |
 | 47 | [47-edit-hub-templates.md](47-edit-hub-templates.md) | Edit hub templates | `edit-hub-templates` | Done |
 | 48 | [48-run-the-day-from-a-phone.md](48-run-the-day-from-a-phone.md) | Run the day from a phone | `run-the-day-from-a-phone` | Done |
-| 49 | [49-share-a-hub-by-qr-code.md](49-share-a-hub-by-qr-code.md) | Share a hub by QR code | `share-hub-by-qr-code` | To do |
+| 49 | [49-share-a-hub-by-qr-code.md](49-share-a-hub-by-qr-code.md) | Share a hub by QR code | `share-hub-by-qr-code` | Done |
 | 50 | [50-download-a-hub-archive.md](50-download-a-hub-archive.md) | Download a hub archive | `download-hub-archive` | To do |
 
 ### Deferred

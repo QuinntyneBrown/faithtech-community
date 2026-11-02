@@ -7,7 +7,11 @@ import { HubPage } from '../../pages/hub.page';
 import { HubQrFullScreen, ShareHubDialog } from '../../pages/share-hub.dialog';
 import { BREAKPOINTS, hasHorizontalScroll } from '../../pages/viewport';
 
-test.use({ timezoneId: 'America/Toronto' });
+// Headless Chromium sizes the browser's full screen to its window, so the window is a 1280 x 720 projector.
+test.use({
+  timezoneId: 'America/Toronto',
+  launchOptions: { args: ['--window-size=1280,720'] },
+});
 
 const TITLE = 'Toronto Builders Night';
 
@@ -133,6 +137,7 @@ test.describe('Share a hub by QR code: the Share dialog', () => {
 });
 
 test.describe('Share a hub by QR code: full screen', () => {
+  // A 1280 x 720 projector (the window size is set at the top of the file).
   test.use({ viewport: { width: 1280, height: 720 } });
 
   // L2-194 AC1, AC2, AC4: the same code fills a projector's screen with the link as text, and has no axe violations.
