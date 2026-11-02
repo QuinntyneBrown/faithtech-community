@@ -327,3 +327,73 @@ test.describe('Run the day from a phone: swap a link', () => {
     await expect(home.swapLink).toHaveCount(0);
   });
 });
+
+test.describe('Run the day from a phone: open hubs refresh', () => {
+  // L2-192 AC1: a visitor's open hub shows a new update and a moved session within 30 seconds, keeping its scroll.
+  test('an open hub shows changes within 30 seconds without a reload', async ({ page, api }) => {
+    const { event } = arrange(api);
+    fillAgenda(api, event.id);
+    const hub = new HubPage(page);
+    // A short window, so the hub scrolls and the reader's place can be kept.
+    await page.setViewportSize({ width: 360, height: 420 });
+    await page.clock.install();
+    await hub.open(event.id);
+    await expect(hub.agendaRow('Code freeze')).toContainText('8:00');
+    await expect(hub.update).toHaveCount(0);
+    const scrolled = await hub.scrollToBottom();
+    expect(scrolled).toBeGreaterThan(0);
+
+    api.events.hubs.setUpdate(event.id, UPDATE);
+    const agenda = api.events.hubs.section(event.id, 'Agenda')!;
+    const items = agenda.content['items'] as { startsAt: string; title: string }[];
+    items[2] = { ...items[2], startsAt: '2026-11-07T01:30:00.000Z' };
+    await page.clock.runFor(29_000);
+    await expect(hub.update).toHaveCount(0);
+    await page.clock.runFor(2_000);
+
+    await expect(hub.update).toContainText(UPDATE);
+    await expect(hub.agendaRow('Code freeze')).toContainText('8:30');
+    expect(await hub.scrollY()).toBeGreaterThan(0);
+  });
+
+  // L2-192 AC2: a hidden tab does not read the hub; showing it reads at once.
+  test('a hidden tab waits and reads the hub as soon as it is shown', async ({ page, api }) => {
+    const { event } = arrange(api);
+    const hub = new HubPage(page);
+    await page.clock.install();
+    await hub.open(event.id);
+    await expect(hub.sectionHeadings.first()).toBeVisible();
+
+    await hub.setTabVisible(false);
+    api.events.hubs.setUpdate(event.id, UPDATE);
+    await page.clock.runFor(90_000);
+    await expect(hub.update).toHaveCount(0);
+
+    await hub.setTabVisible(true);
+    await expect(hub.update).toContainText(UPDATE);
+  });
+
+  // L2-192 AC3: a failed refresh keeps the page; the next turn picks the change up; a hub gone unavailable says so.
+  test('a failed refresh keeps the page and an unpublished hub becomes unavailable', async ({
+    page,
+    api,
+  }) => {
+    const { event } = arrange(api);
+    const hub = new HubPage(page);
+    await page.clock.install();
+    await hub.open(event.id);
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
+
+    api.events.hubs.setUpdate(event.id, UPDATE);
+    api.events.hubs.failNextLoad();
+    await page.clock.runFor(31_000);
+    await expect(hub.sectionHeadings.first()).toHaveText('Toronto Builders Night');
+    await expect(hub.failed).toHaveCount(0);
+    await page.clock.runFor(30_000);
+    await expect(hub.update).toContainText(UPDATE);
+
+    api.events.hubs.unpublish(event.id);
+    await page.clock.runFor(30_000);
+    await expect(hub.notAvailable).toBeVisible();
+  });
+});

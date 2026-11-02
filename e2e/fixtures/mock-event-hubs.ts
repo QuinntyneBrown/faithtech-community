@@ -300,6 +300,13 @@ export class MockEventHubs {
     hub.publishedAt = this.context.now().toISOString();
   }
 
+  /** Arranges a hub taken back to Draft, as Unpublish would leave it (L2-164 AC4). */
+  unpublish(eventId: string): void {
+    const hub = this.of(eventId);
+    if (!hub) throw new Error(`No hub for ${eventId}`);
+    hub.status = 'Draft';
+  }
+
   /** The event detail's hub fields (L2-153 AC1, L2-167 AC3). */
   detail(
     event: MockEvent,

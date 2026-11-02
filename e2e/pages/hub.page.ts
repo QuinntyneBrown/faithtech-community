@@ -48,6 +48,30 @@ export class HubPage {
     await this.page.goto(`/public/events/${eventId}/hub`);
   }
 
+  /** Hides or shows the tab, as switching apps on a phone does (L2-192 AC2). */
+  async setTabVisible(visible: boolean): Promise<void> {
+    await this.page.evaluate((shown) => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => (shown ? 'visible' : 'hidden'),
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+    }, visible);
+  }
+
+  /** Scrolls the window to the bottom and returns how far down it is. */
+  scrollToBottom(): Promise<number> {
+    return this.page.evaluate(() => {
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+      return window.scrollY;
+    });
+  }
+
+  /** How far down the window is scrolled. */
+  scrollY(): Promise<number> {
+    return this.page.evaluate(() => window.scrollY);
+  }
+
   /** The Agenda row whose title is `title`. */
   agendaRow(title: string): Locator {
     return this.agendaRows.filter({ hasText: title });
