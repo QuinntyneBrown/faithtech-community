@@ -8,7 +8,8 @@ package "Application/Events" {
     +Hub : EventHubDto
     +TimeZone : TimeZoneInfo
     +SavedAt : DateTimeOffset
-    +Files : IReadOnlyDictionary<Guid, HubArchiveEntry>
+    +Slides : IReadOnlyDictionary<Guid, HubArchiveEntry>
+    +Maps : IReadOnlyDictionary<Guid, HubArchiveEntry>
     +Photos : IReadOnlyDictionary<Guid, HubArchiveEntry>
     +Folder : string
   }
