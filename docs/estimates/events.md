@@ -16,4 +16,4 @@
 | start-hub-from-template | 4 days | 100% | B+ |
 | build-hackathon-hub | 12 days | 100% | B+ |
 | edit-hub-templates | 6 days | 100% | B+ |
-| run-the-day-from-a-phone | 5 days | 0% | — |
+| run-the-day-from-a-phone | 5 days | 100% | B+ |
