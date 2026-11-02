@@ -404,7 +404,10 @@
         "L2-189",
         "L2-190",
         "L2-191",
-        "L2-193"
+        "L2-193",
+        "L2-196",
+        "L2-197",
+        "L2-198"
       ],
       "states": [
         "default",
@@ -428,7 +431,10 @@
         "update-posted",
         "update-cleared",
         "session-moved",
-        "link-swapped"
+        "link-swapped",
+        "archive-preparing",
+        "archive-downloaded",
+        "archive-failed"
       ],
       "not_applicable": {
         "empty": "A hub always has its seven sections; an event with no hub is the no-hub state."
@@ -536,6 +542,28 @@
       ],
       "not_applicable": {
         "default": "The page has two defaults: visitor (an anonymous visitor on a published hub of a public event, slice 44) and preview-draft (someone who manages hubs, slice 43); member is the signed-in member's view."
+      }
+    },
+    {
+      "id": "hub-archive",
+      "kind": "page",
+      "title": "Hub archive (index.html)",
+      "route": "{event}-hub/index.html inside the downloaded zip, opened from disk",
+      "requirements": [
+        "L2-197",
+        "L2-198"
+      ],
+      "states": [
+        "default",
+        "hackathon"
+      ],
+      "not_applicable": {
+        "loading": "A static file opened from disk: there is nothing to load, and its images and slides sit beside it in the zip.",
+        "error": "Nothing is fetched; the server either sends the whole zip or the hub home shows the archive-failed toast.",
+        "empty": "The archive always has the event's header; with no section ready it holds only the header, the saved note and the footer, as the hub page's empty state does for visitors.",
+        "busy": "Nothing is saved; the busy state is the hub home's archive-preparing.",
+        "invalid": "Nothing is typed.",
+        "forbidden": "Only holders of ManageEventHubs can download it (403 otherwise, L2-198); whoever has the file can open it, like any saved copy."
       }
     },
     {

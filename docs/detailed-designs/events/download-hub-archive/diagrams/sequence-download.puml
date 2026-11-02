@@ -1,0 +1,36 @@
+@startuml
+title Download a hub archive
+actor "Hub manager" as lead
+participant "EventHubPage" as home
+participant "EVENT_HUBS_SERVICE" as svc
+participant "HubArchiveHandler" as handler
+participant "GetEventHubHandler" as page
+participant "HubArchiveWriter" as writer
+participant "Blob storage" as blob
+database "Database" as db
+lead -> home : Download archive
+home -> home : busy, "Preparing archive…"
+home -> svc : archive(eventId, "America/Toronto")
+svc -> handler : GET /api/events/{id}/hub/archive?timeZone=America/Toronto
+alt no ManageEventHubs
+  handler --> svc : 403
+else unknown time zone
+  handler --> svc : 400 timeZone "Choose a known time zone."
+else no such event or hub in this organisation
+  handler --> svc : 404
+end
+handler -> page : PageAsync(eventId)
+page -> db : event, hub, sections, partners, profiles, resources (organisation filter)
+page --> handler : EventHubDto, shown Ready sections only
+handler -> db : the slides', maps' and photos' stored files (organisation filter)
+handler -> writer : WriteAsync(HubArchive, zip stream)
+writer -> blob : open each file
+writer --> handler : {slug}-hub/index.html, images/, slides/
+handler -> db : audit event_hub.archived (Override when only AdministerOrganisation allowed it)
+handler --> svc : 200 application/zip "{slug}-hub.zip"
+svc --> home : Blob
+home -> lead : saves the zip; "Archive downloaded" toast
+alt request fails
+  home -> lead : "We couldn’t make the archive", Try again
+end
+@enduml

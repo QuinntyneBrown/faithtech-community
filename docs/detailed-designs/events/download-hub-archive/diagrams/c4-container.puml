@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Download a hub archive
+Person(lead, "Hub manager")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Hub home: Download archive, busy until the zip arrives, then saves it and shows a toast")
+  Container(api, "Community API", "ASP.NET Core", "GET /api/events/{id}/hub/archive?timeZone=: checks ManageEventHubs, builds the zip, audits")
+  ContainerDb(db, "Database", "PostgreSQL", "Events, hubs and sections, resources, profiles, audit log; filtered by organisation")
+}
+System_Ext(blob, "Azure Blob storage", "Resource files and profile photos")
+Rel(lead, spa, "Download archive", "HTTPS")
+Rel(spa, api, "Asks for the zip with the browser's time zone", "HTTPS")
+Rel(api, db, "Reads the hub as visitors see it; writes event_hub.archived", "EF Core")
+Rel(api, blob, "Reads each map, slide and photo", "HTTPS")
+@enduml

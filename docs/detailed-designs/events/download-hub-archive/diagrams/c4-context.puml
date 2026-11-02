@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Download a hub archive
+Person(lead, "Hub manager", "Member holding ManageEventHubs, after the event")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+System_Ext(blob, "Azure Blob storage", "The organisation's resource files and profile photos")
+Rel(lead, community, "Downloads the hub as a zip, then opens index.html from disk", "HTTPS")
+Rel(community, blob, "Reads the maps, slides and photos the hub shows", "HTTPS")
+@enduml

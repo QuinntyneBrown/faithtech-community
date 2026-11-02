@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Download a hub archive
+Container_Boundary(spa, "Web app") {
+  Component(home, "EventHubPage", "Angular page (events)", "Your hub card: Preview, Share, Download archive, Publish or Unpublish")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "archive(eventId, timeZone): Blob")
+  Component(toasts, "ToastService", "components", "Archive downloaded; We couldn’t make the archive with Try again")
+}
+Container_Boundary(api, "Community API") {
+  Component(endpoint, "GET /api/events/{id}/hub/archive", "Minimal API endpoint", "Maps the result to 200 zip, 400, 403 or 404")
+  Component(handler, "HubArchiveHandler", "Application/Events", "ManageEventHubs; the hub as visitors see it; picks the files; audits")
+  Component(page, "GetEventHubHandler.PageAsync", "Application/Events", "Unchanged: the shown, Ready sections with live facts")
+  Component(writer, "HubArchiveWriter : IHubArchiveWriter", "Infrastructure/Events", "Writes index.html from the hub and zips it with the files")
+  Component(files, "IFileStorage / IPhotoStorage", "Application abstractions", "Azure Blob in production, fakes in tests")
+}
+Rel(home, svc, "archive")
+Rel(home, toasts, "Shows")
+Rel(svc, endpoint, "HTTPS")
+Rel(endpoint, handler, "HandleAsync(eventId, timeZone)")
+Rel(handler, page, "PageAsync")
+Rel(handler, writer, "WriteAsync(HubArchive, Stream)")
+Rel(writer, files, "Opens each file")
+@enduml
