@@ -71,6 +71,11 @@
                 <ft-icon name="events" /> Move a session
               </ft-button>
             }
+            @if (linksShown()) {
+              <ft-button [block]="true" (click)="swapLink()">
+                <ft-icon name="link" /> Swap a link
+              </ft-button>
+            }
           </ft-stack>
         </ft-card>
         <ft-card heading="Your hub">

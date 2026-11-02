@@ -3,7 +3,11 @@ import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { EventHubPage } from '../../pages/event-hub.page';
 import { HubPage } from '../../pages/hub.page';
-import { MoveHubSessionDialog, PostHubUpdateDialog } from '../../pages/hub-quick-edit.dialogs';
+import {
+  MoveHubSessionDialog,
+  PostHubUpdateDialog,
+  SwapHubLinkDialog,
+} from '../../pages/hub-quick-edit.dialogs';
 import { hasHorizontalScroll } from '../../pages/viewport';
 
 test.use({ timezoneId: 'America/Toronto', viewport: { width: 360, height: 780 } });
@@ -241,5 +245,85 @@ test.describe('Run the day from a phone: move a session', () => {
 
     await expect(home.postUpdate).toBeVisible();
     await expect(home.moveSession).toHaveCount(0);
+  });
+});
+
+test.describe('Run the day from a phone: swap a link', () => {
+  const SUBMIT_V2 = 'https://forms.faithtech.com/toronto-builders-night/submit-v2';
+
+  // L2-191 AC1, AC3: a lead swaps the submission link; the feedback link and code freeze stay.
+  test('a lead swaps the submission link and the hub uses it', async ({ page, api, axe }) => {
+    const { event, grace } = arrange(api);
+    fillAgenda(api, event.id);
+    const home = new EventHubPage(page);
+    const dialog = new SwapHubLinkDialog(page);
+    const hub = new HubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.swapLink.click();
+    await expect(dialog.submission).toBeChecked();
+    await expect(dialog.link).toHaveValue(
+      'https://forms.faithtech.com/toronto-builders-night/submit',
+    );
+    await dialog.feedback.check();
+    await expect(dialog.link).toHaveValue(
+      'https://forms.faithtech.com/toronto-builders-night/feedback',
+    );
+    await dialog.submission.check();
+    await axe.check();
+    await dialog.link.fill(SUBMIT_V2);
+    await dialog.swap.click();
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(home.toast('Link swapped')).toBeVisible();
+    await hub.open(event.id);
+    await expect(page.getByRole('link', { name: 'Submit your project' })).toHaveAttribute(
+      'href',
+      SUBMIT_V2,
+    );
+    await expect(page.getByRole('link', { name: 'Give feedback' })).toHaveAttribute(
+      'href',
+      'https://forms.faithtech.com/toronto-builders-night/feedback',
+    );
+  });
+
+  // L2-191 AC2, AC3: an empty or http link is refused; a failed swap keeps the link and offers Try again.
+  test('an empty or http link is refused and a failed swap keeps the link', async ({
+    page,
+    api,
+  }) => {
+    const { event, grace } = arrange(api);
+    fillAgenda(api, event.id);
+    const home = new EventHubPage(page);
+    const dialog = new SwapHubLinkDialog(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await home.swapLink.click();
+    await dialog.link.fill('');
+    await dialog.swap.click();
+    await expect(dialog.error('Enter a link.')).toBeVisible();
+    await dialog.link.fill('http://forms.example.com/submit');
+    await dialog.swap.click();
+    await expect(dialog.error('Use a link that starts with https://')).toBeVisible();
+
+    api.events.hubs.failNextSave();
+    await dialog.link.fill(SUBMIT_V2);
+    await dialog.swap.click();
+    await expect(dialog.failed).toBeVisible();
+    await expect(dialog.link).toHaveValue(SUBMIT_V2);
+    await dialog.tryAgain.click();
+    await expect(dialog.dialog).toBeHidden();
+    await expect(home.toast('Link swapped')).toBeVisible();
+  });
+
+  // L2-188 AC3: with Submission and feedback hidden there is no link to swap.
+  test('a hub with Submission and feedback hidden offers no Swap a link', async ({ page, api }) => {
+    const { event, grace } = arrange(api);
+    api.events.hubs.section(event.id, 'Links')!.visible = false;
+    const home = new EventHubPage(page);
+    await api.signInAs(grace, `/events/${event.id}/hub`);
+
+    await expect(home.postUpdate).toBeVisible();
+    await expect(home.swapLink).toHaveCount(0);
   });
 });

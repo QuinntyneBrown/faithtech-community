@@ -1,0 +1,31 @@
+<ft-dialog
+  heading="Swap a link"
+  icon="link"
+  description="Change where the submission or feedback button goes. The hub changes at once."
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); swap()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="We couldn’t swap the link">
+          Check your connection and try again.
+          <ft-button ftAlertActions size="sm" (click)="swap()">Try again</ft-button>
+        </ft-alert>
+      }
+      <ft-radio-group legend="Which link?" formControlName="which">
+        <ft-radio value="submission" description="Where teams submit their project."
+          >Submission</ft-radio
+        >
+        <ft-radio value="feedback" description="Where everyone gives feedback.">Feedback</ft-radio>
+      </ft-radio-group>
+      <ft-form-field label="New link" help="Starts with https://" [error]="error()">
+        <ft-text-field formControlName="link" type="url" autocomplete="off" [readonly]="busy()" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="swap()">
+    {{ busy() ? 'Swapping…' : 'Swap link' }}
+  </ft-button>
+</ft-dialog>

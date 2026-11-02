@@ -47,6 +47,8 @@ import {
   MoveHubSessionDialog,
   MovedSession,
   PostHubUpdateData,
+  SwapHubLinkData,
+  SwapHubLinkDialog,
   PostHubUpdateDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
@@ -244,6 +246,28 @@ export class EventHubPage {
       variant: 'success',
       heading: 'Update posted',
       text: 'It shows at the top of the hub now.',
+    });
+    await this.load(this.id(), true);
+  }
+
+  /** Swap a link is offered only while Submission and feedback is shown (L2-188 AC3). */
+  protected readonly linksShown = computed(
+    () => !!this.hub()?.sections.some((s) => s.kind === 'Links' && s.visible),
+  );
+
+  /** Swap a link (L2-191): saves the Submission and feedback section with the other link unchanged. */
+  protected async swapLink(): Promise<void> {
+    const hub = this.hub();
+    if (!hub) return;
+    const ref = this.dialogs.open<'submission' | 'feedback', SwapHubLinkData>(SwapHubLinkDialog, {
+      data: { hub },
+    });
+    const which = await firstValueFrom(ref.closed);
+    if (!which) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Link swapped',
+      text: `The ${which === 'submission' ? 'Submission' : 'Feedback'} link changed on the hub.`,
     });
     await this.load(this.id(), true);
   }
