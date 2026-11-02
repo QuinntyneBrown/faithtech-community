@@ -1,5 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, viewChild } from '@angular/core';
+import { hubQrFileName } from './hub-qr-file-name';
 import { HUB_DRAFT_NOTE, ShareHubData } from './share-hub-data';
 import { HubQrFullScreenDialog } from '../hub-qr-full-screen/hub-qr-full-screen.dialog';
 import {
@@ -39,6 +40,7 @@ export class ShareHubDialog {
   protected readonly data = inject<ShareHubData>(DIALOG_DATA);
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);
+  private readonly qrCode = viewChild(QrCodeComponent);
 
   protected readonly draftNote = HUB_DRAFT_NOTE;
   protected readonly alt = `QR code for the ${this.data.eventTitle} hub`;
@@ -50,6 +52,11 @@ export class ShareHubDialog {
       { data: this.data },
       { fullScreen: true },
     );
+  }
+
+  /** Download image (L2-195): a PNG named after the event, drawn in the browser. */
+  protected download(): void {
+    void this.qrCode()?.downloadPng(hubQrFileName(this.data.eventTitle));
   }
 
   protected copied(): void {
