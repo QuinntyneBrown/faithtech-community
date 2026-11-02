@@ -58,13 +58,16 @@ describe('IconComponent', () => {
     ['merge', 'M7 3v6a5 5 0 0 0 5 5 5 5 0 0 1 5 5v2M7 21v-6M17 3v3'],
     ['reports', 'M4 20V10M10 20V4M16 20v-7M22 20H2'],
     ['walk-in', 'M3 21a7 7 0 0 1 14 0M19 8v6M16 11h6'],
+    // The slide viewer's Previous and Next chevrons (components/slide-viewer.html).
+    ['previous', 'M15 18l-6-6 6-6'],
+    ['next', 'M9 18l6-6-6-6'],
   ])('draws the %s icon from the sheet', (name, d) => {
     const { svg } = setup({ name });
     expect(svg.querySelector('path')?.getAttribute('d')).toBe(d);
   });
 
-  it('ships the full 71 icon set', () => {
-    expect(ICON_NAMES.length).toBe(71);
+  it('ships the full 73 icon set', () => {
+    expect(ICON_NAMES.length).toBe(73);
     for (const name of ICON_NAMES) {
       expect(setup({ name }).svg.innerHTML.length).toBeGreaterThan(0);
     }

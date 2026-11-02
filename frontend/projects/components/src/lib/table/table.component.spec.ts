@@ -12,6 +12,7 @@ import { TableColumn, TableComponent } from './table.component';
       [rows]="rows()"
       [busy]="busy()"
       [loading]="loading()"
+      [stack]="stack()"
     />
   `,
 })
@@ -19,6 +20,7 @@ class HostComponent {
   status = viewChild.required<TemplateRef<unknown>>('status');
   busy = signal(false);
   loading = signal(false);
+  stack = signal(false);
   rows = signal<Record<string, unknown>[]>([
     { when: '2026-10-21 10:05', who: 'Priya Shah', status: 'ok' },
     { when: '2026-10-20 16:44', who: 'Priya Shah', status: 'bad' },
@@ -132,5 +134,60 @@ describe('TableComponent', () => {
   it('keeps every body cell a data cell without a rowHeader column', () => {
     const { el } = setup();
     expect(el.querySelector('tbody th')).toBeNull();
+  });
+
+  // docs/design-system/components/table.html#stack: below 40rem each row becomes a block whose cells show their column
+  // name; because display: block can drop table semantics, the roles are set explicitly.
+  describe('stack', () => {
+    function setupStack() {
+      const ctx = setup();
+      ctx.cmp.stack.set(true);
+      ctx.cmp.columns.set([
+        { key: 'when', header: 'Number', hideStackLabel: true },
+        { key: 'who', header: 'Criterion', rowHeader: true },
+        { key: 'status', header: 'The question' },
+      ]);
+      ctx.fixture.detectChanges();
+      return ctx;
+    }
+
+    it('labels each cell with its column name, except a column that opts out', () => {
+      const { el } = setupStack();
+      expect(el.querySelector('table')?.classList).toContain('ft-table--stack');
+      const cells = Array.from(el.querySelector('tbody tr')!.children);
+      expect(cells.map((c) => c.getAttribute('data-label'))).toEqual([
+        null,
+        'Criterion',
+        'The question',
+      ]);
+    });
+
+    it('sets the table roles explicitly', () => {
+      const { el } = setupStack();
+      expect(el.querySelector('table')?.getAttribute('role')).toBe('table');
+      expect(el.querySelector('thead')?.getAttribute('role')).toBe('rowgroup');
+      expect(el.querySelector('tbody')?.getAttribute('role')).toBe('rowgroup');
+      expect(
+        Array.from(el.querySelectorAll('tr')).every((tr) => tr.getAttribute('role') === 'row'),
+      ).toBe(true);
+      expect(
+        Array.from(el.querySelectorAll('thead th')).every(
+          (th) => th.getAttribute('role') === 'columnheader',
+        ),
+      ).toBe(true);
+      expect(el.querySelector('tbody th')?.getAttribute('role')).toBe('rowheader');
+      expect(
+        Array.from(el.querySelectorAll('tbody td')).every(
+          (td) => td.getAttribute('role') === 'cell',
+        ),
+      ).toBe(true);
+    });
+
+    it('stays an ordinary table without stack', () => {
+      const { el } = setup();
+      expect(el.querySelector('table')?.classList).not.toContain('ft-table--stack');
+      expect(el.querySelector('[role]')).toBeNull();
+      expect(el.querySelector('[data-label]')).toBeNull();
+    });
   });
 });

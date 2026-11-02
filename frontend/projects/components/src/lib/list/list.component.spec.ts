@@ -37,6 +37,15 @@ class DescriptionHostComponent {}
 })
 class StateHostComponent {}
 
+@Component({
+  imports: [ListComponent, ListItemComponent],
+  template: `<ft-list numbered label="Rules">
+    <ft-list-item number="01" label="Start fresh" meta="The code starts today." />
+    <ft-list-item number="02" label="Any stack" />
+  </ft-list>`,
+})
+class NumberedHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -61,6 +70,40 @@ describe('ListComponent', () => {
     cmp.flush.set(false);
     fixture.detectChanges();
     expect(list.classList.contains('ft-list--flush')).toBe(false);
+  });
+});
+
+describe('ListComponent numbered', () => {
+  // docs/design-system/components/list.html#numbered: ft-list numbered renders an <ol>; each row leads with its number.
+  function setupNumbered() {
+    const fixture = TestBed.createComponent(NumberedHostComponent);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('renders an ordered list named by the label, holding the rows', () => {
+    const el = setupNumbered();
+    const host = el.querySelector('ft-list') as HTMLElement;
+    const ol = host.querySelector('ol') as HTMLOListElement;
+    expect(ol).not.toBeNull();
+    expect(ol.getAttribute('aria-label')).toBe('Rules');
+    expect(host.getAttribute('role')).toBeNull();
+    expect(host.getAttribute('aria-label')).toBeNull();
+    expect(ol.querySelectorAll('ft-list-item[role="listitem"]').length).toBe(2);
+  });
+
+  it('leads each row with its number, hidden from assistive technology', () => {
+    const el = setupNumbered();
+    const numbers = Array.from(el.querySelectorAll('.ft-list-item__number'));
+    expect(numbers.map((n) => n.textContent?.trim())).toEqual(['01', '02']);
+    expect(numbers.every((n) => n.getAttribute('aria-hidden') === 'true')).toBe(true);
+    expect(el.querySelector('ft-list-item')?.classList).toContain('ft-list-item--numbered');
+  });
+
+  it('renders no ordered list and no number by default', () => {
+    const { el } = setup();
+    expect(el.querySelector('ol')).toBeNull();
+    expect(el.querySelector('.ft-list-item__number')).toBeNull();
   });
 });
 

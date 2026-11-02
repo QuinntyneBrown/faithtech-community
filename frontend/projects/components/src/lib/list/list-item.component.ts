@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 /**
  * One list row: optional leading slot (avatar or icon), a title that is a link when `href` is set,
  * a muted meta line (text through `meta`, or rich content such as role badges through the `[meta]` slot)
- * an optional `description` in body text, such as an announcement's message, and an optional trailing slot (badge). Slots: `[leading]`, `[meta]`, `[trailing]`.
+ * an optional `description` in body text, such as an announcement's message, and an optional trailing slot (badge). A row in a numbered list leads with its `number`. Slots: `[leading]`, `[meta]`, `[trailing]`.
  * A row whose title is a link tints on hover; focus stays on the title link's ring.
  */
 @Component({
@@ -14,6 +14,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   host: {
     role: 'listitem',
     '[class.ft-list-item--link]': '!!href()',
+    '[class.ft-list-item--numbered]': '!!number()',
     '[class.ft-list-item--current]': "state() === 'current'",
     '[class.ft-list-item--finished]': "state() === 'finished'",
   },
@@ -29,4 +30,9 @@ export class ListItemComponent {
    * state is never shown by colour alone; put its words in the `[meta]` slot.
    */
   readonly state = input<'default' | 'current' | 'finished'>('default');
+  /**
+   * The row's number in a `numbered` list, as shown ("01" or "1": the caller pads). Hidden from assistive technology,
+   * because the ordered list already gives the position.
+   */
+  readonly number = input<string | null>(null);
 }

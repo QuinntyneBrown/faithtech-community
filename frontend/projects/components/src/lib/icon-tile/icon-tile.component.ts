@@ -18,6 +18,7 @@ export type IconTileSize = 'sm' | 'md';
     class: 'ft-icon-tile',
     '[class.ft-icon-tile--sm]': 'size() === "sm"',
     '[class.ft-icon-tile--image]': '!!src()',
+    '[class.ft-icon-tile--initials]': '!src() && !!initials()',
   },
 })
 export class IconTileComponent {
@@ -25,6 +26,11 @@ export class IconTileComponent {
   readonly size = input<IconTileSize>('md');
   /** An image thumbnail shown in place of the icon, such as an Image resource's (design system, type icon). */
   readonly src = input<string | null>(null);
+  /**
+   * Up to two letters shown in place of the icon, such as a partner without a logo ("BW"; design system, list:
+   * initials icon tile). `src` wins when both are set.
+   */
+  readonly initials = input<string | null>(null);
   /** An emoji shown in place of the icon, such as a note page's icon (design system, list: icon tile). */
   readonly emoji = input<string | null>(null);
 }

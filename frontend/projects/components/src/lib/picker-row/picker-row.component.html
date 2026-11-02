@@ -1,0 +1,16 @@
+<label class="ft-picker-row__choice">
+  <input
+    [type]="type()"
+    [name]="name()"
+    [value]="value()"
+    [checked]="checked()"
+    (change)="onChange($event)"
+  />
+  <ft-icon-tile [name]="icon()" [src]="thumbnailSrc()" />
+  <span class="ft-picker-row__text">
+    <strong class="ft-picker-row__title">{{ title() }}</strong>
+    @if (meta(); as m) {
+      <small class="ft-picker-row__meta">{{ m }}</small>
+    }
+  </span>
+</label>

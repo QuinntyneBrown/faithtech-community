@@ -21,3 +21,15 @@
 .ft-dl__missing {
   color: var(--color-fg-muted);
 }
+
+:host(.ft-description-list-item--stacked) {
+  .ft-dl__term {
+    color: var(--color-fg-default);
+  }
+
+  .ft-dl__detail {
+    margin-block-start: var(--space-0-5);
+    font: var(--text-body-sm);
+    color: var(--color-fg-muted);
+  }
+}
