@@ -20,6 +20,13 @@ export class EventHubPage {
   readonly unpublish: Locator;
   readonly publishedAt: Locator;
   readonly linkHelp: Locator;
+  readonly quickEdits: Locator;
+  readonly postUpdate: Locator;
+  readonly liveUpdate: Locator;
+  readonly changeUpdate: Locator;
+  readonly clearUpdate: Locator;
+  readonly moveSession: Locator;
+  readonly swapLink: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -44,6 +51,14 @@ export class EventHubPage {
       .locator('dt', { hasText: /^Published$/ })
       .locator('xpath=following-sibling::dd[1]');
     this.linkHelp = page.locator('ft-copy-field').getByText(/^Visitors can open it/);
+    // Quick edits (L2-188): the first card on the hub home.
+    this.quickEdits = page.getByRole('region', { name: 'Quick edits' });
+    this.postUpdate = this.quickEdits.getByRole('button', { name: 'Post an update' });
+    this.liveUpdate = this.quickEdits.locator('.quick-edits__update');
+    this.changeUpdate = this.quickEdits.getByRole('button', { name: 'Change the update' });
+    this.clearUpdate = this.quickEdits.getByRole('button', { name: 'Clear update' });
+    this.moveSession = this.quickEdits.getByRole('button', { name: 'Move a session' });
+    this.swapLink = this.quickEdits.getByRole('button', { name: 'Swap a link' });
   }
 
   /** "More for {Section}", the row's menu of Preview and Hide section (L2-156 AC1). */
@@ -88,6 +103,19 @@ export class EventHubPage {
     return (await this.rows.locator('.ft-checklist-row__title').allTextContents()).map((t) =>
       t.trim(),
     );
+  }
+
+  /** The Quick edits actions' widths and heights, to check they are full width and easy to tap (L2-188 AC4). */
+  async quickEditSizes(): Promise<{ width: number; height: number; card: number }[]> {
+    const card = (await this.quickEdits.boundingBox())?.width ?? 0;
+    const boxes = await this.quickEdits
+      .locator('button, a')
+      .evaluateAll((els) =>
+        els
+          .map((el) => el.getBoundingClientRect())
+          .map((b) => ({ width: b.width, height: b.height })),
+      );
+    return boxes.map((b) => ({ ...b, card }));
   }
 
   async open(eventId: string): Promise<void> {

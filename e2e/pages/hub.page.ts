@@ -19,9 +19,12 @@ export class HubPage {
   readonly currentAgendaRow: Locator;
   readonly agendaAnnouncement: Locator;
   readonly agendaFinished: Locator;
+  readonly update: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
+    // The day-of update (L2-189 AC5): a polite status alert headed "Update", before every section.
+    this.update = this.main.getByRole('status').filter({ hasText: /^\s*Update/ });
     this.banner = page.locator('.hub-page__banner');
     this.backToHubHome = page.getByRole('link', { name: 'Back to hub home' });
     this.sectionHeadings = this.main.getByRole('heading', { level: 3 });

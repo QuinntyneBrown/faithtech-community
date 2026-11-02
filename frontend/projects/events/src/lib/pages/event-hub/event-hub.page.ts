@@ -43,6 +43,8 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import {
+  PostHubUpdateData,
+  PostHubUpdateDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
   PREVIEWABLE,
@@ -118,6 +120,7 @@ export class EventHubPage {
   protected readonly state = signal<State>('loading');
   protected readonly hub = signal<EventHubDto | null>(null);
   protected readonly publishing = signal(false);
+  protected readonly clearing = signal(false);
 
   protected readonly subtitle = computed(() => {
     const h = this.hub();
@@ -219,6 +222,46 @@ export class EventHubPage {
     });
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: 'Sections reordered' });
+    await this.load(this.id(), true);
+  }
+
+  /** Post an update, or change the live one (L2-189 AC1 to AC3); the hub shows it at once. */
+  protected async postUpdate(): Promise<void> {
+    const ref = this.dialogs.open<boolean, PostHubUpdateData>(PostHubUpdateDialog, {
+      data: { eventId: this.id(), current: this.hub()?.updateBanner },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Update posted',
+      text: 'It shows at the top of the hub now.',
+    });
+    await this.load(this.id(), true);
+  }
+
+  /** Clear update (L2-189 AC4): one tap, no confirmation; a failure offers Try again on its toast. */
+  protected async clearUpdate(): Promise<void> {
+    if (this.clearing()) return;
+    this.clearing.set(true);
+    try {
+      await firstValueFrom(this.hubs.clearUpdate(this.id()));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t clear the update',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.clearUpdate(),
+      });
+      return;
+    } finally {
+      this.clearing.set(false);
+    }
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Update cleared',
+      text: 'The hub no longer shows it.',
+    });
     await this.load(this.id(), true);
   }
 

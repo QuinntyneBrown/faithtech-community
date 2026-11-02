@@ -44,6 +44,25 @@ describe('HttpEventHubsService', () => {
     req.flush(null);
   });
 
+  // L2-189 AC3, AC4: the update is set and cleared on the hub, keeping failures on screen.
+  it.each([
+    [
+      'setUpdate',
+      () => service.setUpdate('e1', 'Dinner is in the courtyard.'),
+      'PUT',
+      { text: 'Dinner is in the courtyard.' },
+    ],
+    ['clearUpdate', () => service.clearUpdate('e1'), 'DELETE', null],
+  ])('%s calls the hub’s update', (_name, call, method, body) => {
+    (call() as Observable<unknown>).subscribe();
+
+    const req = controller.expectOne('/api/events/e1/hub/update');
+    expect(req.request.method).toBe(method);
+    expect(req.request.body).toEqual(body);
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(null);
+  });
+
   it('lets the hub home show its own forbidden state', () => {
     service.get('e1').subscribe();
 

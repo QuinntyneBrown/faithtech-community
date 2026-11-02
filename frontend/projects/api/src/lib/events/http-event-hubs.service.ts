@@ -94,6 +94,22 @@ export class HttpEventHubsService implements EventHubsService {
     });
   }
 
+  setUpdate(eventId: string, text: string): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/events/${eventId}/hub/update`,
+      { text },
+      {
+        context: this.wizard,
+      },
+    );
+  }
+
+  clearUpdate(eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.api}/events/${eventId}/hub/update`, {
+      context: this.wizard,
+    });
+  }
+
   fileUrl(eventId: string, resourceId: string, thumbnail = false): string {
     return `${this.api}/events/${eventId}/hub/files/${resourceId}${thumbnail ? '/thumbnail' : ''}`;
   }

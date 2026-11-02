@@ -323,6 +323,8 @@ export interface EventHubDto {
   sections: HubSectionDto[];
   organisation: HubOrganisationDto;
   upcomingEvents: HubUpcomingEventDto[];
+  /** The day-of update shown at the top of the hub (L2-189 AC5); null when there is none. */
+  updateBanner?: string | null;
 }
 
 /**
@@ -393,6 +395,10 @@ export interface EventHubsService {
   publish(eventId: string): Observable<void>;
   /** Returns the hub to Draft and keeps its sections (L2-164 AC3). */
   unpublish(eventId: string): Observable<void>;
+  /** Shows a day-of update at the top of the hub at once (L2-189 AC3); 400 `text` when empty or over 280 characters. */
+  setUpdate(eventId: string, text: string): Observable<void>;
+  /** Removes the day-of update (L2-189 AC4). */
+  clearUpdate(eventId: string): Observable<void>;
   /**
    * Where the hub page reads a map or slide (L2-182 AC3): served only for a resource a shown section names, to whoever may
    * see the page. `thumbnail` asks for the image's small version.
