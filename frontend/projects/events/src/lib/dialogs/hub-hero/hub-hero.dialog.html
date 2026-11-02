@@ -6,7 +6,14 @@
 >
   <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
     <ft-stack>
-      <ft-hub-preview-link [eventId]="hub.eventId" />
+      @if (template) {
+        <p class="text-caption">
+          You’re editing the default for new hubs started from {{ template.name }}. Hubs already
+          started keep what they have.
+        </p>
+      } @else {
+        <ft-hub-preview-link [eventId]="hub.eventId" />
+      }
       @if (saver.failed()) {
         <ft-alert status="danger" heading="We couldn’t save this section">
           Check your connection and try again.
@@ -14,19 +21,27 @@
         </ft-alert>
       }
       <h3 class="section-title" [id]="questionId">What should the top of the hub say?</h3>
-      <section [attr.aria-labelledby]="factsId">
-        <ft-stack gap="2">
-          <h4 class="overline" [id]="factsId">From the event</h4>
-          <ft-description-list>
-            <ft-description-list-item label="Title">{{ hub.event.title }}</ft-description-list-item>
-            <ft-description-list-item label="When">{{ when }}</ft-description-list-item>
-            <ft-description-list-item label="Where">{{ place }}</ft-description-list-item>
-            <ft-description-list-item label="RSVP button"
-              >Links to the RSVP page</ft-description-list-item
-            >
-          </ft-description-list>
-        </ft-stack>
-      </section>
+      @if (template) {
+        <p class="text-caption">
+          Each hub shows its own event’s title, date, place and RSVP button above the subtitle.
+        </p>
+      } @else {
+        <section [attr.aria-labelledby]="factsId">
+          <ft-stack gap="2">
+            <h4 class="overline" [id]="factsId">From the event</h4>
+            <ft-description-list>
+              <ft-description-list-item label="Title">{{
+                hub.event.title
+              }}</ft-description-list-item>
+              <ft-description-list-item label="When">{{ when }}</ft-description-list-item>
+              <ft-description-list-item label="Where">{{ place }}</ft-description-list-item>
+              <ft-description-list-item label="RSVP button"
+                >Links to the RSVP page</ft-description-list-item
+              >
+            </ft-description-list>
+          </ft-stack>
+        </section>
+      }
       <ft-form-field
         label="Subtitle"
         [optional]="true"

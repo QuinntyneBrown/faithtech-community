@@ -150,6 +150,7 @@ the transcript and the chapters are embedded in the WebM (ADR 0037).
 | [Visit an event hub](visit-event-hub/video.webm) · [poster](visit-event-hub/poster.png) · [narration](visit-event-hub/narration.md) | 1:10 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey visit-event-hub -Engine kokoro -NoCaptions -Music` |
 | [Start a hub from a template](start-hub-from-template/video.webm) · [poster](start-hub-from-template/poster.png) · [narration](start-hub-from-template/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey start-hub-from-template -Engine kokoro -NoCaptions -Music` |
 | [Build a hackathon hub](build-hackathon-hub/video.webm) · [poster](build-hackathon-hub/poster.png) · [narration](build-hackathon-hub/narration.md) | 1:14 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey build-hackathon-hub -Engine kokoro -NoCaptions -Music` |
+| [Edit hub templates](edit-hub-templates/video.webm) · [poster](edit-hub-templates/poster.png) · [narration](edit-hub-templates/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey edit-hub-templates -Engine kokoro -NoCaptions -Music` |
 
 All are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
 mono, 48 kb/s, loudness-normalized). The chapters are embedded in each WebM and listed in its

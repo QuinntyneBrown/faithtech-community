@@ -15,4 +15,4 @@
 | visit-event-hub | 5 days | 100% | B+ |
 | start-hub-from-template | 4 days | 100% | B+ |
 | build-hackathon-hub | 12 days | 100% | B+ |
-| edit-hub-templates | 6 days | 0% | — |
+| edit-hub-templates | 6 days | 100% | B+ |

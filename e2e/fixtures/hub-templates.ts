@@ -12,6 +12,8 @@ export interface MockHubTemplate {
   name: string;
   description: string;
   sections: MockHubTemplateSection[];
+  /** Set once archived in Organisation settings (L2-185 AC4); the hub wizard leaves it out. */
+  archivedAtUtc?: string | null;
 }
 
 /** Every kind in catalogue order (L2-172 AC1); the core ones are the ones every template names. */
@@ -35,9 +37,18 @@ const ALL: HubSectionKind[] = [
   'UpcomingEvents',
 ];
 
-const CORE: HubSectionKind[] = ['Hero', 'Agenda', 'Venue', 'People', 'Links', 'Giving', 'UpcomingEvents'];
+const CORE: HubSectionKind[] = [
+  'Hero',
+  'Agenda',
+  'Venue',
+  'People',
+  'Links',
+  'Giving',
+  'UpcomingEvents',
+];
 
-const titled = (...items: [string, string][]) => items.map(([title, detail]) => ({ title, detail }));
+const titled = (...items: [string, string][]) =>
+  items.map(([title, detail]) => ({ title, detail }));
 
 /** The hackathon sections' defaults, as the seed has them (L2-183 AC2); the event-specific ones start empty. */
 const HACKATHON: Partial<Record<HubSectionKind, Record<string, unknown>>> = {

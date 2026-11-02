@@ -7,7 +7,6 @@ import {
   inject,
   input,
   signal,
-  Type,
 } from '@angular/core';
 import {
   EVENT_HUBS_SERVICE,
@@ -44,23 +43,6 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import {
-  HubAgendaDialog,
-  HubGivingDialog,
-  HubHeroDialog,
-  HubLinksDialog,
-  HubPeopleDialog,
-  HubDemoFormatDialog,
-  HubJudgingDialog,
-  HubParkingDialog,
-  HubPartnersDialog,
-  HubProcessDialog,
-  HubRulesDialog,
-  HubSlidesDialog,
-  HubTracksDialog,
-  HubUpcomingDialog,
-  HubWhatToBringDialog,
-  HubWorshipDialog,
-  HubVenueDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
   PREVIEWABLE,
@@ -70,6 +52,7 @@ import {
   UnpublishHubDialog,
 } from '../../dialogs';
 import { HubSectionWizardData, hubSection } from '../../hub-sections';
+import { HUB_WIZARDS as WIZARDS, WIDE_HUB_WIZARDS as WIDE } from '../hub-wizards';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'no-hub';
 
@@ -84,43 +67,6 @@ const BADGES = {
   NeedsInfo: { label: 'Needs info', variant: 'warning' },
   Hidden: { label: 'Hidden', variant: 'neutral' },
 } as const;
-
-/** Each section's wizard (L2-157); a section joins as its wizard lands. */
-const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
-  Hero: HubHeroDialog,
-  Agenda: HubAgendaDialog,
-  Venue: HubVenueDialog,
-  People: HubPeopleDialog,
-  Links: HubLinksDialog,
-  Giving: HubGivingDialog,
-  UpcomingEvents: HubUpcomingDialog,
-  Parking: HubParkingDialog,
-  WhatToBring: HubWhatToBringDialog,
-  Partners: HubPartnersDialog,
-  Tracks: HubTracksDialog,
-  Process: HubProcessDialog,
-  Rules: HubRulesDialog,
-  DemoFormat: HubDemoFormatDialog,
-  Judging: HubJudgingDialog,
-  Worship: HubWorshipDialog,
-  Slides: HubSlidesDialog,
-};
-
-/** The wizards with rows or two steps, opened in the wide panel (docs/mocks/dialogs/hub-agenda, hub-people, hub-rules). */
-const WIDE: readonly HubSectionKind[] = [
-  'Agenda',
-  'People',
-  'Parking',
-  'WhatToBring',
-  'Partners',
-  'Tracks',
-  'Process',
-  'Rules',
-  'DemoFormat',
-  'Judging',
-  'Worship',
-  'Slides',
-];
 
 const PREVIEW: MenuEntry = {
   kind: 'item',

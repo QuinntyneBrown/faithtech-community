@@ -1,0 +1,112 @@
+<ft-stack>
+  @if (!canEdit()) {
+    <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+  }
+  <ft-chip-group label="Show templates">
+    <ft-chip [pressed]="filter() === 'active'" (pressedChange)="show('active')">Active</ft-chip>
+    <ft-chip [pressed]="filter() === 'archived'" (pressedChange)="show('archived')"
+      >Archived</ft-chip
+    >
+  </ft-chip-group>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ft-stack gap="3" aria-busy="true">
+        <ft-skeleton shape="text" />
+        <ft-skeleton shape="text" />
+        <ft-skeleton shape="text" />
+      </ft-stack>
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load the hub templates"
+        text="Check your connection and try again."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @default {
+      @if (filter() === 'archived') {
+        <section aria-labelledby="archived-templates-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="archived-templates-heading">Archived hub templates</h2>
+            <p class="text-caption">
+              Archived templates aren’t offered when someone creates a hub. Hubs started from them
+              keep what they have. Restore one to offer it again, at the end of the list.
+            </p>
+            @if (templates().length === 0) {
+              <ft-empty-state
+                heading="No archived templates"
+                text="Templates you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived hub templates">
+                @for (t of templates(); track t.id) {
+                  <ft-list-item
+                    [label]="t.name"
+                    [meta]="archivedMeta(t)"
+                    [description]="t.description"
+                  >
+                    @if (canEdit()) {
+                      <ft-button trailing size="sm" [object]="t.name" (click)="restore(t)"
+                        >Restore</ft-button
+                      >
+                    }
+                  </ft-list-item>
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
+      } @else {
+        <section aria-labelledby="templates-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="templates-heading">Event hub templates</h2>
+              @if (canEdit()) {
+                <ft-button (click)="add()"><ft-icon name="add" /> Add a template</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              Offered in this order when someone creates an event hub. A change applies to new hubs
+              only; hubs already started keep what they have.
+            </p>
+            @if (templates().length === 0) {
+              <ft-empty-state
+                heading="No hub templates yet"
+                text="Add a template to give leads a head start: the sections a kind of event needs and the text they usually say. Until then, leads start from Blank or copy a past hub."
+              >
+                @if (canEdit()) {
+                  <ft-button actions variant="primary" (click)="add()">Add a template</ft-button>
+                }
+              </ft-empty-state>
+            } @else {
+              <ft-list label="Event hub templates">
+                @for (t of templates(); track t.id) {
+                  <ft-list-item
+                    [label]="t.name"
+                    [href]="'/organisation/hub-templates/' + t.id"
+                    [meta]="meta(t)"
+                    [description]="t.description"
+                  >
+                    @if (canEdit()) {
+                      <ft-menu
+                        trailing
+                        [label]="'More actions for ' + t.name"
+                        [entries]="menu"
+                        (itemSelected)="act(t, $event)"
+                      >
+                        <ft-icon name="more" />
+                      </ft-menu>
+                    }
+                  </ft-list-item>
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
+      }
+    }
+  }
+</ft-stack>

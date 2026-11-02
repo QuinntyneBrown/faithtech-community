@@ -1,0 +1,94 @@
+<ft-stack>
+  <p>
+    <ft-link href="/organisation/hub-templates"
+      ><ft-icon name="previous" /> All hub templates</ft-link
+    >
+  </p>
+  @switch (state()) {
+    @case ('loading') {
+      <ft-card variant="flush">
+        <ft-list-skeleton label="Loading template" [rows]="7" />
+      </ft-card>
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load this template"
+        text="Check your connection and try again."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('not-found') {
+      <ft-empty-state
+        heading="We couldn’t find that template"
+        text="It may have been removed, or the link is from another organisation."
+      >
+        <ft-button actions variant="primary" href="/organisation/hub-templates"
+          >See all hub templates</ft-button
+        >
+      </ft-empty-state>
+    }
+    @default {
+      @if (template(); as t) {
+        @if (t.archived) {
+          <ft-alert status="info" heading="This template is archived">
+            It isn’t offered for new hubs. Restore it to offer and edit it again.
+            @if (canManage()) {
+              <ft-button ftAlertActions (click)="restore()">Restore</ft-button>
+            }
+          </ft-alert>
+        } @else if (!canManage()) {
+          <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+        }
+        <section class="template" aria-labelledby="template-name">
+          <ft-stack>
+            <ft-cluster [between]="true">
+              <ft-stack gap="1">
+                <h2 class="section-title" id="template-name">{{ t.name }}</h2>
+                @if (t.description) {
+                  <p class="text-caption">{{ t.description }}</p>
+                }
+              </ft-stack>
+              @if (canEdit()) {
+                <ft-cluster>
+                  <ft-button (click)="rename()"><ft-icon name="edit" /> Rename</ft-button>
+                  <ft-button variant="primary" (click)="chooseSections()"
+                    ><ft-icon name="template" /> Choose sections</ft-button
+                  >
+                </ft-cluster>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              New hubs started from {{ t.name }} get these sections, shown or hidden as here, with
+              this text. Hubs already started keep what they have.
+            </p>
+            <ft-card variant="flush">
+              <ft-list [label]="'Sections of ' + t.name">
+                @for (row of rows(); track row.kind) {
+                  <ft-list-item [label]="row.title" [meta]="row.summary" [description]="row.line">
+                    <ft-cluster trailing gap="2">
+                      @if (row.visible) {
+                        <ft-badge variant="success">Shown</ft-badge>
+                      } @else {
+                        <ft-badge>Hidden</ft-badge>
+                      }
+                      @if (canEdit() && row.editable) {
+                        <ft-button
+                          size="sm"
+                          [object]="'for ' + row.title"
+                          (click)="editDefault(row.kind)"
+                          >Edit default text</ft-button
+                        >
+                      }
+                    </ft-cluster>
+                  </ft-list-item>
+                }
+              </ft-list>
+            </ft-card>
+          </ft-stack>
+        </section>
+      }
+    }
+  }
+</ft-stack>

@@ -106,11 +106,15 @@ let next = 0;
 })
 export class HubParkingDialog {
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
-  protected readonly hub = inject<HubSectionWizardData>(DIALOG_DATA).hub;
+  private readonly data = inject<HubSectionWizardData>(DIALOG_DATA);
+  protected readonly hub = this.data.hub;
+  /** Set when the wizard edits a template's default (ADR 0043). */
+  protected readonly template = this.data.template;
   protected readonly saver = new SectionSaver(
     inject(EVENT_HUBS_SERVICE),
     this.hub.eventId,
     'Parking',
+    this.template,
   );
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly dialogs = inject(DialogService);

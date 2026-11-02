@@ -93,8 +93,10 @@ public class EditHubTemplatesTests(CommunityApiFactory factory) : IClassFixture<
         var detail = await admin.GetFromJsonAsync<JsonElement>($"{Templates}/{Id(added)}");
         Assert.Equal(Core, detail.GetProperty("sections").EnumerateArray().Select(s => s.GetProperty("kind").GetString()));
         Assert.All(detail.GetProperty("sections").EnumerateArray(), s => Assert.Equal(JsonValueKind.Null, s.GetProperty("content").ValueKind));
-        var entry = await factory.WithDbAsync(organisation.Id, db => db.AuditEntries.OrderBy(a => a.Id).LastAsync(a => a.Action == "hub_template.updated"));
-        Assert.Contains("Retreat", entry.AfterJson);
+        // Audit ids are Guids, so the two adds are told apart by what they record rather than by order.
+        var entries = await factory.WithDbAsync(organisation.Id, db => db.AuditEntries.Where(a => a.Action == "hub_template.updated").ToListAsync());
+        Assert.Equal(2, entries.Count);
+        Assert.Single(entries, e => e.AfterJson != null && e.AfterJson.Contains("Retreat"));
         // The wizard offers it to hub managers too (L2-169 AC2).
         var wizard = (await admin.GetFromJsonAsync<JsonElement[]>("/api/event-hubs/templates"))!;
         Assert.Equal(["Hackathon", "Retreat"], wizard.Select(t => t.GetProperty("name").GetString()));

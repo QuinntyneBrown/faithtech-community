@@ -1,0 +1,30 @@
+<ft-dialog
+  heading="Choose sections"
+  [description]="'Ticked sections are shown on new hubs started from ' + data.name + '.'"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="Not saved">
+        Check your connection and try again. Your ticks are still here.
+      </ft-alert>
+    }
+    <ft-checkbox-group
+      [legend]="'Which sections should new ' + data.name + ' hubs show?'"
+      hint="Leads can still show or hide any section on their hub. Unticked sections keep their default text."
+      [error]="error()"
+      [formControl]="shown"
+    >
+      @for (section of sections; track section.kind) {
+        <ft-checkbox [value]="section.kind" [description]="section.line">{{
+          section.title
+        }}</ft-checkbox>
+      }
+    </ft-checkbox-group>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save' }}
+  </ft-button>
+</ft-dialog>

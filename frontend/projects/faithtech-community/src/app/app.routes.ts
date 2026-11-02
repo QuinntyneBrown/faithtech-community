@@ -126,8 +126,24 @@ export const routes: Routes = [
       {
         path: 'organisation',
         canActivate: [capabilityGuard('ManageRoles', 'ManageOrganisationSettings')],
+        // The events library's Hub templates tab sits under the section's tabs (ADR 0043).
         loadChildren: () =>
-          import('@faithtech-community/organisations').then((m) => m.ORGANISATION_ROUTES),
+          import('@faithtech-community/organisations').then((m) =>
+            m.organisationRoutes([
+              {
+                path: 'hub-templates',
+                title: 'Hub templates',
+                loadComponent: () =>
+                  import('@faithtech-community/events').then((e) => e.HubTemplatesPage),
+              },
+              {
+                path: 'hub-templates/:id',
+                title: 'Hub template',
+                loadComponent: () =>
+                  import('@faithtech-community/events').then((e) => e.HubTemplatePage),
+              },
+            ]),
+          ),
       },
       {
         path: 'admin',
