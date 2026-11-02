@@ -10,6 +10,7 @@ import {
   resourceIds,
   validateOptional,
 } from './mock-hackathon-sections';
+import { MockHubTemplates } from './mock-hub-templates';
 import type { EventsCaller, MockEvent } from './mock-events';
 import { holds, isOverride } from './role-definitions';
 
@@ -148,7 +149,40 @@ export class MockEventHubs {
     fileBody: () => undefined,
   };
 
-  constructor(private readonly context: EventHubsContext) {}
+  /** The Hub templates tab's endpoints, editing these same templates (L2-184 to L2-187). */
+  readonly templateSettings: MockHubTemplates;
+
+  constructor(private readonly context: EventHubsContext) {
+    this.templateSettings = new MockHubTemplates({
+      templates: () => this.templates,
+      now: () => context.now(),
+      hubsFrom: (id) => this.hubs.filter((h) => h.templateKey === id).length,
+      validateDefault: (kind, body, callerId) =>
+        isOptional(kind)
+          ? validateOptional(kind, body, this.directory, callerId)
+          : this.validate(kind, body, { sections: [] } as unknown as MockEventHub),
+      organisation: () => {
+        const o = this.directory.organisation();
+        return {
+          name: o.name,
+          shortName: o.shortName,
+          givingLink: o.givingLink ?? null,
+          givingText: o.givingText ?? null,
+        };
+      },
+      takeTemplatesFailure: () => {
+        const fail = this.failTemplates;
+        this.failTemplates = false;
+        return fail;
+      },
+      audit: (entry) => context.addAuditEntry(entry),
+    });
+  }
+
+  /** Makes the next hub template change in Organisation settings answer 500 (L2-185 AC7). */
+  failNextTemplateSave(): void {
+    this.templateSettings.failNextSave();
+  }
 
   connect(directory: EventHubsDirectory): void {
     this.directory = directory;
@@ -209,12 +243,14 @@ export class MockEventHubs {
     }
     return route.fulfill({
       status: 200,
-      json: this.templates.map((t) => ({
-        id: t.id,
-        name: t.name,
-        description: t.description,
-        shown: t.sections.filter((s) => s.visible).map((s) => s.kind),
-      })),
+      json: this.templates
+        .filter((t) => !t.archivedAtUtc)
+        .map((t) => ({
+          id: t.id,
+          name: t.name,
+          description: t.description,
+          shown: t.sections.filter((s) => s.visible).map((s) => s.kind),
+        })),
     });
   }
 
@@ -290,6 +326,8 @@ export class MockEventHubs {
     body: Record<string, unknown>,
     caller: EventsCaller | null,
   ): Promise<void> | false {
+    const templates = this.templateSettings.handle(route, method, url, body, caller);
+    if (templates) return templates;
     if (url.pathname === '/api/event-hubs' && method === 'GET') {
       if (!caller) return route.fulfill({ status: 401 });
       if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
@@ -524,7 +562,7 @@ export class MockEventHubs {
       content: {},
     }));
     if (body['templateId']) {
-      const template = this.templates.find((t) => t.id === body['templateId']);
+      const template = this.templates.find((t) => t.id === body['templateId'] && !t.archivedAtUtc);
       if (!template)
         return route.fulfill({
           status: 400,

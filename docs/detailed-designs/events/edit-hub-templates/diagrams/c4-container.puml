@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Edit hub templates
+Person(admin, "Organisation administrator")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Organisation settings: Hub templates tab and template page (events library), section wizards")
+  Container(api, "Community API", "ASP.NET Core", "/api/hub-templates: list, read, add, rename, sections, defaults, archive, restore")
+  ContainerDb(db, "Database", "PostgreSQL", "HubTemplates (ArchivedAtUtc added), AuditEntries, filtered by organisation")
+  Container(cli, "Cli", ".NET", "Applies the HubTemplateArchive migration")
+}
+Rel(admin, spa, "Edits templates", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates", "EF Core")
+@enduml

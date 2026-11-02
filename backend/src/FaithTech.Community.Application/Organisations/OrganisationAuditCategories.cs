@@ -19,7 +19,7 @@ public static class OrganisationAuditCategories
         Organisation => entries.Where(e => e.Action == "organisation.updated"),
         Roles => entries.Where(e => e.Action.StartsWith("role.")),
         Chapters => entries.Where(e => e.Action.StartsWith("chapter.")),
-        Taxonomies => entries.Where(e => e.Action == "taxonomy.updated"),
+        Taxonomies => entries.Where(e => e.Action == "taxonomy.updated" || e.Action == "hub_template.updated"),
         _ => null,
     };
 }

@@ -1,0 +1,51 @@
+@startuml
+title Class structure — Edit hub templates
+class HubTemplate {
+  +Id : Guid
+  +OrganisationId : Guid
+  +Name : string
+  +Description : string
+  +SortOrder : int
+  +Sections : string (jsonb)
+  +ArchivedAtUtc : DateTime?
+  +Describe(name, description)
+  +ReplaceSections(sections)
+  +Archive(now)
+  +Restore(sortOrder)
+}
+class ManageHubTemplatesHandler {
+  +ListAsync(archived)
+  +GetAsync(id)
+  +AddAsync(command)
+  +RenameAsync(id, command)
+  +SetSectionsAsync(id, command)
+  +SaveDefaultAsync(id, kind, body)
+  +ArchiveAsync(id)
+  +RestoreAsync(id)
+}
+class HubTemplateSections <<static>> {
+  +Read(template) : HubTemplateSection[]
+  +Write(sections) : string
+  +HasDefaults(kind) : bool
+}
+class HubTemplateSummaryDto <<record>> {
+  +Id, Name, Description
+  +Archived, ArchivedAtUtc
+  +Shown : string[]
+  +HubCount : int
+}
+class HubTemplateDetailDto <<record>> {
+  +Id, Name, Description, Archived
+  +Sections : HubTemplateSectionDto[]
+  +Organisation : HubOrganisationDto
+}
+class HubContent <<static>> {
+  +Parse(kind, body)
+  +ParseTemplateAgenda(body)
+}
+ManageHubTemplatesHandler --> HubTemplate
+ManageHubTemplatesHandler ..> HubTemplateSections
+ManageHubTemplatesHandler ..> HubContent
+ManageHubTemplatesHandler ..> HubTemplateSummaryDto
+ManageHubTemplatesHandler ..> HubTemplateDetailDto
+@enduml

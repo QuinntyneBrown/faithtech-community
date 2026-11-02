@@ -23,3 +23,6 @@ export * from './hub-demo-format';
 export * from './hub-judging';
 export * from './hub-worship';
 export * from './hub-slides';
+export * from './hub-template-name';
+export * from './archive-hub-template';
+export * from './hub-template-sections';

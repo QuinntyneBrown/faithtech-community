@@ -141,6 +141,7 @@ public static class DependencyInjection
         services.AddScoped<PublishEventHubHandler>();
         services.AddScoped<ReorderHubSectionsHandler>();
         services.AddScoped<ListHubTemplatesHandler>();
+        services.AddScoped<ManageHubTemplatesHandler>();
         services.AddScoped<StartEventHubHandler>()
             .AddScoped<ListEventHubsHandler>();
         services.AddScoped<InAppNotificationsHandler>();

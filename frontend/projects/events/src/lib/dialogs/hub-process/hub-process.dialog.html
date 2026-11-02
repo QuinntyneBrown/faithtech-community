@@ -1,6 +1,13 @@
 <ft-dialog heading="Process" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
   <ft-stack>
-    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (template) {
+      <p class="text-caption">
+        You’re editing the default for new hubs started from {{ template.name }}. Hubs already
+        started keep what they have.
+      </p>
+    } @else {
+      <ft-hub-preview-link [eventId]="hub.eventId" />
+    }
     <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
     @if (saver.failed()) {
       <ft-alert status="danger" heading="We couldn’t save this section">

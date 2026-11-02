@@ -34,9 +34,15 @@ public static class HubTemplateSections
                     : new HubTemplateSection(x.kind, false, null)),
         ];
     }
+
+    /// <summary>The sections as the template stores them, in catalogue order (L2-186).</summary>
+    public static string Write(IEnumerable<HubTemplateSection> sections) =>
+        JsonSerializer.Serialize(
+            sections.OrderBy(s => s.Kind).Select(s => new { kind = s.Kind.ToString(), visible = s.Visible, content = s.Content }),
+            Options);
 }
 
-/// <summary>Lists the organisation's templates in order (L2-169 AC2). Needs <c>ManageEventHubs</c> (403).</summary>
+/// <summary>Lists the organisation's active templates in order (L2-169 AC2, L2-185 AC4). Needs <c>ManageEventHubs</c> (403).</summary>
 public class ListHubTemplatesHandler(IApplicationDbContext db, EventPermissions permissions)
 {
     public async Task<(Result Result, IReadOnlyList<HubTemplateDto> Templates)> HandleAsync(CancellationToken cancellationToken = default)
@@ -46,7 +52,7 @@ public class ListHubTemplatesHandler(IApplicationDbContext db, EventPermissions 
             return (Result.Forbidden(), []);
         }
 
-        var templates = await db.HubTemplates.OrderBy(t => t.SortOrder).ThenBy(t => t.Name).ToListAsync(cancellationToken);
+        var templates = await db.HubTemplates.Where(t => t.ArchivedAtUtc == null).OrderBy(t => t.SortOrder).ThenBy(t => t.Name).ToListAsync(cancellationToken);
         return (Result.Ok(),
         [
             .. templates.Select(t => new HubTemplateDto(

@@ -4,3 +4,5 @@ export * from './check-in.service';
 export * from './http-check-in.service';
 export * from './event-hubs.service';
 export * from './http-event-hubs.service';
+export * from './hub-templates.service';
+export * from './http-hub-templates.service';

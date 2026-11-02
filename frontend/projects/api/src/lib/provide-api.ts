@@ -24,9 +24,11 @@ import {
   CHECK_IN_SERVICE,
   EVENT_HUBS_SERVICE,
   EVENTS_SERVICE,
+  HUB_TEMPLATES_SERVICE,
   HttpCheckInService,
   HttpEventHubsService,
   HttpEventsService,
+  HttpHubTemplatesService,
 } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { SITE_SERVICE, HttpSiteService } from './site';
@@ -83,6 +85,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: EVENTS_SERVICE, useClass: HttpEventsService },
     { provide: CHECK_IN_SERVICE, useClass: HttpCheckInService },
     { provide: EVENT_HUBS_SERVICE, useClass: HttpEventHubsService },
+    { provide: HUB_TEMPLATES_SERVICE, useClass: HttpHubTemplatesService },
     { provide: SEARCH_SERVICE, useClass: HttpSearchService },
     { provide: SITE_SERVICE, useClass: HttpSiteService },
     { provide: RESOURCES_SERVICE, useClass: HttpResourcesService },

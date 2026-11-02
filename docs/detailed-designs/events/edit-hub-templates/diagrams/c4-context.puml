@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Edit hub templates
+Person(admin, "Organisation administrator", "Member holding ManageOrganisationSettings")
+Person(viewer, "Settings viewer", "Member holding ManageRoles only: read-only")
+Person(lead, "Hub manager", "Member holding ManageEventHubs")
+System(community, "Community platform", "Hosts the organisation's hub templates, events and hubs")
+Rel(admin, community, "Adds, renames, archives and restores templates; chooses their sections and default text", "HTTPS")
+Rel(viewer, community, "Reads the templates", "HTTPS")
+Rel(lead, community, "Starts new hubs from the edited templates", "HTTPS")
+@enduml

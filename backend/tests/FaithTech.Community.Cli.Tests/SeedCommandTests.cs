@@ -147,6 +147,24 @@ public class SeedCommandTests
             (await check.HubTemplates.OrderBy(t => t.SortOrder).ToListAsync()).Select(t => (t.Name, t.Description)));
     }
 
+    // Traces to: L2-187 AC4: a template an administrator archived stays archived when the seed runs again.
+    [Fact]
+    public async Task Seed_does_not_bring_back_an_archived_hub_template()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            (await db.HubTemplates.SingleAsync(t => t.Name == "Workshop")).Archive(DateTime.UtcNow);
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var check = Db();
+        Assert.Equal(3, await check.HubTemplates.CountAsync());
+        Assert.True((await check.HubTemplates.SingleAsync(t => t.Name == "Workshop")).IsArchived);
+    }
+
     // Traces to: L2-183 AC1: a Hackathon template as slice 45 seeded it gains the hackathon sections; an edited one keeps its edits.
     [Fact]
     public async Task Seed_gives_an_untouched_hackathon_template_the_hackathon_sections_and_leaves_an_edited_one_alone()

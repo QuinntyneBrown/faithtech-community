@@ -1,0 +1,20 @@
+<ft-dialog
+  [heading]="'Archive ' + data.name + '?'"
+  icon="archive"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" [heading]="data.name + ' not archived'">
+      Check your connection and try again. Nothing was changed.
+    </ft-alert>
+  }
+  <p>{{ body }}</p>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+    {{ busy() ? 'Archiving…' : failed() ? 'Try again' : 'Archive template' }}
+  </ft-button>
+</ft-dialog>

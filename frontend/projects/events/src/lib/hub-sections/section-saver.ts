@@ -8,11 +8,24 @@ import {
   HubSectionKind,
   problemDetails,
 } from '@faithtech-community/api';
-import { firstValueFrom } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 
-/** What every section wizard opens with: the hub as the hub home read it. */
+/**
+ * A template whose default a wizard edits instead of a hub's section (L2-186 AC3, ADR 0043): its name, for the line saying
+ * so, and where the content goes.
+ */
+export interface HubSectionTemplate {
+  name: string;
+  save<K extends HubSectionKind>(kind: K, content: HubContentInputByKind[K]): Observable<unknown>;
+}
+
+/**
+ * What every section wizard opens with: the hub as the hub home read it, or, for a template, a stand-in hub and the
+ * template it saves to.
+ */
 export interface HubSectionWizardData {
   hub: EventHubDto;
+  template?: HubSectionTemplate;
 }
 
 /** A section's content as the hub read it. */
@@ -40,6 +53,7 @@ export class SectionSaver<K extends HubSectionKind> {
     private readonly hubs: EventHubsService,
     private readonly eventId: string,
     private readonly kind: K,
+    private readonly template?: HubSectionTemplate,
   ) {}
 
   error(path: string): string {
@@ -53,7 +67,11 @@ export class SectionSaver<K extends HubSectionKind> {
     this.failed.set(false);
     this.errors.set({});
     try {
-      await firstValueFrom(this.hubs.saveSection(this.eventId, this.kind, content));
+      await firstValueFrom(
+        this.template
+          ? this.template.save(this.kind, content)
+          : this.hubs.saveSection(this.eventId, this.kind, content),
+      );
       return true;
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 400) {

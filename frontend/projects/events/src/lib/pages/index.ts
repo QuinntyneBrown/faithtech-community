@@ -6,3 +6,5 @@ export * from './public-event';
 export * from './event-check-in';
 export * from './event-hub';
 export * from './hub';
+export * from './hub-templates/hub-templates.page';
+export * from './hub-template/hub-template.page';

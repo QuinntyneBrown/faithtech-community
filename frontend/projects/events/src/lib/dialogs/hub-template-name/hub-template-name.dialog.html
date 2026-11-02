@@ -1,0 +1,43 @@
+<ft-dialog [heading]="heading" [description]="description" [busy]="busy()" (closed)="ref.close()">
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Not saved">
+          Check your connection and try again. What you entered is still here.
+        </ft-alert>
+      }
+      <ft-form-field label="Name" help="Like ‘Prayer night’ or ‘Hackathon’" [error]="nameError()">
+        <ft-text-field
+          formControlName="name"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxName"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+      <ft-form-field
+        label="Description"
+        [optional]="true"
+        help="One line that says what kind of event it suits"
+        [error]="descriptionError()"
+      >
+        <ft-text-field
+          formControlName="description"
+          autocomplete="off"
+          [maxlength]="maxDescription"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    @if (busy()) {
+      Saving…
+    } @else if (failed()) {
+      Try again
+    } @else {
+      {{ renaming ? 'Rename' : 'Add template' }}
+    }
+  </ft-button>
+</ft-dialog>
