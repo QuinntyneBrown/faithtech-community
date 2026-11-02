@@ -77,6 +77,7 @@
       <li><a href="../components/page-links.html">Page links</a></li>
       <li><a href="../components/avatar.html">Avatar</a></li>
       <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/qr-presenter.html">QR presenter</a></li>
       <li><a href="../components/logo-mark.html">Logo mark</a></li>
       <li><a href="../components/badge.html">Badge</a></li>
       <li><a href="../components/chip.html">Chip</a></li>
@@ -272,8 +273,8 @@
       <p><code>dialogs/log-activity</code> is a form dialog: a type radio row (Call, Email, Meeting, Note), "What happened" (required, with a counter, "1895 characters left"), Date (required, not in the future) and an optional Time in a <code>.grid--pair</code>, an optional Next step (counter "176 characters left", help "Shown on the partner card so any lead can pick it up.") and an optional Next step due date. The confirm button follows the type ("Log call"). <code>dialogs/check-in-walk-in</code> takes a name and an optional email, and its "Check them in now" <a href="switch.html">switch</a> is on by default, described by "Adds them to the attendance list as present." <code>dialogs/restore-partner</code> (System Admin, from the archived partner) is a plain confirm: "Restore Kestrel Labs Inc.?", a description of what comes back ("its old stage, Lead, and the timeline entries that came from it"), a muted line that the merge choices stay on the kept record, then Cancel and "Restore partner" (busy "Restoring…"; failed "Partner not restored"). It is not destructive, so it has no danger icon. Log activity and Add walk-in follow the form-dialog states: invalid shows a field error ("Say what happened, in a sentence or two."), busy disables the form, and failed keeps the input and shows a danger alert.</p>
     </section>
 
-    <section class="ds-section" id="sizes" data-na="one width"><h2><a href="#sizes">Sizes</a></h2>
-      <p class="ds-na">One panel width, up to 32rem; height grows with content up to the viewport minus <code>--space-12</code>, then the body scrolls and the footer stays.</p>
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>The panel is up to 32rem wide; height grows with content up to the viewport minus <code>--space-12</code>, then the body scrolls and the footer stays. <code>DialogService.open(…, …, { wide: true })</code> gives the 44rem panel for a two-column body. <code>{ fullScreen: true }</code> fills the whole viewport, on every width, for a view that is not a form: it hosts the <a href="qr-presenter.html">QR presenter</a> (event hubs slice 49), which brings its own close button and title instead of the dialog header and footer.</p>
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>

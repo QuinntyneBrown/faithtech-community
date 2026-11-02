@@ -403,7 +403,8 @@
         "L2-188",
         "L2-189",
         "L2-190",
-        "L2-191"
+        "L2-191",
+        "L2-193"
       ],
       "states": [
         "default",
@@ -3313,6 +3314,51 @@
         "failed"
       ],
       "not_applicable": {}
+    },
+    {
+      "id": "share-hub",
+      "kind": "dialog",
+      "title": "Share the hub",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-165",
+        "L2-193",
+        "L2-195"
+      ],
+      "states": [
+        "default",
+        "draft",
+        "copied"
+      ],
+      "not_applicable": {
+        "loading": "The dialog opens from the loaded hub home with the hub's link already in hand; nothing is fetched.",
+        "error": "Nothing is fetched or saved, so nothing can fail; a download the browser blocks is the browser's own message.",
+        "busy": "Nothing is saved.",
+        "invalid": "Nothing is typed; the link is read-only.",
+        "forbidden": "Only holders of ManageEventHubs reach the hub home (its forbidden state, L2-154), so the dialog never opens for anyone else."
+      }
+    },
+    {
+      "id": "hub-qr-full-screen",
+      "kind": "dialog",
+      "title": "Hub QR code, full screen",
+      "opens_from": "share-hub",
+      "requirements": [
+        "L2-193",
+        "L2-194"
+      ],
+      "states": [
+        "default",
+        "draft"
+      ],
+      "not_applicable": {
+        "loading": "The dialog opens from the loaded hub home with the hub's link already in hand; nothing is fetched.",
+        "error": "Nothing is fetched or saved, so nothing can fail; a download the browser blocks is the browser's own message.",
+        "busy": "Nothing is saved.",
+        "invalid": "Nothing is typed; the link is read-only.",
+        "forbidden": "Only holders of ManageEventHubs reach the hub home (its forbidden state, L2-154), so the dialog never opens for anyone else.",
+        "copied": "The full-screen view shows the link as text to read, not to copy; copying stays in the Share dialog."
+      }
     }
   ]
 }

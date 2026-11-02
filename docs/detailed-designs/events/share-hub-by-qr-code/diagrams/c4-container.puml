@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Share a hub by QR code
+Person(lead, "Hub manager")
+Person(visitor, "Visitor")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Hub home with Share; the Share dialog draws the QR code, shows it full screen and saves it as a PNG, all in the browser")
+  Container(api, "Community API", "ASP.NET Core", "Unchanged: GET /api/events/{id}/hub (link, status) and /hub/page (who may open it)")
+  ContainerDb(db, "Database", "PostgreSQL", "Unchanged; nothing new is stored")
+}
+Rel(lead, spa, "Share, Show full screen, Download image", "HTTPS")
+Rel(visitor, spa, "Scans the code: /public/events/{id}/hub", "HTTPS")
+Rel(spa, api, "Reads the hub", "JSON/HTTPS")
+Rel(api, db, "Reads", "EF Core")
+@enduml
