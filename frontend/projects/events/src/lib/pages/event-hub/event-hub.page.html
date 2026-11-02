@@ -83,6 +83,7 @@
             <ft-button [href]="'/public/events/' + h.eventId + '/hub'">
               <ft-icon name="read-only-view" /> Preview
             </ft-button>
+            <ft-button (click)="share(h)"><ft-icon name="qr" /> Share</ft-button>
             @if (h.status === 'Published') {
               <ft-button (click)="unpublish()">Unpublish</ft-button>
             } @else {

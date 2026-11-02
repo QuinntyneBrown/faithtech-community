@@ -16,6 +16,7 @@ export class EventHubPage {
   readonly backToEvent: Locator;
   readonly reorder: Locator;
   readonly preview: Locator;
+  readonly share: Locator;
   readonly publish: Locator;
   readonly unpublish: Locator;
   readonly publishedAt: Locator;
@@ -45,6 +46,8 @@ export class EventHubPage {
     this.backToEvent = page.getByRole('link', { name: 'Back to event' });
     this.reorder = page.getByRole('button', { name: 'Reorder sections' });
     this.preview = page.getByRole('link', { name: 'Preview', exact: true });
+    // Share on the Your hub card (L2-193 AC1).
+    this.share = page.getByRole('button', { name: 'Share', exact: true });
     this.publish = page.getByRole('button', { name: /^(Publish|Publishing…)$/ });
     this.unpublish = page.getByRole('button', { name: 'Unpublish', exact: true });
     this.publishedAt = page

@@ -29,3 +29,4 @@ export * from './hub-template-sections';
 export * from './post-hub-update';
 export * from './move-hub-session';
 export * from './swap-hub-link';
+export * from './share-hub';

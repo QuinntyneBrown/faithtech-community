@@ -1,0 +1,24 @@
+<ft-dialog
+  heading="Share the hub"
+  [description]="
+    'Show the QR code on a screen or print it. It opens the ' + data.eventTitle + ' hub.'
+  "
+  icon="qr"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (data.status === 'Draft') {
+      <ft-alert status="warning" [heading]="draftNote.heading">{{ draftNote.text }}</ft-alert>
+    }
+    <ft-cluster [center]="true">
+      <ft-qr-code [value]="data.link" [alt]="alt" caption="Scan with a phone camera" />
+    </ft-cluster>
+    <ft-copy-field
+      label="Hub link"
+      [value]="data.link"
+      help="The QR code opens this link."
+      (copied)="copied()"
+    />
+  </ft-stack>
+  <ft-button ftDialogFooter variant="primary" initialFocus (click)="ref.close()">Done</ft-button>
+</ft-dialog>
