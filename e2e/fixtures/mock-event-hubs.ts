@@ -69,6 +69,8 @@ export interface MockEventHub {
   publishedAt: string | null;
   templateKey: string;
   sections: MockHubSection[];
+  /** The day-of update shown at the top of the hub (L2-189); null when there is none. */
+  updateBanner?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -298,6 +300,13 @@ export class MockEventHubs {
     hub.publishedAt = this.context.now().toISOString();
   }
 
+  /** Arranges a hub taken back to Draft, as Unpublish would leave it (L2-164 AC4). */
+  unpublish(eventId: string): void {
+    const hub = this.of(eventId);
+    if (!hub) throw new Error(`No hub for ${eventId}`);
+    hub.status = 'Draft';
+  }
+
   /** The event detail's hub fields (L2-153 AC1, L2-167 AC3). */
   detail(
     event: MockEvent,
@@ -338,10 +347,19 @@ export class MockEventHubs {
       if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
       return this.listTemplates(route);
     }
+    const move = /^\/api\/events\/([^/]+)\/hub\/agenda\/move$/.exec(url.pathname);
+    if (move) {
+      if (method !== 'POST') return false;
+      if (!caller) return route.fulfill({ status: 401 });
+      if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
+      const event = this.context.event(move[1]);
+      if (!event) return route.fulfill({ status: 404 });
+      return this.moveSession(route, event, body, caller);
+    }
     const file = /^\/api\/events\/([^/]+)\/hub\/files\/([^/]+)(\/thumbnail)?$/.exec(url.pathname);
     if (file) return method === 'GET' && this.file(route, file[1], file[2], !!file[3], caller);
     const match =
-      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page|start))?$/.exec(
+      /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page|start|update))?$/.exec(
         url.pathname,
       );
     if (!match) return false;
@@ -349,13 +367,21 @@ export class MockEventHubs {
     // The hub page's read (L2-166, ADR 0040): anyone may ask; only what the caller may see, 404 otherwise.
     if (publishing === 'page')
       return method === 'GET' && this.page(route, eventId, caller, url.origin);
-    const allowed = sectionPath ? ['PUT'] : publishing ? ['POST'] : ['GET', 'POST', 'PUT'];
+    const allowed = sectionPath
+      ? ['PUT']
+      : publishing === 'update'
+        ? ['PUT', 'DELETE']
+        : publishing
+          ? ['POST']
+          : ['GET', 'POST', 'PUT'];
     if (!allowed.includes(method)) return false;
     if (!caller) return route.fulfill({ status: 401 });
     if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
     const event = this.context.event(eventId);
     if (!event) return route.fulfill({ status: 404 });
     if (publishing === 'start') return this.start(route, event, body, caller, url.origin);
+    if (publishing === 'update')
+      return this.setUpdateBanner(route, event, method === 'PUT' ? body : null, caller);
     if (publishing) return this.setPublished(route, event, publishing === 'publish', caller);
     if (sectionPath === 'order') return this.reorder(route, event, body, caller);
     if (sectionPath) return this.saveSection(route, event, sectionPath, body, caller);
@@ -478,6 +504,7 @@ export class MockEventHubs {
       status: hub.status,
       publishedAt: hub.publishedAt,
       templateKey: hub.templateKey,
+      updateBanner: hub.updateBanner ?? null,
       link: `${origin}/public/events/${event.id}/hub`,
       event: {
         title: event.title,
@@ -866,6 +893,108 @@ export class MockEventHubs {
   }
 
   /** Publish or unpublish (L2-164): refuses nothing; every status change is audited, override or not. */
+  /** Sets an update as if a lead had posted it elsewhere (L2-189, L2-192): open hubs pick it up on their next read. */
+  setUpdate(eventId: string, text: string | null): void {
+    const hub = this.of(eventId);
+    if (!hub) throw new Error(`No hub for event ${eventId}`);
+    hub.updateBanner = text;
+    hub.updatedAt = this.context.now().toISOString();
+  }
+
+  /** Makes the next quick edit (update or move) answer 500 (L2-189 AC3, L2-190 AC4). */
+  failNextQuickEdit(): void {
+    this.failQuickEdit = true;
+  }
+
+  private failQuickEdit = false;
+
+  /** PUT and DELETE /api/events/{id}/hub/update (L2-189): one trimmed line up to 280, or none. */
+  private setUpdateBanner(
+    route: Route,
+    event: MockEvent,
+    body: Record<string, unknown> | null,
+    caller: EventsCaller,
+  ): Promise<void> {
+    const hub = this.of(event.id);
+    if (!hub) return route.fulfill({ status: 404 });
+    let text: string | null = null;
+    if (body) {
+      text = String(body['text'] ?? '')
+        .trim()
+        .replace(/[ \t]+/g, ' ');
+      const error = !text
+        ? 'Write the update.'
+        : text.length > 280
+          ? 'Use 280 characters or fewer.'
+          : null;
+      if (error)
+        return route.fulfill({ status: 400, json: { status: 400, errors: { text: [error] } } });
+    }
+    if (this.failQuickEdit) {
+      this.failQuickEdit = false;
+      return route.fulfill({ status: 500 });
+    }
+    hub.updateBanner = text;
+    hub.updatedAt = this.context.now().toISOString();
+    this.audit(
+      'event_hub.updated',
+      `Changed the update on the hub for ${event.title}`,
+      hub,
+      caller,
+    );
+    return route.fulfill({ status: 204 });
+  }
+
+  /**
+   * POST /api/events/{id}/hub/agenda/move (L2-190, ADR 0044): sets one row's time and, with shiftLater, moves every later
+   * row by the same amount; a code freeze that was a moved row's time follows it.
+   */
+  private moveSession(
+    route: Route,
+    event: MockEvent,
+    body: Record<string, unknown>,
+    caller: EventsCaller,
+  ): Promise<void> {
+    const hub = this.of(event.id);
+    if (!hub) return route.fulfill({ status: 404 });
+    const agenda = this.section(event.id, 'Agenda')!;
+    const items = list(agenda.content['items']);
+    const index = body['index'];
+    const invalid = (field: string, message: string) =>
+      route.fulfill({ status: 400, json: { status: 400, errors: { [field]: [message] } } });
+    if (typeof index !== 'number' || index < 0 || index >= items.length)
+      return invalid('index', 'Choose a session from the agenda.');
+    const startsAt = typeof body['startsAt'] === 'string' ? Date.parse(body['startsAt']) : NaN;
+    if (Number.isNaN(startsAt)) return invalid('startsAt', 'Enter a time.');
+    if (this.failQuickEdit) {
+      this.failQuickEdit = false;
+      return route.fulfill({ status: 500 });
+    }
+    const links = this.section(event.id, 'Links')!;
+    const freeze =
+      typeof links.content['codeFreezeAt'] === 'string'
+        ? Date.parse(links.content['codeFreezeAt'])
+        : null;
+    const delta = startsAt - Date.parse(String(items[index]['startsAt']));
+    let movedFreeze: string | null = null;
+    agenda.content = {
+      ...agenda.content,
+      items: items.map((item, i) => {
+        const shifts =
+          i === index || (body['shiftLater'] === true && i > index && !!item['startsAt']);
+        if (!shifts) return item;
+        const was = Date.parse(String(item['startsAt']));
+        const at = new Date(i === index ? startsAt : was + delta).toISOString();
+        if (freeze !== null && was === freeze) movedFreeze = at;
+        return { ...item, startsAt: at };
+      }),
+    };
+    if (movedFreeze) links.content = { ...links.content, codeFreezeAt: movedFreeze };
+    hub.updatedAt = this.context.now().toISOString();
+    this.audit('event_hub.updated', `Moved a session on the hub for ${event.title}`, hub, caller);
+    return route.fulfill({ status: 204 });
+  }
+
   private setPublished(
     route: Route,
     event: MockEvent,

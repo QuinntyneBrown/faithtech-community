@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run the day from a phone
+Container_Boundary(spa, "Web app") {
+  Component(home, "EventHubPage", "Angular page (events)", "Quick edits card: live update, Post an update, Clear update, Move a session, Swap a link")
+  Component(dialogs, "PostHubUpdateDialog / MoveHubSessionDialog / SwapHubLinkDialog", "Angular dialogs (events)", "One screen each")
+  Component(page, "HubPage", "Angular page (events)", "Update banner (polite live region); refreshes every 30 s while visible")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "setUpdate, clearUpdate, moveSession, saveSection, page")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "Minimal API", "PUT/DELETE /hub/update, POST /hub/agenda/move")
+  Component(h, "HubQuickEditsHandler", "Application/Events", "ManageEventHubs; validates; shifts later rows; audits overrides")
+  Component(save, "SaveHubSectionHandler", "Application/Events", "Links content with its https and code-freeze rules")
+  Component(get, "GetEventHubHandler", "Application/Events", "Page read with updateBanner")
+  Component(hub, "EventHub", "Domain/Events", "PostUpdate, ClearUpdate, FillSection")
+}
+Rel(home, dialogs, "Opens")
+Rel(dialogs, svc, "Calls")
+Rel(home, svc, "clearUpdate, hub")
+Rel(page, svc, "page() every 30 s")
+Rel(svc, ep, "HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(ep, save, "Dispatches")
+Rel(ep, get, "Dispatches")
+Rel(h, hub, "Changes")
+Rel(save, hub, "Changes")
+@enduml

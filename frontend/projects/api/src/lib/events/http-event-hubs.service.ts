@@ -11,6 +11,7 @@ import {
   PastEventHubDto,
   HubContentInputByKind,
   HubSectionKind,
+  MoveHubSessionRequest,
   SaveEventHubRequest,
   StartEventHubRequest,
 } from './event-hubs.service';
@@ -90,6 +91,28 @@ export class HttpEventHubsService implements EventHubsService {
 
   unpublish(eventId: string): Observable<void> {
     return this.http.post<void>(`${this.api}/events/${eventId}/hub/unpublish`, null, {
+      context: this.wizard,
+    });
+  }
+
+  setUpdate(eventId: string, text: string): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/events/${eventId}/hub/update`,
+      { text },
+      {
+        context: this.wizard,
+      },
+    );
+  }
+
+  moveSession(eventId: string, request: MoveHubSessionRequest): Observable<void> {
+    return this.http.post<void>(`${this.api}/events/${eventId}/hub/agenda/move`, request, {
+      context: this.wizard,
+    });
+  }
+
+  clearUpdate(eventId: string): Observable<void> {
+    return this.http.delete<void>(`${this.api}/events/${eventId}/hub/update`, {
       context: this.wizard,
     });
   }

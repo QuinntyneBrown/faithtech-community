@@ -1,0 +1,27 @@
+@startuml
+title An open hub shows an update without a reload
+actor "Hub manager" as lead
+actor "Visitor" as visitor
+participant "HubPage" as page
+participant "Community API" as api
+participant "HubQuickEditsHandler" as h
+visitor -> page : open /public/events/{id}/hub
+page -> api : GET /api/events/{id}/hub/page
+api --> page : hub (no updateBanner)
+lead -> api : PUT /api/events/{id}/hub/update { text: "Dinner is in the courtyard" }
+api -> h : SetUpdateAsync
+h --> api : 204
+... up to 30 seconds, tab visible ...
+page -> api : GET /api/events/{id}/hub/page
+api --> page : hub with updateBanner
+page --> visitor : "Update" banner at the top (role=status), scroll kept
+alt tab hidden
+  page -> page : skip the turn
+  visitor -> page : shows the tab again
+  page -> api : GET /api/events/{id}/hub/page at once
+else refresh fails
+  page -> page : keep what is shown, try next turn
+else 404 (unpublished)
+  page --> visitor : "This hub isn’t available"
+end
+@enduml

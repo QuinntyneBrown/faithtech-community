@@ -47,6 +47,37 @@
       </ft-breadcrumb>
       <ft-page-header title="Event hub" [subtitle]="subtitle()" />
       <ft-stack>
+        <ft-card heading="Quick edits" class="quick-edits">
+          <ft-stack gap="3">
+            <p class="text-caption">Changes show on the hub at once.</p>
+            @if (h.updateBanner; as update) {
+              <ft-stack gap="1">
+                <span class="overline">Live update</span>
+                <p class="quick-edits__update">{{ update }}</p>
+              </ft-stack>
+              <ft-button [block]="true" object="the update" (click)="postUpdate()">
+                <ft-icon name="announcements" /> Change
+              </ft-button>
+              <ft-button [block]="true" [loading]="clearing()" (click)="clearUpdate()">
+                <ft-icon name="close" /> Clear update
+              </ft-button>
+            } @else {
+              <ft-button [block]="true" variant="primary" (click)="postUpdate()">
+                <ft-icon name="announcements" /> Post an update
+              </ft-button>
+            }
+            @if (agendaRows()) {
+              <ft-button [block]="true" (click)="moveSession()">
+                <ft-icon name="events" /> Move a session
+              </ft-button>
+            }
+            @if (linksShown()) {
+              <ft-button [block]="true" (click)="swapLink()">
+                <ft-icon name="link" /> Swap a link
+              </ft-button>
+            }
+          </ft-stack>
+        </ft-card>
         <ft-card heading="Your hub">
           <ft-cluster ftCardActions>
             <ft-button [href]="'/public/events/' + h.eventId + '/hub'">

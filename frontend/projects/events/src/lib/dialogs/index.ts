@@ -26,3 +26,6 @@ export * from './hub-slides';
 export * from './hub-template-name';
 export * from './archive-hub-template';
 export * from './hub-template-sections';
+export * from './post-hub-update';
+export * from './move-hub-session';
+export * from './swap-hub-link';

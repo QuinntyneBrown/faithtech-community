@@ -1,0 +1,34 @@
+@startuml
+title Class structure — Run the day from a phone
+class EventHub {
+  +Id : Guid
+  +EventId : Guid
+  +UpdateBanner : string?
+  +PostUpdate(text, now)
+  +ClearUpdate(now)
+  +FillSection(kind, json, now)
+}
+class HubQuickEditsHandler {
+  +SetUpdateAsync(eventId, command)
+  +ClearUpdateAsync(eventId)
+  +MoveSessionAsync(eventId, command)
+}
+class SetHubUpdateCommand <<record>> {
+  +Text : string?
+}
+class MoveHubSessionCommand <<record>> {
+  +Index : int?
+  +StartsAt : DateTimeOffset?
+  +ShiftLater : bool
+}
+class AgendaShift <<static>> {
+  +Move(agenda, links, index, startsAt, shiftLater) : (AgendaContent, LinksContent?)
+}
+class EventHubDto <<record>> {
+  +UpdateBanner : string?
+}
+HubQuickEditsHandler --> EventHub
+HubQuickEditsHandler ..> SetHubUpdateCommand
+HubQuickEditsHandler ..> MoveHubSessionCommand
+HubQuickEditsHandler ..> AgendaShift
+@enduml

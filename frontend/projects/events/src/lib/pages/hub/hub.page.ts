@@ -2,6 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DOCUMENT,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -50,6 +52,9 @@ import {
 } from '../../hub-sections';
 
 type State = 'loading' | 'loaded' | 'unavailable' | 'error';
+
+/** How often an open hub reads itself again while its tab is visible (L2-192 AC1, ADR 0044). */
+export const HUB_REFRESH_MS = 30_000;
 
 /**
  * The hub page (L2-163, ADR 0039), matching docs/mocks/pages/hub-page: every visible, Ready section in the hub's order with
@@ -128,6 +133,40 @@ export class HubPage {
 
   constructor() {
     effect(() => void this.load(this.id()));
+
+    // L2-192 AC1, AC2: read again every 30 seconds while the tab is visible, and at once when it is shown again.
+    const document = inject(DOCUMENT);
+    const visible = () => document.visibilityState === 'visible';
+    const timer = setInterval(() => {
+      if (visible()) void this.refresh();
+    }, HUB_REFRESH_MS);
+    const shown = () => {
+      if (visible()) void this.refresh();
+    };
+    document.addEventListener('visibilitychange', shown);
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', shown);
+    });
+  }
+
+  /**
+   * Replaces what the page shows without a loading state (L2-192 AC1); a failure keeps it and the next turn tries again,
+   * and a hub that has become unavailable says so (AC3).
+   */
+  private async refresh(): Promise<void> {
+    if (this.state() !== 'loaded') return;
+    const id = this.id();
+    try {
+      const hub = await firstValueFrom(this.hubs.page(id));
+      if (id !== this.id() || this.state() !== 'loaded') return;
+      this.hub.set(hub);
+      this.describe(hub);
+    } catch (error) {
+      if (id !== this.id()) return;
+      if (error instanceof HttpErrorResponse && (error.status === 403 || error.status === 404))
+        this.state.set('unavailable');
+    }
   }
 
   protected retry(): void {

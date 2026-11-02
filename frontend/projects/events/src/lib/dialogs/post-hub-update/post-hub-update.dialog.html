@@ -1,0 +1,35 @@
+<ft-dialog
+  heading="Post an update"
+  icon="announcements"
+  description="One line everyone sees at the top of the hub, like a room change or a new start time."
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); post()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="We couldn’t post the update">
+          Check your connection and try again.
+          <ft-button ftAlertActions size="sm" (click)="post()">Try again</ft-button>
+        </ft-alert>
+      }
+      <ft-form-field
+        label="What should everyone know?"
+        help="It shows at the top of the hub until you clear it."
+        [error]="error()"
+      >
+        <ft-textarea
+          formControlName="text"
+          initialFocus
+          [rows]="4"
+          [maxlength]="max"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="post()">
+    {{ busy() ? 'Posting…' : 'Post update' }}
+  </ft-button>
+</ft-dialog>

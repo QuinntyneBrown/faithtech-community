@@ -45,6 +45,11 @@
     @if (hub(); as h) {
       <div class="hub-page">
         <h1 class="visually-hidden">{{ h.event.title }} hub</h1>
+        @if (h.updateBanner; as update) {
+          <ft-alert class="hub-page__update" status="info" heading="Update" polite>{{
+            update
+          }}</ft-alert>
+        }
         @if (preview()) {
           <ft-alert class="hub-page__banner" status="info" heading="Preview">
             {{

@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Run the day from a phone
+Person(lead, "Hub manager", "Member holding ManageEventHubs, on a phone at the event")
+Person(visitor, "Visitor", "Attendee, member or anonymous guest with the hub open")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+Rel(lead, community, "Posts and clears an update, moves a session, swaps a link", "HTTPS")
+Rel(visitor, community, "Reads the hub page every 30 seconds while it is open", "HTTPS")
+@enduml

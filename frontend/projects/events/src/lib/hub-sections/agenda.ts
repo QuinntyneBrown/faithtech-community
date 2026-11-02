@@ -138,3 +138,22 @@ export function agendaStates(
   if (upNext >= 0 && upNext < states.length) states[upNext] = 'next';
   return states;
 }
+
+/** The first row that hasn't started yet, or the first row when all have (L2-190 AC1). */
+export function firstUpcomingRow(rows: readonly { startsAt: string }[], now: Date): number {
+  const next = rows.findIndex((r) => Date.parse(r.startsAt) > now.getTime());
+  return next < 0 ? 0 : next;
+}
+
+/** "Also move the 2 later sessions 30 minutes later" (L2-190 AC2); `minutes` is negative for earlier. */
+export function shiftOffer(later: number, minutes: number): string {
+  const n = Math.abs(minutes);
+  const hours = Math.floor(n / 60);
+  const rest = n % 60;
+  const unit = (count: number, word: string) => `${count} ${word}${count === 1 ? '' : 's'}`;
+  const amount = [hours ? unit(hours, 'hour') : '', rest ? unit(rest, 'minute') : '']
+    .filter(Boolean)
+    .join(' ');
+  const rows = later === 1 ? 'the later session' : `the ${later} later sessions`;
+  return `Also move ${rows} ${amount} ${minutes < 0 ? 'earlier' : 'later'}`;
+}

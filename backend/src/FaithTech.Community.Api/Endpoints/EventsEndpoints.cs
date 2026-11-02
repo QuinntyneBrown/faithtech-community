@@ -116,6 +116,17 @@ public static class EventsEndpoints
         events.MapPost("/{id:guid}/hub/unpublish", async (Guid id, PublishEventHubHandler handler, CancellationToken cancellationToken) =>
             (await handler.UnpublishAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
+        // Quick edits on the day (L2-188 to L2-190, ADR 0044): they change the hub at once.
+        events.MapPut("/{id:guid}/hub/update", async (Guid id, SetHubUpdateCommand command, HubQuickEditsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.SetUpdateAsync(id, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        events.MapDelete("/{id:guid}/hub/update", async (Guid id, HubQuickEditsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ClearUpdateAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        events.MapPost("/{id:guid}/hub/agenda/move", async (
+                Guid id, MoveHubSessionCommand command, HubQuickEditsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.MoveSessionAsync(id, command, cancellationToken)).ToHttp(Results.NoContent));
+
         // Hub sections (L2-156, L2-157, ADR 0038): the order, then one section's content validated against its kind's schema.
         events.MapPut("/{id:guid}/hub/sections/order", async (
                 Guid id, ReorderHubSectionsCommand command, ReorderHubSectionsHandler handler, CancellationToken cancellationToken) =>

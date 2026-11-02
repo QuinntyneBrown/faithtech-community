@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Run the day from a phone
+Person(lead, "Hub manager")
+Person(visitor, "Visitor")
+System_Boundary(community, "Community platform") {
+  Container(spa, "Web app", "Angular", "Hub home with Quick edits and three dialogs; hub page with the update banner and a 30-second refresh")
+  Container(api, "Community API", "ASP.NET Core", "/api/events/{id}/hub/update, /hub/agenda/move, /hub/sections/Links, /hub/page")
+  ContainerDb(db, "Database", "PostgreSQL", "EventHubs.UpdateBanner, HubSections.Content, AuditEntries; filtered by organisation")
+}
+Rel(lead, spa, "Quick edits", "HTTPS")
+Rel(visitor, spa, "Keeps the hub open", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

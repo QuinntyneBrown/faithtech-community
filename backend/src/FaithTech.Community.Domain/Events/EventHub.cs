@@ -142,6 +142,20 @@ public class EventHub : IOrganisationScoped
         UpdatedAt = now;
     }
 
+    /// <summary>Shows a day-of update at the top of the hub at once (L2-189 AC3); the text is already validated and trimmed.</summary>
+    public void PostUpdate(string text, DateTimeOffset now)
+    {
+        UpdateBanner = text;
+        UpdatedAt = now;
+    }
+
+    /// <summary>Removes the day-of update (L2-189 AC4).</summary>
+    public void ClearUpdate(DateTimeOffset now)
+    {
+        UpdateBanner = null;
+        UpdatedAt = now;
+    }
+
     /// <summary>Returns the hub to Draft and keeps its sections (L2-164 AC3); false when it was already a draft.</summary>
     public bool Unpublish(DateTimeOffset now)
     {

@@ -1,0 +1,30 @@
+@startuml
+title Move a session with the later rows
+actor "Hub manager" as lead
+participant "EventHubPage" as home
+participant "MoveHubSessionDialog" as dlg
+participant "Community API" as api
+participant "HubQuickEditsHandler" as h
+participant "EventHub" as hub
+lead -> home : Move a session
+home -> dlg : open with the hub's agenda
+lead -> dlg : choose "6:00 pm · Dinner", 6:30 pm, keep "Also move the 3 later sessions 30 minutes later"
+dlg -> api : POST /api/events/{id}/hub/agenda/move { index: 1, startsAt, shiftLater: true }
+api -> h : MoveSessionAsync
+alt ManageEventHubs, a row at index, a time
+  h -> h : delta = startsAt - row's time; later rows += delta; code freeze follows its row
+  h -> hub : FillSection(Agenda), FillSection(Links) when the freeze moved
+  h -> h : audit event_hub.updated on override
+  h --> api : 204
+  api --> dlg : 204
+  dlg --> home : closed(true)
+  home -> api : GET /api/events/{id}/hub
+  home --> lead : toast "Session moved"
+else no row / no time
+  h --> api : 400 index / startsAt
+  api --> dlg : 400
+  dlg --> lead : message on the field
+else no capability / other organisation
+  h --> api : 403 / 404
+end
+@enduml
