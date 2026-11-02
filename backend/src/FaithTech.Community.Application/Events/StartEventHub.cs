@@ -48,7 +48,7 @@ public class StartEventHubHandler(
         IReadOnlyList<HubSectionStart> sections;
         if (command.TemplateId is { } templateId)
         {
-            var template = await db.HubTemplates.SingleOrDefaultAsync(t => t.Id == templateId, cancellationToken);
+            var template = await db.HubTemplates.SingleOrDefaultAsync(t => t.Id == templateId && t.ArchivedAtUtc == null, cancellationToken);
             if (template is null)
             {
                 return (Result.Invalid("templateId", UnknownTemplate), null);

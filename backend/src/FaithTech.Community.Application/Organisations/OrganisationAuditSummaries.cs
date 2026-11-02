@@ -38,6 +38,7 @@ public sealed record OrganisationAuditSummaries(string ChapterSingular, string C
             "role.archived" => $"Archived the role {Text(before, "Name")}",
             "role.grants.updated" => Grants(entry, before, after),
             "taxonomy.updated" => Taxonomy(before, after),
+            "hub_template.updated" => HubTemplate(before, after),
             _ => null,
         };
     }
@@ -99,6 +100,30 @@ public sealed record OrganisationAuditSummaries(string ChapterSingular, string C
     }
 
     private string Names(IEnumerable<Guid> ids) => string.Join(", ", ids.Select(id => RoleNames.GetValueOrDefault(id, "a role")));
+
+    /// <summary>A hub template's change (L2-185 AC6, L2-186 AC6).</summary>
+    private static string HubTemplate(JsonElement? before, JsonElement? after)
+    {
+        var name = Text(after, "Name");
+        if (before is null)
+        {
+            return $"Added the hub template {name}";
+        }
+
+        if (Text(after, "Section") is { Length: > 0 } section)
+        {
+            return $"Edited the default {section} of the hub template {name}";
+        }
+
+        if (Flag(before, "Archived") != Flag(after, "Archived"))
+        {
+            return $"{(Flag(after, "Archived") ? "Archived" : "Restored")} the hub template {name}";
+        }
+
+        return Text(before, "Name") != name
+            ? $"Renamed the hub template {Text(before, "Name")} to {name}"
+            : $"Edited the hub template {name}";
+    }
 
     private static string Taxonomy(JsonElement? before, JsonElement? after)
     {

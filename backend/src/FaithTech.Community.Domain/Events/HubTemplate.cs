@@ -38,6 +38,21 @@ public class HubTemplate : IOrganisationScoped
     /// <summary>The sections as JSON: <c>[{ "kind": "Hero", "visible": true, "content": { ... } }, ...]</c>.</summary>
     public string Sections { get; private set; } = "[]";
 
+    /// <summary>When it was archived (L2-185 AC4); an archived template is not offered and cannot be applied.</summary>
+    public DateTime? ArchivedAtUtc { get; private set; }
+
+    public bool IsArchived => ArchivedAtUtc is not null;
+
+    /// <summary>Takes the template out of the wizard; hubs started from it keep everything.</summary>
+    public void Archive(DateTime nowUtc) => ArchivedAtUtc ??= nowUtc;
+
+    /// <summary>Offers the template again, at <paramref name="sortOrder"/> (the end of the list).</summary>
+    public void Restore(int sortOrder)
+    {
+        ArchivedAtUtc = null;
+        SortOrder = sortOrder;
+    }
+
     /// <summary>Renames the template and changes its line.</summary>
     public void Describe(string name, string description)
     {
