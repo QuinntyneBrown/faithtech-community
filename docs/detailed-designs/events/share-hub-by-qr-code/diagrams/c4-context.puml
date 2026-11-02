@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Share a hub by QR code
+Person(lead, "Hub manager", "Member holding ManageEventHubs, at a laptop on the projector")
+Person(visitor, "Visitor", "Attendee who scans the code with a phone camera")
+System(community, "Community platform", "Hosts the organisation's events and their hubs")
+Rel(lead, community, "Shows the hub's QR code full screen and downloads it", "HTTPS")
+Rel(visitor, community, "Opens the hub page from the code", "HTTPS")
+@enduml

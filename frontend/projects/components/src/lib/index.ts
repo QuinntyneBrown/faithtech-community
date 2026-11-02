@@ -58,6 +58,7 @@ export * from './person-summary';
 export * from './profile-header';
 export * from './progress';
 export * from './qr-code';
+export * from './qr-presenter';
 export * from './radio-group';
 export * from './role-dialog';
 export * from './define-role-dialog';

@@ -80,4 +80,4 @@ They build on `L2-153` to `L2-162` (create and fill in a hub), `L2-041` and `L2-
 - **Notify RSVPs on publish** (proposal open question 5). Deferred, default no: publishing sends nothing. A later slice can add an opt-in notification through Notifications (ADR 0039).
 - **Anonymous and member reading.** Deferred to slice 44: a public read endpoint that serves a published hub of a public event to anyone, and a published hub of a members-only event to signed-in members, without the preview banner. Until then the hub page reads through the manager endpoint and says "This hub isn’t available" to everyone else.
 - **Unsaved wizard input in the preview.** The preview shows what has been saved. Wizards save on every Next and on Save and finish later, so at most the current step's unsaved fields are missing (ADR 0039).
-- **QR code.** Deferred to slice 49.
+- **QR code.** Built in slice 49: Share on the hub home opens a QR code of the same link, full screen and as a PNG ([share a hub by QR code](../share-hub-by-qr-code/README.md), ADR 0045).

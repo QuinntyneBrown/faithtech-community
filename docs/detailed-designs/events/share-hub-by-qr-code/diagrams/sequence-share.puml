@@ -1,0 +1,31 @@
+@startuml
+title Share a hub: QR code, full screen and download
+actor "Hub manager" as lead
+participant "EventHubPage" as home
+participant "ShareHubDialog" as share
+participant "QrCodeComponent" as qr
+participant "HubQrFullScreenDialog\n+ QrPresenterComponent" as full
+participant "Browser" as browser
+lead -> home : Share
+home -> share : open { eventTitle, link, status }
+share -> qr : value = link
+qr --> lead : code + "Scan with a phone camera"
+alt status is Draft
+  share --> lead : "Your hub is a draft" note
+end
+lead -> share : Show full screen
+share -> full : DialogService.open(…, { fullScreen: true })
+full -> browser : requestFullscreen() (a refusal is ignored)
+full --> lead : event name, code at fill size, link as text, "Press Esc to close"
+alt Esc or Close full screen
+  lead -> full : Esc
+  full -> browser : exitFullscreen()
+else the browser leaves full screen
+  browser -> full : fullscreenchange
+  full -> full : emit closed
+end
+full --> share : closed; focus back on Show full screen
+lead -> share : Download image
+share -> qr : downloadPng("toronto-builders-night-hub-qr-code.png")
+qr -> browser : canvas PNG, about 1024 px, quiet zone
+@enduml

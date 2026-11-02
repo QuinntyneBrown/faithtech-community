@@ -1369,3 +1369,18 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 /* A PDF: its first-page thumbnail and one link that opens it; no bar and no thumbnails. */
 .slide-viewer--file .slide-viewer__stage img { object-fit: cover; }
 @media (prefers-reduced-motion: no-preference) { .slide-viewer__thumbs { scroll-behavior: smooth; } }
+
+/* QR code, fill size: as large as the screen allows, for a projector (event hubs slice 49). */
+.qr-code--fill { --qr-size: min(50dvh, 80vw); }
+
+/* QR presenter: one QR code filling the screen, with its title, the link as text and a way out (Esc or Close full screen). */
+.qr-presenter { position: fixed; inset: 0; z-index: var(--z-modal); display: flex; flex-direction: column; align-items: center; justify-content: safe center;
+  gap: var(--space-4); padding: var(--space-4) var(--space-4) var(--space-6); overflow: auto; text-align: center;
+  background: var(--color-bg-canvas); color: var(--color-fg-default); }
+.qr-presenter__close { align-self: flex-end; }
+.qr-presenter__title { margin: 0; font: var(--text-display); }
+.qr-presenter__lead { margin: 0; font: var(--text-body-lg); color: var(--color-fg-muted); }
+.qr-presenter__note { max-width: 40rem; text-align: start; }
+.qr-presenter__link { margin: 0; max-width: 48rem; font: var(--text-h3); overflow-wrap: anywhere; }
+.qr-presenter__hint { margin: 0; font: var(--text-caption); color: var(--color-fg-muted); }
+@media (max-width: 39.99rem) { .qr-presenter__title { font: var(--text-h1); } .qr-presenter__link { font: var(--text-body); } }

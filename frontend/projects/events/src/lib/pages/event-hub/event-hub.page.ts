@@ -55,6 +55,8 @@ import {
   PREVIEWABLE,
   ReorderHubSectionsData,
   ReorderHubSectionsDialog,
+  ShareHubData,
+  ShareHubDialog,
   UnpublishHubData,
   UnpublishHubDialog,
 } from '../../dialogs';
@@ -356,6 +358,13 @@ export class EventHubPage {
       text: 'Visitors can open it now.',
     });
     await this.load(this.id(), true);
+  }
+
+  /** Share (L2-193 AC1): the hub's QR code and link, drawn from what the page already loaded. */
+  protected share(hub: EventHubDto): void {
+    this.dialogs.open<void, ShareHubData>(ShareHubDialog, {
+      data: { eventTitle: hub.event.title, link: hub.link, status: hub.status },
+    });
   }
 
   /** Unpublish (L2-164 AC3): asks first in its dialog. */

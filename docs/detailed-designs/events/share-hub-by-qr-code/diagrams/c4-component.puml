@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Share a hub by QR code
+Container_Boundary(spa, "Web app") {
+  Component(home, "EventHubPage", "Angular page (events)", "Your hub card: Preview, Share, Publish or Unpublish")
+  Component(share, "ShareHubDialog", "Angular dialog (events)", "QR code, Hub link, draft note, Show full screen, Download image")
+  Component(full, "HubQrFullScreenDialog", "Angular dialog (events)", "Passes the hub to the presenter; closes on closed")
+  Component(presenter, "QrPresenterComponent", "components", "Full-screen view; browser full screen; Esc and Close full screen")
+  Component(qr, "QrCodeComponent", "components", "Encodes the value (error correction M); sizes sm, md, lg, fill; downloadPng")
+  Component(dialogs, "DialogService", "components", "CDK Dialog; fullScreen option")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "get(eventId): link and status")
+}
+Container_Boundary(api, "Community API") {
+  Component(get, "GetEventHubHandler", "Application/Events", "Unchanged: ManageEventHubs, organisation filter")
+}
+Rel(home, svc, "get")
+Rel(home, dialogs, "Opens ShareHubDialog")
+Rel(share, qr, "value = hub link")
+Rel(share, dialogs, "Opens HubQrFullScreenDialog { fullScreen: true }")
+Rel(full, presenter, "Composes")
+Rel(presenter, qr, "size fill")
+Rel(svc, get, "HTTPS")
+@enduml

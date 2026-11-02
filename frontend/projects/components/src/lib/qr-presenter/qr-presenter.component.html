@@ -1,0 +1,17 @@
+<div class="ft-qr-presenter">
+  <ft-button class="ft-qr-presenter__close" (click)="close()">
+    <ft-icon name="close" /> Close full screen
+  </ft-button>
+  <h2 class="ft-qr-presenter__title" [id]="titleId">{{ heading() }}</h2>
+  @if (lead(); as text) {
+    <p class="ft-qr-presenter__lead">{{ text }}</p>
+  }
+  @if (note(); as n) {
+    <ft-alert class="ft-qr-presenter__note" status="warning" [heading]="n.heading">{{
+      n.text
+    }}</ft-alert>
+  }
+  <ft-qr-code [value]="value()" [alt]="alt()" size="fill" />
+  <p class="ft-qr-presenter__link">{{ value() }}</p>
+  <p class="ft-qr-presenter__hint">Press Esc to close</p>
+</div>

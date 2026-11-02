@@ -1,0 +1,18 @@
+@startuml
+title Someone scans the hub's code
+actor "Visitor" as visitor
+participant "HubPage" as page
+participant "Community API" as api
+participant "GetEventHubHandler" as h
+visitor -> page : scan opens https://{host}/public/events/{id}/hub
+page -> api : GET /api/events/{id}/hub/page
+api -> h : host's organisation, hub status, event visibility, caller
+alt Published hub of a public event
+  h --> page : 200 hub (anyone)
+else Published hub of a members-only event
+  h --> page : 200 for signed-in members, else 404
+else Draft hub
+  h --> page : 200 as the preview for ManageEventHubs, else 404
+end
+page --> visitor : the hub, or "This hub isn’t available"
+@enduml

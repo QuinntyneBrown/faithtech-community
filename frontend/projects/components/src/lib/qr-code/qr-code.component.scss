@@ -19,6 +19,10 @@
   --qr-size: 16rem;
 }
 
+.ft-qr-code--fill {
+  --qr-size: min(50dvh, 80vw);
+}
+
 /* The plate's padding is the quiet zone; it stays light in both themes so any camera reads it. */
 .ft-qr-code__plate {
   display: block;

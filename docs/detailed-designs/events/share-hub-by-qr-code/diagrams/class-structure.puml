@@ -1,0 +1,55 @@
+@startuml
+title Class structure — Share a hub by QR code
+package "events" {
+  class EventHubPage {
+    #share() : void
+  }
+  class ShareHubDialog {
+    #data : ShareHubData
+    #isDraft : boolean
+    #copied() : void
+    #download() : void
+    #showFullScreen() : void
+  }
+  class HubQrFullScreenDialog {
+    #data : ShareHubData
+  }
+  class ShareHubData <<interface>> {
+    +eventTitle : string
+    +link : string
+    +status : 'Draft' | 'Published'
+  }
+  class hubQrFileName <<function>> {
+    +(eventTitle : string) : string
+  }
+}
+package "components" {
+  class QrCodeComponent {
+    +value : string
+    +alt : string
+    +size : 'sm' | 'md' | 'lg' | 'fill'
+    +downloadPng(fileName) : Promise<void>
+  }
+  class QrPresenterComponent {
+    +value : string
+    +alt : string
+    +heading : string
+    +lead : string | null
+    +note : QrPresenterNote | null
+    +closed : output<void>
+  }
+  class DialogService {
+    +open(component, config, options : { wide?, fullScreen? })
+  }
+}
+EventHubPage ..> ShareHubDialog : opens
+ShareHubDialog ..> HubQrFullScreenDialog : opens
+ShareHubDialog --> QrCodeComponent
+ShareHubDialog ..> hubQrFileName
+HubQrFullScreenDialog --> QrPresenterComponent
+QrPresenterComponent --> QrCodeComponent
+ShareHubDialog ..> ShareHubData
+HubQrFullScreenDialog ..> ShareHubData
+EventHubPage ..> DialogService
+ShareHubDialog ..> DialogService
+@enduml
