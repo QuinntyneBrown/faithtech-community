@@ -399,7 +399,11 @@
         "L2-180",
         "L2-181",
         "L2-182",
-        "L2-183"
+        "L2-183",
+        "L2-188",
+        "L2-189",
+        "L2-190",
+        "L2-191"
       ],
       "states": [
         "default",
@@ -418,7 +422,12 @@
         "published-toast",
         "publish-failed",
         "unpublished-toast",
-        "hackathon"
+        "hackathon",
+        "update-live",
+        "update-posted",
+        "update-cleared",
+        "session-moved",
+        "link-swapped"
       ],
       "not_applicable": {
         "empty": "A hub always has its seven sections; an event with no hub is the no-hub state."
@@ -502,7 +511,9 @@
         "L2-180",
         "L2-181",
         "L2-182",
-        "L2-183"
+        "L2-183",
+        "L2-189",
+        "L2-192"
       ],
       "states": [
         "preview-draft",
@@ -519,7 +530,8 @@
         "not-available-anonymous",
         "hackathon",
         "slides-viewer",
-        "slides-pdf"
+        "slides-pdf",
+        "update"
       ],
       "not_applicable": {
         "default": "The page has two defaults: visitor (an anonymous visitor on a published hub of a public event, slice 44) and preview-draft (someone who manages hubs, slice 43); member is the signed-in member's view."
@@ -3247,6 +3259,60 @@
         "empty": "no-other-membership is the variant with no links.",
         "error": "A failed /api/me shows server-error instead."
       }
+    },
+    {
+      "id": "post-hub-update",
+      "kind": "dialog",
+      "title": "Post an update",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-188",
+        "L2-189"
+      ],
+      "states": [
+        "default",
+        "change",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "move-hub-session",
+      "kind": "dialog",
+      "title": "Move a session",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-188",
+        "L2-190"
+      ],
+      "states": [
+        "default",
+        "shift",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "swap-hub-link",
+      "kind": "dialog",
+      "title": "Swap a link",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-188",
+        "L2-191"
+      ],
+      "states": [
+        "default",
+        "feedback",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
     }
   ]
 }
