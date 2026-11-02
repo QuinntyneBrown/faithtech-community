@@ -1,0 +1,23 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Demo format</h3>
+  @if (line(); as l) {
+    <p>{{ l }}</p>
+  }
+  <ft-list label="Demo segments">
+    @for (segment of content()?.segments ?? []; track $index) {
+      <ft-list-item
+        [meta]="times()[$index]"
+        [label]="segment.title"
+        [description]="segment.detail"
+      />
+    }
+  </ft-list>
+  @if (content()?.tips?.length) {
+    <h4 class="section-title">Tips</h4>
+    <ft-list label="Tips">
+      @for (tip of content()!.tips; track $index) {
+        <ft-list-item [label]="tip" />
+      }
+    </ft-list>
+  }
+</section>

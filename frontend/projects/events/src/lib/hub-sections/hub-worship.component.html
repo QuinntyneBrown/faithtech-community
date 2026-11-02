@@ -1,0 +1,21 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Worship</h3>
+  @if (content()?.note; as note) {
+    <p>{{ note }}</p>
+  }
+  <ft-list label="Songs" [numbered]="true">
+    @for (song of content()?.songs ?? []; track $index) {
+      <ft-list-item [number]="'' + ($index + 1)" [label]="song.title" [description]="song.artist">
+        @if (song.url; as url) {
+          <ft-link
+            trailing
+            [href]="url"
+            [external]="true"
+            [object]="'to ' + song.title + ' (new tab)'"
+            >Listen ahead</ft-link
+          >
+        }
+      </ft-list-item>
+    }
+  </ft-list>
+</section>

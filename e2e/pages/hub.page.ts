@@ -66,4 +66,24 @@ export class HubPage {
   text(text: string): Locator {
     return this.main.getByText(text, { exact: true });
   }
+
+  /** A section of the page, by its heading. */
+  region(name: string): Locator {
+    return this.main.getByRole('region', { name, exact: true });
+  }
+
+  /** Whether an image has loaded its bytes. */
+  imageLoaded(image: Locator): Promise<boolean> {
+    return image.evaluate(
+      (img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0,
+    );
+  }
+
+  /** The status the hub's file link answers, as the page would fetch it (ADR 0042). */
+  fileStatus(eventId: string, resourceId: string): Promise<number> {
+    return this.page.evaluate(
+      async (url) => (await fetch(url)).status,
+      `/api/events/${eventId}/hub/files/${resourceId}`,
+    );
+  }
 }

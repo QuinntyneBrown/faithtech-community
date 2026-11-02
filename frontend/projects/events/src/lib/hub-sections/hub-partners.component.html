@@ -1,0 +1,22 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Partners</h3>
+  @if (content()?.meet; as meet) {
+    <p>{{ meet }}</p>
+  }
+  <ft-list label="Partners">
+    @for (partner of content()?.partners ?? []; track partner.id) {
+      <ft-list-item [label]="partner.name" [description]="partner.offering">
+        <ft-icon-tile leading name="partners" [initials]="initials(partner.name)" />
+        @if (partner.website; as site) {
+          <ft-link
+            meta
+            [href]="site"
+            [external]="true"
+            [object]="', ' + partner.name + '’s website (new tab)'"
+            >{{ host(site) }}</ft-link
+          >
+        }
+      </ft-list-item>
+    }
+  </ft-list>
+</section>
