@@ -74,3 +74,17 @@ export function numberOrNull(value: string | number | null | undefined): number 
 export function clock(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
+
+/**
+ * After a row's Remove (design system, repeat list): focus the first field of the row now at `index` in `list`, or the
+ * Add button (`add`, the `ft-button` host) when no row follows. Call it after the next render.
+ */
+export function focusAfterRemove(
+  list: HTMLElement | undefined,
+  index: number,
+  add: HTMLElement | undefined,
+): void {
+  const row = list?.querySelectorAll('ft-repeat-row')[index];
+  const field = row?.querySelector<HTMLElement>('input, textarea, select');
+  (field ?? add?.querySelector('button'))?.focus();
+}

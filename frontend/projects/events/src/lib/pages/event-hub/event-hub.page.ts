@@ -49,7 +49,17 @@ import {
   HubHeroDialog,
   HubLinksDialog,
   HubPeopleDialog,
+  HubDemoFormatDialog,
+  HubJudgingDialog,
+  HubParkingDialog,
+  HubPartnersDialog,
+  HubProcessDialog,
+  HubRulesDialog,
+  HubSlidesDialog,
+  HubTracksDialog,
   HubUpcomingDialog,
+  HubWhatToBringDialog,
+  HubWorshipDialog,
   HubVenueDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
@@ -84,10 +94,33 @@ const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
   Links: HubLinksDialog,
   Giving: HubGivingDialog,
   UpcomingEvents: HubUpcomingDialog,
+  Parking: HubParkingDialog,
+  WhatToBring: HubWhatToBringDialog,
+  Partners: HubPartnersDialog,
+  Tracks: HubTracksDialog,
+  Process: HubProcessDialog,
+  Rules: HubRulesDialog,
+  DemoFormat: HubDemoFormatDialog,
+  Judging: HubJudgingDialog,
+  Worship: HubWorshipDialog,
+  Slides: HubSlidesDialog,
 };
 
-/** The two-step wizards, opened in the wide panel (docs/mocks/dialogs/hub-agenda, hub-people). */
-const WIDE: readonly HubSectionKind[] = ['Agenda', 'People'];
+/** The wizards with rows or two steps, opened in the wide panel (docs/mocks/dialogs/hub-agenda, hub-people, hub-rules). */
+const WIDE: readonly HubSectionKind[] = [
+  'Agenda',
+  'People',
+  'Parking',
+  'WhatToBring',
+  'Partners',
+  'Tracks',
+  'Process',
+  'Rules',
+  'DemoFormat',
+  'Judging',
+  'Worship',
+  'Slides',
+];
 
 const PREVIEW: MenuEntry = {
   kind: 'item',

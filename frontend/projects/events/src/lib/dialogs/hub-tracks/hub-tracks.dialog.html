@@ -1,0 +1,149 @@
+<ft-dialog heading="Tracks" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <h3 class="section-title" [id]="questionId">Which tracks can teams choose?</h3>
+      @if (tracks.count() === 0) {
+        <p class="text-muted">No tracks yet.</p>
+      } @else {
+        <ft-repeat-list #list label="Tracks">
+          @for (row of tracks.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="tracks.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="tracks.move(i, -1)"
+              (moveDown)="tracks.move(i, 1)"
+              (remove)="removeTrack(i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Title" [error]="saver.error('tracks[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="80" />
+              </ft-form-field>
+              <ft-form-field label="Brief" [error]="saver.error('tracks[' + i + '].brief')">
+                <ft-textarea formControlName="brief" [rows]="4" [maxlength]="400" />
+              </ft-form-field>
+              <ft-form-field
+                label="Link"
+                [optional]="true"
+                [error]="saver.error('tracks[' + i + '].linkUrl')"
+              >
+                <ft-text-field formControlName="linkUrl" type="url" autocomplete="off" />
+              </ft-form-field>
+              <ft-form-field
+                label="Link text"
+                [optional]="true"
+                [error]="saver.error('tracks[' + i + '].linkText')"
+              >
+                <ft-text-field formControlName="linkText" autocomplete="off" [maxlength]="60" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <div>
+        <ft-button #add [disabled]="tracks.full" (click)="tracks.add()">Add a track</ft-button>
+      </div>
+      @if (tracks.count() > 0) {
+        <p class="text-caption">{{ tracks.count() }} of 6. You can add up to 6 tracks.</p>
+      }
+      @if (saver.error('tracks')) {
+        <ft-inline-message>{{ saver.error('tracks') }}</ft-inline-message>
+      }
+      @if (tracks.count() > 0) {
+        <ft-stack gap="2">
+          <ft-radio-group legend="Primary focus" [formControl]="primary">
+            @for (row of tracks.rows; track row; let i = $index) {
+              <ft-radio [value]="row.controls.key.value">{{
+                row.controls.title.value.trim() || tracks.heading(i)
+              }}</ft-radio>
+            }
+            <ft-radio [value]="none">No primary focus</ft-radio>
+          </ft-radio-group>
+          <p class="text-caption">The hub marks this track “Primary focus”.</p>
+        </ft-stack>
+      }
+    } @else {
+      <h3 class="section-title" [id]="questionId">What does good look like?</h3>
+      <p class="text-caption">Shown under the tracks.</p>
+      @if (good.count() > 0) {
+        <ft-repeat-list #list label="What good looks like">
+          @for (row of good.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="good.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="good.move(i, -1)"
+              (moveDown)="good.move(i, 1)"
+              (remove)="remove(good, i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Title" [error]="saver.error('goodLooksLike[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+              </ft-form-field>
+              <ft-form-field
+                label="Detail"
+                [optional]="true"
+                [error]="saver.error('goodLooksLike[' + i + '].detail')"
+              >
+                <ft-text-field formControlName="detail" autocomplete="off" [maxlength]="160" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <div>
+        <ft-button #add [disabled]="good.full" (click)="good.add()">Add a line</ft-button>
+      </div>
+      @if (good.count() > 0) {
+        <p class="text-caption">{{ good.count() }} of 6.</p>
+      }
+      @if (saver.error('goodLooksLike')) {
+        <ft-inline-message>{{ saver.error('goodLooksLike') }}</ft-inline-message>
+      }
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

@@ -1,0 +1,101 @@
+<ft-dialog
+  heading="Slides"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    @if (slideErrors().length) {
+      <ft-alert status="danger" heading="Check the slides">
+        @for (message of slideErrors(); track $index) {
+          <p>{{ message }}</p>
+        }
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">Which slides?</h3>
+    <p class="text-caption">
+      Choose a PDF or images from Resources, or upload them. Uploads are added to Resources for
+      everyone in the organisation.
+    </p>
+    <div data-choose>
+      <ft-button [disabled]="full()" (click)="chooseFromResources()"
+        >Choose from Resources</ft-button
+      >
+    </div>
+    <ft-file-dropzone
+      heading="Upload slides"
+      [accept]="accept"
+      [multiple]="true"
+      [disabled]="full()"
+      [invalid]="!!fileError()"
+      (filesChosen)="filesChosen($event)"
+    />
+    @if (fileError()) {
+      <ft-inline-message>{{ fileError() }}</ft-inline-message>
+    }
+    @if (uploads().length) {
+      <ft-list label="Uploading slides">
+        @for (u of uploads(); track u) {
+          <ft-file-row
+            [name]="u.name"
+            [status]="u.status"
+            [progress]="u.progress"
+            [error]="u.status === 'failed' ? 'Check your connection and try again.' : null"
+            (removed)="removeUpload(u)"
+          />
+        }
+      </ft-list>
+    }
+
+    <p class="text-caption" role="status">{{ countLine() }}</p>
+    @if (slides().length === 0) {
+      <ft-empty-state
+        size="sm"
+        icon="deck"
+        [headingLevel]="3"
+        heading="No slides yet."
+        text="Add a PDF or images. Visitors see them one after another."
+      />
+    } @else {
+      <ft-repeat-list label="Slides, in order">
+        @for (s of slides(); track s.key; let i = $index, first = $first, last = $last) {
+          <ft-repeat-row
+            [heading]="heading(i)"
+            [object]="s.title"
+            [first]="first"
+            [last]="last"
+            (moveUp)="move(i, -1)"
+            (moveDown)="move(i, 1)"
+            (remove)="remove(i)"
+          >
+            <div class="slide">
+              <ft-icon-tile [name]="s.kind === 'Pdf' ? 'document' : 'image'" [src]="s.thumbnail" />
+              <div class="slide__text">
+                <span>{{ s.title }}</span>
+                <span class="text-caption"
+                  >{{ s.kind === 'Pdf' ? 'PDF' : 'Image' }} · from Resources</span
+                >
+              </div>
+            </div>
+          </ft-repeat-row>
+        }
+      </ft-repeat-list>
+    }
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    variant="primary"
+    [disabled]="uploading() > 0"
+    [loading]="saver.busy()"
+    (click)="save()"
+    >{{ saver.busy() ? 'Saving…' : 'Save' }}</ft-button
+  >
+</ft-dialog>

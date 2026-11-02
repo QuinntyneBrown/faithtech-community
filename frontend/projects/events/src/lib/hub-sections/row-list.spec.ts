@@ -1,7 +1,7 @@
 // Traces to: L2-172 AC3 (docs/detailed-designs/events/build-hackathon-hub)
 import { FormControl, FormGroup } from '@angular/forms';
 
-import { RowList, clock, numberOrNull, textOrNull } from './row-list';
+import { RowList, clock, focusAfterRemove, numberOrNull, textOrNull } from './row-list';
 
 const rules = () =>
   new RowList(
@@ -46,5 +46,34 @@ describe('row values', () => {
     expect(numberOrNull('90')).toBe(90);
     expect(clock(210)).toBe('3:30');
     expect(clock(180)).toBe('3:00');
+  });
+});
+
+describe('focusAfterRemove', () => {
+  function page(rows: string[]) {
+    document.body.innerHTML = `
+      <ol id="list">${rows
+        .map((r) => `<ft-repeat-row><button>Remove</button><input id="${r}" /></ft-repeat-row>`)
+        .join('')}</ol>
+      <ft-button id="add"><button>Add a rule</button></ft-button>`;
+    return {
+      list: document.getElementById('list')!,
+      add: document.getElementById('add')!,
+    };
+  }
+
+  it('moves focus to the first field of the row that took the removed row’s place', () => {
+    const { list, add } = page(['first', 'second']);
+    focusAfterRemove(list, 1, add);
+    expect(document.activeElement?.id).toBe('second');
+  });
+
+  it('moves focus to the Add button when no row follows', () => {
+    const { list, add } = page(['first']);
+    focusAfterRemove(list, 1, add);
+    expect(document.activeElement?.textContent).toBe('Add a rule');
+
+    focusAfterRemove(undefined, 0, add);
+    expect(document.activeElement?.textContent).toBe('Add a rule');
   });
 });

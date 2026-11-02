@@ -1,0 +1,128 @@
+<ft-dialog
+  heading="What to bring"
+  [describedBy]="statusId"
+  [busy]="!!busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <h3 class="section-title" [id]="questionId">What should people bring?</h3>
+      @if (bring.count() === 0) {
+        <p class="text-muted">Nothing to bring yet.</p>
+      } @else {
+        <ft-repeat-list #list label="Things to bring">
+          @for (row of bring.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="itemName(i)"
+              [object]="row.controls.text.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="bring.move(i, -1)"
+              (moveDown)="bring.move(i, 1)"
+              (remove)="remove(bring, i)"
+              [formGroup]="row"
+            >
+              <ft-form-field
+                [label]="itemName(i)"
+                [labelHidden]="true"
+                [error]="saver.error('bring[' + i + ']')"
+              >
+                <ft-text-field formControlName="text" autocomplete="off" [maxlength]="120" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <div>
+        <ft-button #add [disabled]="bring.full" (click)="bring.add()">Add an item</ft-button>
+      </div>
+      @if (bring.count() > 0) {
+        <p class="text-caption">{{ bring.count() }} of 15. You can add up to 15 items.</p>
+      }
+      @if (saver.error('bring')) {
+        <ft-inline-message>{{ saver.error('bring') }}</ft-inline-message>
+      }
+    } @else {
+      <h3 class="section-title" [id]="questionId">What should people expect on the day?</h3>
+      <p class="text-caption">Shown under “On the day”.</p>
+      @if (onTheDay.count() > 0) {
+        <ft-repeat-list #list label="On the day">
+          @for (row of onTheDay.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="onTheDay.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="onTheDay.move(i, -1)"
+              (moveDown)="onTheDay.move(i, 1)"
+              (remove)="remove(onTheDay, i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Title" [error]="saver.error('onTheDay[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+              </ft-form-field>
+              <ft-form-field
+                label="Detail"
+                [optional]="true"
+                [error]="saver.error('onTheDay[' + i + '].detail')"
+              >
+                <ft-text-field formControlName="detail" autocomplete="off" [maxlength]="160" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <div>
+        <ft-button #add [disabled]="onTheDay.full" (click)="onTheDay.add()">Add a line</ft-button>
+      </div>
+      @if (onTheDay.count() > 0) {
+        <p class="text-caption">{{ onTheDay.count() }} of 10.</p>
+      }
+      @if (saver.error('onTheDay')) {
+        <ft-inline-message>{{ saver.error('onTheDay') }}</ft-inline-message>
+      }
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

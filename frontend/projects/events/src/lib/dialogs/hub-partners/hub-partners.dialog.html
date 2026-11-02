@@ -1,0 +1,76 @@
+<ft-dialog
+  heading="Partners"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">Which partners are you building with?</h3>
+
+    @if (loadFailed()) {
+      <ft-alert status="danger" heading="We couldn’t load your partners">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="load()">Try again</ft-button>
+      </ft-alert>
+    } @else if (partners() === null) {
+      <ft-list-skeleton label="Loading partners…" [rows]="3" />
+    } @else if (partners()!.length === 0) {
+      <ft-empty-state
+        size="sm"
+        icon="partners"
+        [headingLevel]="3"
+        heading="There are no partners yet. Add them in Partners."
+      >
+        <ft-button actions variant="primary" href="/partners">Go to Partners</ft-button>
+      </ft-empty-state>
+    } @else {
+      <ft-form-field label="Search partners">
+        <ft-text-field type="search" [formControl]="search" autocomplete="off" />
+      </ft-form-field>
+      <ft-checkbox-group
+        legend="Partners"
+        [formControl]="picked"
+        [error]="saver.error('partnerIds')"
+      >
+        @for (p of shown(); track p.id) {
+          <ft-checkbox [value]="p.id" [description]="p.offering ?? ''">
+            <span class="partner"
+              ><ft-icon-tile name="partners" size="sm" [initials]="p.initials" />{{ p.name }}</span
+            >
+          </ft-checkbox>
+        } @empty {
+          <ft-empty-state
+            size="sm"
+            icon="search"
+            [headingLevel]="3"
+            [heading]="noMatch()"
+            text="Check the spelling, or add them in Partners first."
+          >
+            <ft-button actions (click)="clearSearch()">Clear search</ft-button>
+          </ft-empty-state>
+        }
+      </ft-checkbox-group>
+      <p class="text-caption" role="status">{{ countLine() }}</p>
+    }
+
+    <ft-form-field
+      label="Meet our partner"
+      [optional]="true"
+      help="Shown under the partners"
+      [error]="saver.error('meet')"
+    >
+      <ft-textarea [formControl]="meet" [rows]="3" [maxlength]="400" />
+    </ft-form-field>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>

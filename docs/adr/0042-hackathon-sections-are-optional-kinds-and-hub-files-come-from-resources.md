@@ -26,7 +26,7 @@ from Partners, and how FaithTech's existing Hackathon template gains the new def
 - **Kinds stay one enum, stored as strings.** The enum is reordered into catalogue order; nothing stores its numbers. The
   core set is a list beside it, not a property of the database.
 - **Images and slides are Resources.** Parking maps and slides are resource ids. The wizard picks from Resources or uploads
-  through the Resources API, which files the upload as a shared resource owned by the lead, so it can be found and reused.
+  through the Resources API, which files the upload as an organisation-wide (Global) resource owned by the lead, so it can be found and reused. (Shared needs a named audience, which an upload from a wizard does not have.)
   Visitors get the bytes through the hub: `GET /api/events/{id}/hub/files/{resourceId}` (and `/thumbnail`) answers only for a
   resource a shown section of that hub names, to exactly the callers who may see the hub's page (ADR 0040). Putting a
   resource on a published hub is the lead's decision to show it, so the resource's own visibility does not apply there, and no

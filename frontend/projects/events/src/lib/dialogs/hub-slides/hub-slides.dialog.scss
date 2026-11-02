@@ -1,0 +1,16 @@
+/* A slide's thumbnail beside its title and kind. */
+.slide {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-inline-size: 0;
+}
+
+.slide__text {
+  display: grid;
+  min-inline-size: 0;
+}
+
+p {
+  margin: 0;
+}

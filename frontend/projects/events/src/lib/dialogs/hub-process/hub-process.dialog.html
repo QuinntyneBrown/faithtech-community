@@ -1,0 +1,114 @@
+<ft-dialog heading="Process" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <h3 class="section-title" [id]="questionId">What do you call your process?</h3>
+      <ft-form-field
+        label="Name"
+        [optional]="true"
+        help="For example, “The Create Cycle”"
+        [error]="saver.error('name')"
+      >
+        <ft-text-field [formControl]="name" autocomplete="off" [maxlength]="60" />
+      </ft-form-field>
+      <ft-form-field label="Introduction" [optional]="true" [error]="saver.error('intro')">
+        <ft-textarea [formControl]="intro" [rows]="3" [maxlength]="300" />
+      </ft-form-field>
+    } @else {
+      <h3 class="section-title" [id]="questionId">Stages</h3>
+      @if (stages.count() > 0) {
+        <ft-repeat-list #list label="Stages">
+          @for (row of stages.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="stages.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="stages.move(i, -1)"
+              (moveDown)="stages.move(i, 1)"
+              (remove)="remove(i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Title" [error]="saver.error('stages[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="40" />
+              </ft-form-field>
+              <ft-form-field
+                label="When"
+                [optional]="true"
+                help="For example, “10:30 to 11:00”"
+                [error]="saver.error('stages[' + i + '].when')"
+              >
+                <ft-text-field formControlName="when" autocomplete="off" [maxlength]="40" />
+              </ft-form-field>
+              <ft-form-field
+                label="Summary"
+                [optional]="true"
+                [error]="saver.error('stages[' + i + '].summary')"
+              >
+                <ft-text-field formControlName="summary" autocomplete="off" [maxlength]="160" />
+              </ft-form-field>
+              <ft-form-field
+                label="Points"
+                [optional]="true"
+                [help]="pointsHelp(row.controls.points.value)"
+                [error]="pointsError(i)"
+              >
+                <ft-textarea formControlName="points" [rows]="4" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <div>
+        <ft-button #add [disabled]="stages.full" (click)="stages.add()">Add a stage</ft-button>
+      </div>
+      @if (stages.count() > 0) {
+        <p class="text-caption">{{ stages.count() }} of 8.</p>
+      }
+      @if (saver.error('stages')) {
+        <ft-inline-message>{{ saver.error('stages') }}</ft-inline-message>
+      }
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>
