@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit hub templates
+Container_Boundary(spa, "Web app") {
+  Component(shell, "App routes", "Angular (app)", "organisationRoutes([hub-templates]) lazy-loads the events pages")
+  Component(list, "HubTemplatesPage", "Angular page (events)", "Active / Archived list, add, rename, archive, restore")
+  Component(page, "HubTemplatePage", "Angular page (events)", "Sections with Shown/Hidden and default summary; Choose sections; Edit default text")
+  Component(wizards, "Section wizards", "Angular dialogs (events)", "The hub's wizards, saving through HubSectionWizardData.template")
+  Component(svc, "HubTemplatesService / HUB_TEMPLATES_SERVICE", "Contract and token (api)", "list, get, add, rename, setSections, saveDefault, archive, restore")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "HubTemplatesEndpoints", "Minimal API", "/api/hub-templates")
+  Component(h, "ManageHubTemplatesHandler", "Application/Events", "Capabilities, names, sections, defaults validated by HubContent; audited")
+  Component(tpl, "HubTemplate", "Domain/Events", "Describe, ReplaceSections, Archive, Restore, MoveTo")
+  Component(start, "StartEventHubHandler / ListHubTemplatesHandler", "Application/Events", "Skip archived templates")
+}
+Rel(shell, list, "Routes")
+Rel(shell, page, "Routes")
+Rel(page, wizards, "Opens with the template's stand-in hub")
+Rel(list, svc, "Calls")
+Rel(page, svc, "Calls")
+Rel(wizards, svc, "saveDefault via template.save")
+Rel(svc, ep, "HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(h, tpl, "Changes")
+Rel(start, tpl, "Reads active templates")
+@enduml

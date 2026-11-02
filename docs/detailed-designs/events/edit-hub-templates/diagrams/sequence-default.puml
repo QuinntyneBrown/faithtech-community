@@ -1,0 +1,32 @@
+@startuml
+title Edit a section's default text
+actor "Organisation administrator" as admin
+participant "HubTemplatePage" as page
+participant "Section wizard" as w
+participant "Community API" as api
+participant "ManageHubTemplatesHandler" as h
+participant "HubTemplate" as t
+admin -> page : open Hackathon
+page -> api : GET /api/hub-templates/{id}
+api --> page : sections with defaults (Agenda in minutes)
+page -> page : stand-in hub: event at 9:00 am today, minutes -> instants
+admin -> page : Edit default text (Process)
+page -> w : open with { hub, template: { name, save } }
+admin -> w : edit stages, Save
+w -> api : PUT /api/hub-templates/{id}/sections/Process (via template.save)
+api -> h : SaveDefaultAsync
+alt ManageOrganisationSettings, active template, kind takes a default, content valid
+  h -> t : ReplaceSections(sections with new content)
+  h -> h : audit hub_template.updated
+  h --> api : 204
+  api --> w : 204
+  w --> page : closed(true)
+  page --> admin : toast "Process saved"
+else invalid content
+  h --> api : 400 errors keyed by path
+  api --> w : 400
+  w --> admin : messages on the fields
+else no capability / other organisation or archived
+  h --> api : 403 / 404
+end
+@enduml

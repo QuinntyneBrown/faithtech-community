@@ -1454,13 +1454,15 @@
       "requirements": [
         "L2-157",
         "L2-158",
-        "L2-163"
+        "L2-163",
+        "L2-186"
       ],
       "states": [
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "template"
       ],
       "not_applicable": {}
     },
@@ -1472,7 +1474,8 @@
       "requirements": [
         "L2-157",
         "L2-159",
-        "L2-163"
+        "L2-163",
+        "L2-186"
       ],
       "states": [
         "default",
@@ -1485,7 +1488,8 @@
         "invalid",
         "review",
         "busy",
-        "failed"
+        "failed",
+        "template"
       ],
       "not_applicable": {}
     },
@@ -2859,6 +2863,53 @@
       }
     },
     {
+      "id": "organisation-hub-templates",
+      "kind": "page",
+      "title": "Organisation: Hub templates",
+      "route": "/organisation/hub-templates",
+      "requirements": [
+        "L2-184",
+        "L2-185"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "read-only",
+        "archived",
+        "archived-empty",
+        "added",
+        "archived-toast",
+        "restored"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "organisation-hub-template",
+      "kind": "page",
+      "title": "Organisation: Hub template",
+      "route": "/organisation/hub-templates/{id}",
+      "requirements": [
+        "L2-184",
+        "L2-186",
+        "L2-187"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "not-found",
+        "read-only",
+        "archived",
+        "saved",
+        "sections-saved"
+      ],
+      "not_applicable": {
+        "empty": "A template always lists the seven core sections, so it is never empty."
+      }
+    },
+    {
       "id": "edit-general-settings",
       "kind": "dialog",
       "title": "Edit general settings",
@@ -3071,6 +3122,57 @@
         "invalid": "A confirmation with no input; the API's refusal is the in-use state."
       },
       "opens_from": "organisation-taxonomies"
+    },
+    {
+      "id": "hub-template-name",
+      "kind": "dialog",
+      "title": "Hub template name",
+      "opens_from": "organisation-hub-templates",
+      "requirements": [
+        "L2-185"
+      ],
+      "states": [
+        "default",
+        "rename",
+        "invalid",
+        "invalid-empty",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "archive-hub-template",
+      "kind": "dialog",
+      "title": "Archive hub template",
+      "opens_from": "organisation-hub-templates",
+      "requirements": [
+        "L2-185"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Archiving takes no input; it can only fail to reach the server."
+      }
+    },
+    {
+      "id": "hub-template-sections",
+      "kind": "dialog",
+      "title": "Choose template sections",
+      "opens_from": "organisation-hub-template",
+      "requirements": [
+        "L2-186"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
     },
     {
       "id": "account-menu",

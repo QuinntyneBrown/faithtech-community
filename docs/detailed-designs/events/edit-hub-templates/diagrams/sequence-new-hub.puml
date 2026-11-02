@@ -1,0 +1,19 @@
+@startuml
+title New hubs use the edit; existing hubs do not change
+actor "Hub manager" as lead
+participant "CreateEventHubDialog" as w
+participant "Community API" as api
+participant "StartEventHubHandler" as h
+database "Database" as db
+lead -> w : step 2
+w -> api : GET /api/event-hubs/templates
+api -> db : active templates only
+api --> w : templates under their current names
+lead -> w : choose Hackathon, Next
+w -> api : POST /api/events/{id}/hub/start { templateId }
+api -> h : HandleAsync
+h -> db : read the template as edited
+h -> h : copy sections and defaults into this hub
+h --> api : EventHubDto
+note right of db : Hubs started earlier hold their own copy;\nno hub references a template's content.
+@enduml

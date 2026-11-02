@@ -89,7 +89,7 @@ They change `L2-153` AC4 (step 2) and `L2-155` AC5 (the save's starting point), 
 
 ## Open questions
 
-- **Editing templates** (slice 47). Deferred; the seed's defaults are trusted until an editor validates them.
+- **Editing templates** (slice 47). Done in `events/edit-hub-templates` (ADR 0043).
 - **Hackathon section kinds** (slice 46). The templates fill only the phase 1 kinds; slice 46 adds defaults for the kinds it builds.
-- **Who edits templates** (proposal open question 3). Decided in slice 47.
+- **Who edits templates** (proposal open question 3). Holders of `ManageOrganisationSettings` (ADR 0043).
 - **Template rows past the event's end.** Applying Hackathon (about nine hours of agenda) to an evening event leaves rows after the end. They are kept: the Agenda wizard already marks each "Outside the event’s times", and the lead deletes or moves them. Dropping them silently would hide what the template meant (mocks open question 28).
