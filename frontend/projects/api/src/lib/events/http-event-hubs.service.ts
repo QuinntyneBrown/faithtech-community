@@ -89,6 +89,14 @@ export class HttpEventHubsService implements EventHubsService {
     });
   }
 
+  archive(eventId: string, timeZone: string): Observable<Blob> {
+    return this.http.get(`${this.api}/events/${eventId}/hub/archive`, {
+      params: { timeZone },
+      responseType: 'blob',
+      context: this.wizard,
+    });
+  }
+
   unpublish(eventId: string): Observable<void> {
     return this.http.post<void>(`${this.api}/events/${eventId}/hub/unpublish`, null, {
       context: this.wizard,

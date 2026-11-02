@@ -60,6 +60,7 @@ import {
   UnpublishHubData,
   UnpublishHubDialog,
 } from '../../dialogs';
+import { fileSlug, saveFile } from '../../download';
 import { HubSectionWizardData, hubSection, sectionContent } from '../../hub-sections';
 import { HUB_WIZARDS as WIZARDS, WIDE_HUB_WIZARDS as WIDE } from '../hub-wizards';
 
@@ -127,6 +128,7 @@ export class EventHubPage {
   protected readonly state = signal<State>('loading');
   protected readonly hub = signal<EventHubDto | null>(null);
   protected readonly publishing = signal(false);
+  protected readonly archiving = signal(false);
   protected readonly clearing = signal(false);
   /** Move a session is offered only when the Agenda is shown and has rows (L2-188 AC3). */
   protected readonly agendaRows = computed(() => {
@@ -364,6 +366,33 @@ export class EventHubPage {
   protected share(hub: EventHubDto): void {
     this.dialogs.open<void, ShareHubData>(ShareHubDialog, {
       data: { eventTitle: hub.event.title, link: hub.link, status: hub.status },
+    });
+  }
+
+  /** Download archive (L2-196): the hub as a zip, its times in the browser's time zone; a failure offers Try again. */
+  protected async downloadArchive(hub: EventHubDto): Promise<void> {
+    if (this.archiving()) return;
+    this.archiving.set(true);
+    const fileName = `${fileSlug(hub.event.title)}-hub.zip`;
+    try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      saveFile(await firstValueFrom(this.hubs.archive(this.id(), timeZone)), fileName);
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t make the archive',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.downloadArchive(hub),
+      });
+      return;
+    } finally {
+      this.archiving.set(false);
+    }
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Archive downloaded',
+      text: `${fileName} is in your downloads.`,
     });
   }
 

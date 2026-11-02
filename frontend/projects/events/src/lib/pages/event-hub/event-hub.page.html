@@ -84,6 +84,10 @@
               <ft-icon name="read-only-view" /> Preview
             </ft-button>
             <ft-button (click)="share(h)"><ft-icon name="qr" /> Share</ft-button>
+            <ft-button [loading]="archiving()" (click)="downloadArchive(h)">
+              <ft-icon name="download" />
+              {{ archiving() ? 'Preparing archive…' : 'Download archive' }}
+            </ft-button>
             @if (h.status === 'Published') {
               <ft-button (click)="unpublish()">Unpublish</ft-button>
             } @else {

@@ -143,6 +143,10 @@ export class MockEventHubs {
   /** The next create, save, section save or reorder answers 500, to drive "Try again". */
   private failSave = false;
   private failLoad = false;
+  private failArchive = false;
+  private archiveHold: Promise<void> | null = null;
+  /** Each archive request answered, with the time zone it carried (L2-196 AC5). */
+  readonly archiveRequests: { eventId: string; timeZone: string | null }[] = [];
   private directory: EventHubsDirectory = {
     organisation: () => ({ name: 'FaithTech Community', shortName: 'FaithTech' }),
     member: () => undefined,
@@ -287,6 +291,18 @@ export class MockEventHubs {
     this.failSave = true;
   }
 
+  /** Makes the next archive download fail with 500 (L2-196 AC4). */
+  failNextArchive(): void {
+    this.failArchive = true;
+  }
+
+  /** Holds the next archive's answer until the returned function is called, to see the busy state (L2-196 AC2). */
+  holdNextArchive(): () => void {
+    let release = () => {};
+    this.archiveHold = new Promise<void>((resolve) => (release = resolve));
+    return release;
+  }
+
   /** Makes the next read of a hub fail with 500, for the hub page's failed state. */
   failNextLoad(): void {
     this.failLoad = true;
@@ -358,6 +374,8 @@ export class MockEventHubs {
     }
     const file = /^\/api\/events\/([^/]+)\/hub\/files\/([^/]+)(\/thumbnail)?$/.exec(url.pathname);
     if (file) return method === 'GET' && this.file(route, file[1], file[2], !!file[3], caller);
+    const archive = /^\/api\/events\/([^/]+)\/hub\/archive$/.exec(url.pathname);
+    if (archive) return method === 'GET' && this.archive(route, archive[1], url, caller);
     const match =
       /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page|start|update))?$/.exec(
         url.pathname,
@@ -1019,6 +1037,48 @@ export class MockEventHubs {
     return route.fulfill({ status: 204 });
   }
 
+  /**
+   * GET /api/events/{id}/hub/archive (L2-197, L2-198, ADR 0046): ManageEventHubs only; a small zip named after the event,
+   * audited as event_hub.archived. The zip's contents are the server's (Infrastructure tests); this one holds a short page.
+   */
+  private async archive(
+    route: Route,
+    eventId: string,
+    url: URL,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
+    const event = this.context.event(eventId);
+    const hub = event && this.of(event.id);
+    if (!event || !hub) return route.fulfill({ status: 404 });
+    const timeZone = url.searchParams.get('timeZone');
+    this.archiveRequests.push({ eventId, timeZone });
+    const hold = this.archiveHold;
+    this.archiveHold = null;
+    if (hold) await hold;
+    if (this.failArchive) {
+      this.failArchive = false;
+      return route.fulfill({ status: 500 });
+    }
+    const folder = `${slug(event.title)}-hub`;
+    this.context.addAuditEntry({
+      action: 'event_hub.archived',
+      summary: `Downloaded the archive of the hub for ${event.title}`,
+      actorId: caller.profileId,
+      targetType: 'EventHub',
+      targetId: hub.id,
+    });
+    return route.fulfill({
+      status: 200,
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Disposition': `attachment; filename=${folder}.zip; filename*=UTF-8''${folder}.zip`,
+      },
+      body: storedZip(`${folder}/index.html`, `<!doctype html><title>${event.title} hub</title>`),
+    });
+  }
+
   /** Only an action allowed by AdministerOrganisation alone is audited (L2-155 AC2, L2-157 AC5). */
   private audit(action: string, summary: string, hub: MockEventHub, caller: EventsCaller): void {
     if (!isOverride(caller, 'ManageEventHubs')) return;
@@ -1036,4 +1096,52 @@ export class MockEventHubs {
     this.failSave = false;
     return fail;
   }
+}
+
+/** The same slug as the server's EventFileNames: lower-case ASCII words joined by hyphens, at most 60 characters. */
+function slug(title: string): string {
+  const words = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return words.slice(0, 60).replace(/-+$/, '') || 'event';
+}
+
+/** A one-entry zip with the entry stored, not compressed: enough for the browser to save a real zip. */
+function storedZip(name: string, text: string): Buffer {
+  const data = Buffer.from(text, 'utf8');
+  const file = Buffer.from(name, 'utf8');
+  const crc = crc32(data);
+  const local = Buffer.alloc(30);
+  local.writeUInt32LE(0x04034b50, 0);
+  local.writeUInt16LE(20, 4);
+  local.writeUInt32LE(crc, 14);
+  local.writeUInt32LE(data.length, 18);
+  local.writeUInt32LE(data.length, 22);
+  local.writeUInt16LE(file.length, 26);
+  const central = Buffer.alloc(46);
+  central.writeUInt32LE(0x02014b50, 0);
+  central.writeUInt16LE(20, 4);
+  central.writeUInt16LE(20, 6);
+  central.writeUInt32LE(crc, 16);
+  central.writeUInt32LE(data.length, 20);
+  central.writeUInt32LE(data.length, 24);
+  central.writeUInt16LE(file.length, 28);
+  const centralAt = local.length + file.length + data.length;
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(1, 8);
+  end.writeUInt16LE(1, 10);
+  end.writeUInt32LE(central.length + file.length, 12);
+  end.writeUInt32LE(centralAt, 16);
+  return Buffer.concat([local, file, data, central, file, end]);
+}
+
+function crc32(bytes: Buffer): number {
+  let crc = 0xffffffff;
+  for (const byte of bytes) {
+    crc ^= byte;
+    for (let k = 0; k < 8; k++) crc = crc & 1 ? (crc >>> 1) ^ 0xedb88320 : crc >>> 1;
+  }
+  return (crc ^ 0xffffffff) >>> 0;
 }
