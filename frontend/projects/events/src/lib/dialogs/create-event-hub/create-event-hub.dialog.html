@@ -94,7 +94,7 @@
           [hint]="sectionsHint()"
           [formControl]="shown"
         >
-          @for (section of sections; track section.kind) {
+          @for (section of sections(); track section.kind) {
             <ft-checkbox [value]="section.kind" [description]="section.line">{{
               section.title
             }}</ft-checkbox>

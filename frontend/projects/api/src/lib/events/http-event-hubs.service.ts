@@ -93,4 +93,8 @@ export class HttpEventHubsService implements EventHubsService {
       context: this.wizard,
     });
   }
+
+  fileUrl(eventId: string, resourceId: string, thumbnail = false): string {
+    return `${this.api}/events/${eventId}/hub/files/${resourceId}${thumbnail ? '/thumbnail' : ''}`;
+  }
 }

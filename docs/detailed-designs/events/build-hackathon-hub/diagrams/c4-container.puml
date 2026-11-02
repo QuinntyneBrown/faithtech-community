@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Build a hackathon hub
+Person(lead, "Lead")
+Person(visitor, "Visitor")
+System_Boundary(c, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "events library: ten section wizards and displays; api library: hub, partner and resource services")
+  Container(api, "Community API", "ASP.NET Core", "Section content, hub files, templates")
+  ContainerDb(db, "Database", "PostgreSQL", "EventHubs, HubSections (jsonb), HubTemplates, Partners, Resources")
+}
+System_Ext(blob, "Azure Blob storage")
+Rel(lead, spa, "Uses")
+Rel(visitor, spa, "Opens the hub page")
+Rel(spa, api, "JSON over HTTPS")
+Rel(api, db, "EF Core, filtered by organisation")
+Rel(api, blob, "Resource files")
+@enduml

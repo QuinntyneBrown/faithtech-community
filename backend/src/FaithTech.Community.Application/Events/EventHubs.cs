@@ -203,8 +203,41 @@ public class GetEventHubHandler(
         HubSectionKind.Giving => HubContent.Read<GivingContent>(section.Content),
         HubSectionKind.UpcomingEvents => new UpcomingEventsContent(
             HubContent.Read<UpcomingEventsContent>(section.Content).Count ?? HubContent.DefaultUpcoming),
-        _ => new { },
+        HubSectionKind.Partners => await PartnersAsync(HubContent.Read<PartnersContent>(section.Content), cancellationToken),
+        HubSectionKind.Parking => await ParkingAsync(HubContent.Read<ParkingContent>(section.Content), cancellationToken),
+        HubSectionKind.Slides => await SlidesAsync(HubContent.Read<SlidesContent>(section.Content), cancellationToken),
+        _ => HubContent.ReadAs(section.Kind, section.Content),
     };
+
+    /// <summary>Partners are read live; one archived or merged away drops out (L2-175 AC3).</summary>
+    private async Task<HubPartnersDto> PartnersAsync(PartnersContent content, CancellationToken cancellationToken)
+    {
+        var ids = (content.PartnerIds ?? []).Distinct().ToList();
+        var partners = await db.Partners.AsNoTracking().Where(p => ids.Contains(p.Id) && p.ArchivedAtUtc == null)
+            .ToDictionaryAsync(p => p.Id, cancellationToken);
+        return new HubPartnersDto(
+            [.. ids.Where(partners.ContainsKey).Select(id => partners[id]).Select(p => new HubPartnerDto(p.Id, p.Name, p.Offering, p.Website))],
+            content.Meet);
+    }
+
+    /// <summary>Each option names its map; a map no longer in Resources is left off the option (L2-173 AC3).</summary>
+    private async Task<HubParkingDto> ParkingAsync(ParkingContent content, CancellationToken cancellationToken)
+    {
+        var options = content.Options ?? [];
+        var maps = await HubFiles.FindAsync(db.Resources, [.. options.Where(o => o.MapResourceId is not null).Select(o => o.MapResourceId!.Value)], cancellationToken);
+        return new HubParkingDto(content.Note, [.. options.Select(o =>
+            o.MapResourceId is { } id && maps.TryGetValue(id, out var map)
+                ? new HubParkingOptionDto(o.Title, o.Notes, id, map.Resource.Title)
+                : new HubParkingOptionDto(o.Title, o.Notes, null, null))]);
+    }
+
+    /// <summary>Slides in order with their title and kind; one no longer in Resources drops out (L2-182 AC2).</summary>
+    private async Task<HubSlidesDto> SlidesAsync(SlidesContent content, CancellationToken cancellationToken)
+    {
+        var ids = (content.Slides ?? []).Where(s => s.ResourceId is not null).Select(s => s.ResourceId!.Value).ToList();
+        var found = await HubFiles.FindAsync(db.Resources, ids, cancellationToken);
+        return new HubSlidesDto([.. ids.Where(found.ContainsKey).Select(id => new HubSlideDto(id, found[id].Resource.Title, found[id].Kind))]);
+    }
 
     /// <summary>Members are read from Profiles each time; a profile that no longer exists here drops out (L2-161 AC2).</summary>
     private async Task<HubPeopleDto> PeopleAsync(PeopleContent content, bool withProfileIds, CancellationToken cancellationToken)
@@ -274,6 +307,12 @@ public class SaveEventHubHandler(IApplicationDbContext db, EventPermissions perm
         {
             EventHubRules.TryParseKind(section.Kind, out var kind);
             visibility[kind] = section.Visible;
+        }
+
+        // L2-172 AC4: only the hub's own sections can be shown or hidden.
+        if (visibility.Keys.Any(kind => !hub.Holds(kind)))
+        {
+            return Result.Invalid("sections", "Choose sections from the list.");
         }
 
         hub.Save(command.TemplateKey, visibility, time.GetUtcNow());

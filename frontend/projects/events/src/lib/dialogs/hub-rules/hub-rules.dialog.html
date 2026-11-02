@@ -1,0 +1,60 @@
+<ft-dialog
+  heading="Rules"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">What rules do teams build by?</h3>
+    <p class="text-caption">The hub numbers them 01, 02 and so on, in this order.</p>
+    @if (rules.count() === 0) {
+      <p class="text-muted">No rules yet.</p>
+    } @else {
+      <ft-repeat-list #list label="Rules">
+        @for (row of rules.rows; track row; let i = $index, first = $first, last = $last) {
+          <ft-repeat-row
+            [heading]="rules.heading(i)"
+            [object]="row.controls.title.value"
+            [first]="first"
+            [last]="last"
+            (moveUp)="rules.move(i, -1)"
+            (moveDown)="rules.move(i, 1)"
+            (remove)="remove(i)"
+            [formGroup]="row"
+          >
+            <ft-form-field label="Title" [error]="saver.error('rules[' + i + '].title')">
+              <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+            </ft-form-field>
+            <ft-form-field
+              label="Detail"
+              [optional]="true"
+              [error]="saver.error('rules[' + i + '].detail')"
+            >
+              <ft-text-field formControlName="detail" autocomplete="off" [maxlength]="160" />
+            </ft-form-field>
+          </ft-repeat-row>
+        }
+      </ft-repeat-list>
+    }
+    <div>
+      <ft-button #add [disabled]="rules.full" (click)="rules.add()">Add a rule</ft-button>
+    </div>
+    @if (saver.error('rules')) {
+      <ft-inline-message>{{ saver.error('rules') }}</ft-inline-message>
+    }
+    <ft-form-field label="Note" [optional]="true" [error]="saver.error('note')">
+      <ft-textarea [formControl]="note" [rows]="3" [maxlength]="300" />
+    </ft-form-field>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>

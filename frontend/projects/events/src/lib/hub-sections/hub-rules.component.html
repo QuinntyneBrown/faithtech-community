@@ -1,0 +1,11 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Rules</h3>
+  <ft-list label="Rules" [numbered]="true">
+    @for (rule of content()?.rules ?? []; track $index) {
+      <ft-list-item [number]="number($index)" [label]="rule.title" [description]="rule.detail" />
+    }
+  </ft-list>
+  @if (content()?.note; as note) {
+    <p>{{ note }}</p>
+  }
+</section>

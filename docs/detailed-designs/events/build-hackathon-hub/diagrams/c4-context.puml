@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Build a hackathon hub
+Person(lead, "Lead", "Holds ManageEventHubs; fills in the hackathon sections")
+Person(visitor, "Visitor", "Member, or anonymous for a public event's published hub")
+System(community, "FaithTech Community", "Hubs, sections, templates; reads Partners and Resources")
+System_Ext(blob, "Azure Blob storage", "Resource files: parking maps and slides")
+Rel(lead, community, "Fills in Parking, Tracks, Judging and the rest", "HTTPS")
+Rel(visitor, community, "Reads the hub page, maps and slides", "HTTPS")
+Rel(community, blob, "Reads and writes files")
+@enduml

@@ -1,0 +1,78 @@
+@if (slide(); as current) {
+  <figure
+    class="ft-slide-viewer__stage"
+    [attr.role]="multiple() ? 'group' : null"
+    [attr.aria-roledescription]="multiple() ? 'slide' : null"
+    [attr.aria-label]="multiple() ? position() + 1 + ' of ' + count() : null"
+    (touchstart)="onTouchStart($event)"
+    (touchend)="onTouchEnd($event)"
+  >
+    @if (imageState() === 'failed') {
+      <p class="ft-slide-viewer__fallback">{{ current.title }}</p>
+    } @else {
+      @if (imageState() === 'loading') {
+        <ft-skeleton class="ft-slide-viewer__skeleton" shape="rect" />
+      }
+      <img
+        [src]="stageSrc()"
+        [alt]="stageAlt()"
+        width="1280"
+        height="720"
+        (load)="imageState.set('loaded')"
+        (error)="imageState.set('failed')"
+      />
+    }
+  </figure>
+  @if (current.kind === 'pdf') {
+    <div class="ft-slide-viewer__file">
+      <ft-button variant="primary" [href]="current.src" target="_blank" object="(new tab)"
+        ><ft-icon name="file" size="sm" /> {{ pdfLabel() }}</ft-button
+      >
+      @if (pdfMeta(); as meta) {
+        <span class="ft-slide-viewer__meta">{{ meta }}</span>
+      }
+    </div>
+  }
+  @if (multiple()) {
+    <div class="ft-slide-viewer__bar">
+      <ft-button
+        #previousButton
+        [iconOnly]="true"
+        label="Previous slide"
+        [disabled]="position() === 0"
+        (click)="go(position() - 1)"
+        ><ft-icon name="previous"
+      /></ft-button>
+      <p class="ft-slide-viewer__status" role="status" aria-live="polite" aria-atomic="true">
+        <span class="ft-slide-viewer__count">Slide {{ position() + 1 }} of {{ count() }}</span
+        ><span class="ft-slide-viewer__visually-hidden">, </span>
+        <span class="ft-slide-viewer__title">{{ current.title }}</span>
+      </p>
+      <ft-button
+        #nextButton
+        [iconOnly]="true"
+        label="Next slide"
+        [disabled]="position() === count() - 1"
+        (click)="go(position() + 1)"
+        ><ft-icon name="next"
+      /></ft-button>
+    </div>
+    <div #strip class="ft-slide-viewer__thumbs" role="toolbar" aria-label="Jump to a slide">
+      @for (thumb of slides(); track $index) {
+        <button
+          #thumb
+          type="button"
+          class="ft-slide-viewer__thumb"
+          [attr.aria-label]="'Slide ' + ($index + 1) + ': ' + thumb.title"
+          [attr.aria-current]="$index === position() ? 'true' : null"
+          [attr.tabindex]="$index === focusIndex() ? 0 : -1"
+          (focus)="focusIndex.set($index)"
+          (keydown)="onThumbKeydown($event)"
+          (click)="go($index)"
+        >
+          <img [src]="thumb.thumbnailSrc" alt="" width="320" height="180" loading="lazy" />
+        </button>
+      }
+    </div>
+  }
+}

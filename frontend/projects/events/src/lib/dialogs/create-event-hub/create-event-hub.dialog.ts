@@ -6,7 +6,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   EVENT_HUBS_SERVICE,
   EventHubDto,
-  HubSectionKind,
+  CORE_HUB_SECTION_KINDS,
   HubTemplateDto,
   PastEventHubDto,
   problemDetails,
@@ -32,7 +32,7 @@ import {
 } from '@faithtech-community/components';
 import { debounceTime, distinctUntilChanged, firstValueFrom } from 'rxjs';
 
-import { HUB_SECTIONS } from '../../hub-sections';
+import { HUB_SECTIONS, hubSection } from '../../hub-sections';
 
 export interface CreateEventHubData {
   eventId: string;
@@ -107,7 +107,10 @@ export class CreateEventHubDialog {
   protected readonly copyError = signal('');
   /** Who ticked step 3, for its hint: a template's name, the copied hub, or null after Blank (L2-169 AC4, L2-170 AC4). */
   protected readonly tickedFor = signal<string | null>(null);
-  protected readonly sections = HUB_SECTIONS;
+  /** Step 3 lists the hub's own sections: the core ones after Blank, more from a template or copy (L2-172 AC2). */
+  protected readonly sections = signal(
+    HUB_SECTIONS.filter((s) => CORE_HUB_SECTION_KINDS.includes(s.kind)),
+  );
   protected readonly statusId = `create-event-hub-step-${this.data.eventId}`;
 
   protected readonly step = signal(1);
@@ -119,10 +122,9 @@ export class CreateEventHubDialog {
   private lastAction: 'next' | 'later' = 'next';
 
   protected readonly startingPoint = new FormControl(BLANK, { nonNullable: true });
-  protected readonly shown = new FormControl<readonly string[]>(
-    HUB_SECTIONS.map((s) => s.kind),
-    { nonNullable: true },
-  );
+  protected readonly shown = new FormControl<readonly string[]>([...CORE_HUB_SECTION_KINDS], {
+    nonNullable: true,
+  });
 
   constructor() {
     void this.loadTemplates();
@@ -236,6 +238,7 @@ export class CreateEventHubDialog {
         ? { copyFromEventId: this.copyFrom.value }
         : {};
     const hub: EventHubDto = await firstValueFrom(this.hubs.start(this.data.eventId, request));
+    this.sections.set(hub.sections.map((s) => hubSection(s.kind)));
     this.shown.setValue(hub.sections.filter((s) => s.visible).map((s) => s.kind));
     this.tickedFor.set(template?.name ?? (copying ? 'the hub you copied' : null));
   }
@@ -251,8 +254,8 @@ export class CreateEventHubDialog {
     const shown = this.shown.value;
     return firstValueFrom(
       this.hubs.save(this.data.eventId, {
-        sections: HUB_SECTIONS.map((s) => ({
-          kind: s.kind as HubSectionKind,
+        sections: this.sections().map((s) => ({
+          kind: s.kind,
           visible: shown.includes(s.kind),
         })),
       }),

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Organisations;
 using FluentValidation;
@@ -40,8 +41,7 @@ public class ReorderHubSectionsValidator : AbstractValidator<ReorderHubSectionsC
     {
         RuleFor(x => x.Kinds)
             .Must(k => k is not null && k.All(v => EventHubRules.TryParseKind(v, out _))
-                && k.Select(v => v.ToLowerInvariant()).Distinct().Count() == k.Count
-                && k.Count == Enum.GetValues<HubSectionKind>().Length)
+                && k.Select(v => v.ToLowerInvariant()).Distinct().Count() == k.Count)
             .WithMessage("Choose sections from the list.");
     }
 }
@@ -140,6 +140,16 @@ public static partial class HubContent
         HubSectionKind.Links => typeof(LinksContent),
         HubSectionKind.Giving => typeof(GivingContent),
         HubSectionKind.UpcomingEvents => typeof(UpcomingEventsContent),
+        HubSectionKind.Parking => typeof(ParkingContent),
+        HubSectionKind.WhatToBring => typeof(WhatToBringContent),
+        HubSectionKind.Partners => typeof(PartnersContent),
+        HubSectionKind.Tracks => typeof(TracksContent),
+        HubSectionKind.Process => typeof(ProcessContent),
+        HubSectionKind.Rules => typeof(RulesContent),
+        HubSectionKind.DemoFormat => typeof(DemoFormatContent),
+        HubSectionKind.Judging => typeof(JudgingContent),
+        HubSectionKind.Worship => typeof(WorshipContent),
+        HubSectionKind.Slides => typeof(SlidesContent),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -152,6 +162,16 @@ public static partial class HubContent
         HubSectionKind.Links => new LinksContentValidator(),
         HubSectionKind.Giving => new GivingContentValidator(),
         HubSectionKind.UpcomingEvents => new UpcomingEventsContentValidator(),
+        HubSectionKind.Parking => new ParkingContentValidator(),
+        HubSectionKind.WhatToBring => new WhatToBringContentValidator(),
+        HubSectionKind.Partners => new PartnersContentValidator(),
+        HubSectionKind.Tracks => new TracksContentValidator(),
+        HubSectionKind.Process => new ProcessContentValidator(),
+        HubSectionKind.Rules => new RulesContentValidator(),
+        HubSectionKind.DemoFormat => new DemoFormatContentValidator(),
+        HubSectionKind.Judging => new JudgingContentValidator(),
+        HubSectionKind.Worship => new WorshipContentValidator(),
+        HubSectionKind.Slides => new SlidesContentValidator(),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
@@ -214,7 +234,7 @@ public static partial class HubContent
         LinksContent c => new LinksContent(Text(c.SubmissionUrl), Text(c.FeedbackUrl), c.CodeFreezeAt),
         GivingContent c => new GivingContent(Text(c.Line)),
         UpcomingEventsContent c => new UpcomingEventsContent(c.Count),
-        _ => content,
+        _ => NormaliseOptional(content),
     };
 
     private static string? Text(string? value) => string.IsNullOrWhiteSpace(value) ? null : WhiteSpace().Replace(value.Trim(), " ");
@@ -244,7 +264,7 @@ public static partial class HubContent
             HubSectionKind.People => Read<PeopleContent>(section.Content).People is { Count: > 0 },
             HubSectionKind.Links => Read<LinksContent>(section.Content) is var l && (l.SubmissionUrl is not null || l.FeedbackUrl is not null),
             HubSectionKind.Giving => organisation.GivingLink is not null,
-            _ => false,
+            _ => OptionalReady(section.Kind, section.Content),
         };
         return ready ? "Ready" : "NeedsInfo";
     }
@@ -254,7 +274,8 @@ public static partial class HubContent
 /// Saves one section's content (L2-157 AC2, AC3, AC5, AC6): validated against its kind's schema, then checked against the
 /// database (members of this organisation, a code freeze that is an agenda row's time). Audited on override.
 /// </summary>
-public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions permissions, IAuditLog audit, TimeProvider time)
+public class SaveHubSectionHandler(
+    IApplicationDbContext db, EventPermissions permissions, ResourceAccess resources, IAuditLog audit, TimeProvider time)
 {
     public async Task<Result> HandleAsync(Guid eventId, string kindName, JsonElement body, CancellationToken cancellationToken = default)
     {
@@ -264,7 +285,8 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
         }
 
         var hub = await db.EventHubs.Include(h => h.Sections).SingleOrDefaultAsync(h => h.EventId == eventId, cancellationToken);
-        if (hub is null || !EventHubRules.TryParseKind(kindName, out var kind) || !await db.Events.AnyAsync(e => e.Id == eventId, cancellationToken))
+        if (hub is null || !EventHubRules.TryParseKind(kindName, out var kind) || !hub.Holds(kind)
+            || !await db.Events.AnyAsync(e => e.Id == eventId, cancellationToken))
         {
             return Result.NotFound();
         }
@@ -275,7 +297,7 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
             return new Result(ResultStatus.Invalid, errors);
         }
 
-        if (await CheckAsync(hub, content!, cancellationToken) is { } refusal)
+        if (await CheckAsync(hub, content!, actor, cancellationToken) is { } refusal)
         {
             return refusal;
         }
@@ -291,7 +313,7 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
         return Result.Ok();
     }
 
-    private async Task<Result?> CheckAsync(EventHub hub, object content, CancellationToken cancellationToken)
+    private async Task<Result?> CheckAsync(EventHub hub, object content, Guid actor, CancellationToken cancellationToken)
     {
         switch (content)
         {
@@ -305,9 +327,31 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
                 return (agenda.Items ?? []).Any(i => i.StartsAt == freeze)
                     ? null
                     : Result.Invalid("codeFreezeAt", "Pick a time from the agenda.");
+            case PartnersContent partners:
+                var partnerIds = (partners.PartnerIds ?? []).Distinct().ToList();
+                var active = await db.Partners.CountAsync(p => partnerIds.Contains(p.Id) && p.ArchivedAtUtc == null, cancellationToken);
+                return active == partnerIds.Count ? null : Result.Invalid("partnerIds", "Choose a partner from the list.");
+            case ParkingContent parking:
+                return await FileRefusalAsync(
+                    (parking.Options ?? []).Select((o, i) => (o.MapResourceId, $"options[{i}].mapResourceId")), [HubFiles.Image],
+                    "Choose an image.", actor, cancellationToken);
+            case SlidesContent slides:
+                return await FileRefusalAsync(
+                    (slides.Slides ?? []).Select((s, i) => (s.ResourceId, $"slides[{i}].resourceId")), [HubFiles.Image, HubFiles.Pdf],
+                    "Choose a PDF or an image.", actor, cancellationToken);
             default:
                 return null;
         }
+    }
+
+    /// <summary>Each named resource must be a file of an allowed kind the caller may open in Resources (L2-173 AC2, L2-182 AC2).</summary>
+    private async Task<Result?> FileRefusalAsync(
+        IEnumerable<(Guid? Id, string Field)> named, string[] kinds, string message, Guid actor, CancellationToken cancellationToken)
+    {
+        var refs = named.Where(n => n.Id is not null).ToList();
+        var found = await HubFiles.FindAsync(resources.Visible(db.Resources, actor), [.. refs.Select(r => r.Id!.Value).Distinct()], cancellationToken);
+        var bad = refs.FirstOrDefault(r => !found.TryGetValue(r.Id!.Value, out var x) || !kinds.Contains(x.Kind));
+        return bad.Field is null ? null : Result.Invalid(bad.Field, message);
     }
 }
 
@@ -332,6 +376,11 @@ public class ReorderHubSectionsHandler(IApplicationDbContext db, EventPermission
             EventHubRules.TryParseKind(k, out var kind);
             return kind;
         }).ToList();
+        if (kinds.Count != hub.Sections.Count || hub.Sections.Any(s => !kinds.Contains(s.Kind)))
+        {
+            return Result.Invalid("kinds", "Choose sections from the list.");
+        }
+
         hub.Reorder(kinds, time.GetUtcNow());
         if (permissions.IsHubOverride)
         {

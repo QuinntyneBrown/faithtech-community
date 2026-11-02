@@ -11,7 +11,10 @@ public record HubTemplateDto(Guid Id, string Name, string Description, IReadOnly
 /// <summary>One section of a template, read from its JSON (ADR 0041).</summary>
 public record HubTemplateSection(HubSectionKind Kind, bool Visible, JsonElement? Content);
 
-/// <summary>Reads a template's sections; a kind the template doesn't name is hidden and has no content.</summary>
+/// <summary>
+/// Reads a template's sections in catalogue order: every core kind, hidden with no content when the template doesn't name it, and
+/// the optional kinds it names (L2-172 AC2).
+/// </summary>
 public static class HubTemplateSections
 {
     private static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
@@ -23,10 +26,12 @@ public static class HubTemplateSections
         var rows = JsonSerializer.Deserialize<List<Row>>(template.Sections, Options) ?? [];
         return
         [
-            .. Enum.GetValues<HubSectionKind>().Select(kind =>
-                rows.FirstOrDefault(r => EventHubRules.TryParseKind(r.Kind, out var k) && k == kind) is { } row
-                    ? new HubTemplateSection(kind, row.Visible, row.Content is { ValueKind: JsonValueKind.Object } c ? c : null)
-                    : new HubTemplateSection(kind, false, null)),
+            .. Enum.GetValues<HubSectionKind>()
+                .Select(kind => (kind, row: rows.FirstOrDefault(r => EventHubRules.TryParseKind(r.Kind, out var k) && k == kind)))
+                .Where(x => x.row is not null || HubSectionKinds.IsCore(x.kind))
+                .Select(x => x.row is { } row
+                    ? new HubTemplateSection(x.kind, row.Visible, row.Content is { ValueKind: JsonValueKind.Object } c ? c : null)
+                    : new HubTemplateSection(x.kind, false, null)),
         ];
     }
 }

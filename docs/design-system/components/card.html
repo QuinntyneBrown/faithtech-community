@@ -58,7 +58,7 @@
       <li><a href="../components/card.html">Card</a></li>
       <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
       <li><a href="../components/notification-panel.html">Notification panel</a></li>
-      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li><li><a href="../components/repeat-list.html">Repeat list</a></li><li><a href="../components/picker-row.html">Picker row</a></li>
       <li><a href="../components/table.html">Table</a></li>
       <li><a href="../components/description-list.html">Description list</a></li>
       <li><a href="../components/feed.html">Activity feed</a></li>
@@ -91,6 +91,7 @@
       <li><a href="../components/error-page.html">Error page</a></li>
       <li><a href="../components/landing-hero.html">Landing hero</a></li>
       <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/slide-viewer.html">Slide viewer</a></li>
       <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
       <li><a href="../components/site-footer.html">Site footer</a></li>
     </ul></details>
@@ -191,6 +192,16 @@
 &lt;section class="card card--flush" aria-labelledby="up"&gt;&lt;h2 class="card__title" id="up"&gt;Coming up&lt;/h2&gt;&lt;ul class="list"&gt; … &lt;/ul&gt;&lt;p class="card__footer"&gt;&lt;a href="…"&gt;All events&lt;/a&gt;&lt;/p&gt;&lt;/section&gt;
 &lt;div class="card cluster"&gt;&lt;div class="stat"&gt; … &lt;/div&gt;&lt;/div&gt;
 &lt;section class="card card--success stack" role="status" aria-labelledby="sent"&gt; … &lt;/section&gt;</code></pre></details>
+      </div>
+      <h3 id="card-v-media">Media card (slice 46)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><div class="grid grid--auto" style="width: 100%; max-width: 40rem;"><article class="card card--flush"><img class="card__media" src="../../events/socal-hackathon-2026/parking/onsite.jpg" alt="Map of on-site parking at The Robertson Triangle campus, showing lots A, B and C" width="1600" height="1417"><div class="card__body"><h3 class="card__title">On site · 75 spots</h3><p class="text-muted">Lot A is tandem parking in front of the venue. Lots B and C have more spots on campus.</p><p><a href="../../events/socal-hackathon-2026/parking/onsite-full.jpg">View full size<span class="visually-hidden"> map, On site · 75 spots</span></a></p></div></article><article class="card card--flush"><img class="card__media" src="../../events/socal-hackathon-2026/parking/community.jpg" alt="Map of public parking near the venue, showing free street parking and six public garages" width="1600" height="1632"><div class="card__body"><h3 class="card__title">Nearby garages</h3><p class="text-muted">Free street parking and six public garages are a 5 to 15 minute walk.</p><p><a href="../../events/socal-hackathon-2026/parking/community-full.jpg">View full size<span class="visually-hidden"> map, Nearby garages</span></a></p></div></article></div></div>
+        <div class="ds-example__caption"><span>The hub’s parking options. A flush card leads with <code>.card__media</code> (full width, 16:10, <code>object-fit: cover</code>, a hairline under it, <code>--color-bg-subtle</code> while it loads) above <code>.card__body</code> (16px padding, 8px between lines). The image’s alt describes the map; “View full size” opens the full image in a new tab, and its hidden suffix names the option. <code>ft-card variant="media"</code> with <code>[mediaSrc]</code> and <code>mediaAlt</code> (required when there is an image).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;article class="card card--flush"&gt;
+  &lt;img class="card__media" src="…/hub/files/{resourceId}/thumbnail" alt="Map of on-site parking …"&gt;
+  &lt;div class="card__body"&gt;&lt;h3 class="card__title"&gt;On site · 75 spots&lt;/h3&gt;&lt;p class="text-muted"&gt;…&lt;/p&gt;
+    &lt;p&gt;&lt;a href="…/hub/files/{resourceId}" target="_blank" rel="noopener"&gt;View full size&lt;span class="visually-hidden"&gt; map, On site · 75 spots (new tab)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;
+&lt;/article&gt;</code></pre></details>
       </div>
     </section>
 
@@ -319,6 +330,7 @@
         <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a> (skeleton card)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (stat strip)</li>
         <li><a href="../../mocks/pages/compose-announcement/success.html">pages/compose-announcement/success</a> and <a href="../../mocks/pages/public-event/success.html">pages/public-event/success</a> (success card)</li>
+        <li><a href="../../mocks/pages/hub-page/hackathon.html">pages/hub-page/hackathon</a> (slice 46, parking option media cards; track, stage and honor cards)</li>
       </ul>
     </section>
 

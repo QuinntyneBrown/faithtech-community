@@ -1,7 +1,7 @@
 import { HubSectionKind } from '@faithtech-community/api';
 
 /**
- * Each hub section kind in its order, with the title, the one line saying what visitors will see (plain language,
+ * Each hub section kind in catalogue order (L2-172 AC1), with the title, the one line saying what visitors will see (plain language,
  * proposal design rule 6) and, for a section that can need info, the line saying what is missing (L2-156 AC2), as
  * docs/mocks/dialogs/create-event-hub/sections and pages/event-hub show them.
  */
@@ -29,6 +29,42 @@ export const HUB_SECTIONS: readonly {
     missing: 'Add a venue to the event.',
   },
   {
+    kind: 'Parking',
+    title: 'Parking',
+    line: 'Where to park, with a map and notes for each option.',
+    missing: 'Add a parking option.',
+  },
+  {
+    kind: 'WhatToBring',
+    title: 'What to bring',
+    line: 'What to bring, and what to expect on the day.',
+    missing: 'Add something to bring.',
+  },
+  {
+    kind: 'Partners',
+    title: 'Partners',
+    line: 'The partners you’re building with, from Partners.',
+    missing: 'Pick a partner.',
+  },
+  {
+    kind: 'Tracks',
+    title: 'Tracks',
+    line: 'The challenges teams choose from, with one marked primary.',
+    missing: 'Add a track.',
+  },
+  {
+    kind: 'Process',
+    title: 'Process',
+    line: 'How teams work through the day, stage by stage.',
+    missing: 'Add a stage.',
+  },
+  {
+    kind: 'Rules',
+    title: 'Rules',
+    line: 'The rules every team builds by.',
+    missing: 'Add a rule.',
+  },
+  {
     kind: 'People',
     title: 'People',
     line: 'Mentors, judges and speakers, with their photos.',
@@ -39,6 +75,30 @@ export const HUB_SECTIONS: readonly {
     title: 'Submission and feedback',
     line: 'Links to the submission and feedback forms.',
     missing: 'Add a submission or feedback link.',
+  },
+  {
+    kind: 'DemoFormat',
+    title: 'Demo format',
+    line: 'How long each demo runs and what it covers.',
+    missing: 'Add the demo’s segments.',
+  },
+  {
+    kind: 'Judging',
+    title: 'Judging and honors',
+    line: 'How judges score, and the honors teams can win.',
+    missing: 'Add a criterion or an honor.',
+  },
+  {
+    kind: 'Worship',
+    title: 'Worship',
+    line: 'The songs you’ll sing, with links to listen ahead.',
+    missing: 'Add a song.',
+  },
+  {
+    kind: 'Slides',
+    title: 'Slides',
+    line: 'The day’s slides, one after another.',
+    missing: 'Add slides.',
   },
   {
     kind: 'Giving',

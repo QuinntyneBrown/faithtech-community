@@ -1,0 +1,33 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Tracks</h3>
+  <div class="hub-section__grid">
+    @for (track of content()?.tracks ?? []; track $index; let n = $index) {
+      <ft-card>
+        <ft-stack gap="2">
+          <p class="hub-section__overline">
+            Track {{ n + 1 }}{{ track.primary ? ' · Primary focus' : '' }}
+          </p>
+          <h4 class="section-title">{{ track.title }}</h4>
+          @if (track.brief; as brief) {
+            <p>{{ brief }}</p>
+          }
+          @if (track.linkUrl; as url) {
+            <p>
+              <ft-link [href]="url" [external]="true" object="(new tab)">{{
+                track.linkText ?? 'Track ' + (n + 1) + ' brief'
+              }}</ft-link>
+            </p>
+          }
+        </ft-stack>
+      </ft-card>
+    }
+  </div>
+  @if (content()?.goodLooksLike?.length) {
+    <h4 class="section-title">What good looks like</h4>
+    <ft-list label="What good looks like">
+      @for (line of content()!.goodLooksLike; track $index) {
+        <ft-list-item [label]="line.title" [description]="line.detail" />
+      }
+    </ft-list>
+  }
+</section>

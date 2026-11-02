@@ -1,0 +1,13 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Slides</h3>
+  @if (slides().length > 1) {
+    <p class="text-caption" [id]="helpId">
+      Use the left and right arrow keys, or pick a thumbnail.
+    </p>
+  }
+  <ft-slide-viewer
+    label="Slide viewer"
+    [slides]="slides()"
+    [describedBy]="slides().length > 1 ? helpId : null"
+  />
+</section>

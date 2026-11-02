@@ -1,3 +1,6 @@
+@if (number(); as n) {
+  <span class="ft-list-item__number" aria-hidden="true">{{ n }}</span>
+}
 <span class="ft-list-item__leading"><ng-content select="[leading]" /></span>
 <div class="ft-list-item__body">
   @if (href(); as url) {

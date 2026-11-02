@@ -1,0 +1,30 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Parking</h3>
+  @if (content()?.note; as note) {
+    <p>{{ note }}</p>
+  }
+  <div class="hub-section__grid">
+    @for (option of content()?.options ?? []; track $index) {
+      <ft-card
+        [variant]="option.mapResourceId ? 'media' : 'plain'"
+        [mediaSrc]="option.mapResourceId ? map(option.mapResourceId, true) : null"
+        [mediaAlt]="'Map of ' + option.title"
+        [heading]="option.title"
+        [headingLevel]="4"
+      >
+        <ft-stack gap="2">
+          @if (option.notes; as notes) {
+            <p>{{ notes }}</p>
+          }
+          @if (option.mapResourceId; as mapId) {
+            <p>
+              <ft-link [href]="map(mapId)" [external]="true" [object]="option.title + ' (new tab)'"
+                >View full size map,</ft-link
+              >
+            </p>
+          }
+        </ft-stack>
+      </ft-card>
+    }
+  </div>
+</section>

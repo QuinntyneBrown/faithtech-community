@@ -1,0 +1,18 @@
+@startuml
+title A visitor opens a slide
+actor Visitor
+participant "Hub page (slide viewer)" as page
+participant "HubFileHandler" as h
+database "Database" as db
+participant "IFileStorage" as fs
+Visitor -> page : Next slide
+page -> h : GET /api/events/{id}/hub/files/{resourceId}
+h -> db : Hub, event (organisation filter)
+h -> h : May the caller see this hub's page? else 404
+h -> h : Does a shown section name the resource? else 404
+h -> db : Resource with its file
+h -> fs : Open file
+fs --> h : Stream
+h --> page : 200 image or PDF
+page --> Visitor : "Slide 2 of 52"
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+title Save Judging and honors
+actor Lead
+participant "HubJudgingDialog" as dlg
+participant "EVENT_HUBS_SERVICE" as svc
+participant "SaveHubSectionHandler" as h
+participant "HubContent" as c
+database "Database" as db
+Lead -> dlg : Edits weights
+dlg -> dlg : Live line "Weights total 90%"
+Lead -> dlg : Next
+dlg -> dlg : "Weights add up to 90%. Make them total 100%." (stays)
+Lead -> dlg : Fixes weights, Save
+dlg -> svc : saveSection(eventId, "Judging", content)
+svc -> h : PUT /api/events/{id}/hub/sections/Judging
+h -> h : ManageEventHubs? else 403
+h -> db : Hub with sections (organisation filter)
+h -> h : Hub holds Judging? else 404
+h -> c : Parse(Judging, body)
+c --> h : Content, or 400 on "criteria"
+h -> db : Fill section, save
+h --> svc : 204
+svc --> dlg : Done
+dlg --> Lead : Toast "Judging and honors saved"
+@enduml

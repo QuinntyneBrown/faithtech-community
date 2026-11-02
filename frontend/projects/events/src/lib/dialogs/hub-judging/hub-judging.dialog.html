@@ -1,0 +1,162 @@
+<ft-dialog
+  heading="Judging and honors"
+  [describedBy]="statusId"
+  [busy]="!!busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <h3 class="section-title">How do judges score?</h3>
+      <ft-form-field
+        label="Top score"
+        width="sm"
+        [help]="topHelp()"
+        [error]="saver.error('topScore')"
+      >
+        <ft-text-field [formControl]="topScore" type="number" min="3" max="10" />
+      </ft-form-field>
+
+      <h4 class="overline">Criteria</h4>
+      @if (criteria.count() === 0) {
+        <p class="text-muted">No criteria yet.</p>
+      } @else {
+        <ft-repeat-list #criteriaList label="Criteria">
+          @for (row of criteria.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="criteria.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="criteria.move(i, -1)"
+              (moveDown)="criteria.move(i, 1)"
+              (remove)="removeCriterion(i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Criterion" [error]="saver.error('criteria[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+              </ft-form-field>
+              <ft-form-field
+                label="Question"
+                [optional]="true"
+                [error]="saver.error('criteria[' + i + '].question')"
+              >
+                <ft-textarea formControlName="question" [rows]="2" [maxlength]="200" />
+              </ft-form-field>
+              <ft-form-field
+                label="Scores a top mark when"
+                [optional]="true"
+                [error]="saver.error('criteria[' + i + '].topMark')"
+              >
+                <ft-textarea formControlName="topMark" [rows]="2" [maxlength]="200" />
+              </ft-form-field>
+              <ft-form-field
+                label="Weight %"
+                width="sm"
+                [error]="saver.error('criteria[' + i + '].weight')"
+              >
+                <ft-text-field formControlName="weight" type="number" min="1" max="100" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      <ft-field-total [ok]="total().ok">{{ total().text }}</ft-field-total>
+      @if (saver.error('criteria')) {
+        <ft-inline-message>{{ saver.error('criteria') }}</ft-inline-message>
+      }
+      <div>
+        <ft-button #criteriaAdd [disabled]="criteria.full" (click)="addCriterion()"
+          >Add a criterion</ft-button
+        >
+      </div>
+    } @else {
+      <h3 class="section-title">What can teams win?</h3>
+      @if (honors.count() === 0) {
+        <p class="text-muted">No honors yet.</p>
+      } @else {
+        <ft-repeat-list #honorsList label="Honors">
+          @for (row of honors.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="honors.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="honors.move(i, -1)"
+              (moveDown)="honors.move(i, 1)"
+              (remove)="removeHonor(i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Honor" [error]="saver.error('honors[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+              </ft-form-field>
+              <ft-form-field
+                label="Line"
+                [optional]="true"
+                [error]="saver.error('honors[' + i + '].line')"
+              >
+                <ft-text-field formControlName="line" autocomplete="off" [maxlength]="160" />
+              </ft-form-field>
+              <ft-form-field
+                label="How it’s chosen"
+                [error]="saver.error('honors[' + i + '].chosenBy')"
+              >
+                <ft-select formControlName="chosenBy" [options]="chosenBy" />
+              </ft-form-field>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+      }
+      @if (saver.error('honors')) {
+        <ft-inline-message>{{ saver.error('honors') }}</ft-inline-message>
+      }
+      <div>
+        <ft-button #honorsAdd [disabled]="honors.full" (click)="addHonor()">Add an honor</ft-button>
+      </div>
+      <ft-form-field label="Note" [optional]="true" [error]="saver.error('note')">
+        <ft-textarea [formControl]="note" [rows]="2" [maxlength]="200" />
+      </ft-form-field>
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy()"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

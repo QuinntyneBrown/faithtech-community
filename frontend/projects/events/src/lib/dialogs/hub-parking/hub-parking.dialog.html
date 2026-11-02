@@ -1,0 +1,170 @@
+<ft-dialog heading="Parking" [describedBy]="statusId" [busy]="!!busy()" (closed)="ref.close(false)">
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    <ft-stepper [steps]="steps" [current]="step()" [statusId]="statusId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="retry()">Try again</ft-button>
+      </ft-alert>
+    }
+
+    @if (step() === 1) {
+      <h3 class="section-title">What should people know first?</h3>
+      <ft-form-field
+        label="Note"
+        [optional]="true"
+        help="Shown at the top of Parking"
+        [error]="saver.error('note')"
+      >
+        <ft-textarea [formControl]="note" [rows]="4" [maxlength]="300" />
+      </ft-form-field>
+    } @else {
+      <h3 class="section-title">Parking options</h3>
+      @if (options.count() === 0) {
+        <ft-empty-state
+          size="sm"
+          icon="location"
+          [headingLevel]="3"
+          heading="No parking options yet."
+          text="Add each place people can park, with notes and a map."
+        >
+          <span actions>
+            <ft-button #add variant="primary" (click)="addOption()">Add an option</ft-button>
+          </span>
+        </ft-empty-state>
+      } @else {
+        <p class="text-caption">
+          Name each option, add notes and a map. Use the arrows to reorder.
+        </p>
+        <ft-repeat-list #list label="Parking options">
+          @for (row of options.rows; track row; let i = $index, first = $first, last = $last) {
+            <ft-repeat-row
+              [heading]="options.heading(i)"
+              [object]="row.controls.title.value"
+              [first]="first"
+              [last]="last"
+              (moveUp)="options.move(i, -1)"
+              (moveDown)="options.move(i, 1)"
+              (remove)="removeOption(i)"
+              [formGroup]="row"
+            >
+              <ft-form-field label="Name" [error]="saver.error('options[' + i + '].title')">
+                <ft-text-field formControlName="title" autocomplete="off" [maxlength]="80" />
+              </ft-form-field>
+              <ft-form-field
+                label="Notes"
+                [optional]="true"
+                [error]="saver.error('options[' + i + '].notes')"
+              >
+                <ft-textarea formControlName="notes" [rows]="3" [maxlength]="300" />
+              </ft-form-field>
+              <div role="group" [attr.aria-labelledby]="statusId + '-map-' + i">
+                <ft-stack gap="2">
+                  <p class="overline" [id]="statusId + '-map-' + i">Map (optional)</p>
+                  @if (uploads().get(row); as upload) {
+                    <div class="map__chosen" aria-busy="true">
+                      <ft-icon-tile name="image" />
+                      <div class="map__text">
+                        <span>{{ upload.name }}</span>
+                        <ft-progress
+                          [value]="upload.progress"
+                          [label]="'Uploading ' + upload.name"
+                          [caption]="
+                            'Uploading… ' +
+                            upload.progress +
+                            '%. It’s added to Resources for everyone in the organisation.'
+                          "
+                        />
+                      </div>
+                    </div>
+                  } @else if (row.controls.mapResourceId.value) {
+                    <div class="map__chosen">
+                      <ft-icon-tile
+                        name="image"
+                        [src]="thumbnails()[row.controls.mapResourceId.value] ?? null"
+                      />
+                      <div class="map__text">
+                        <span>{{ row.controls.mapTitle.value }}</span>
+                        <span class="text-caption">Image · from Resources</span>
+                      </div>
+                    </div>
+                  }
+                  <ft-cluster>
+                    <ft-button size="sm" [disabled]="!!uploads().get(row)" (click)="chooseMap(row)"
+                      >Choose from Resources</ft-button
+                    >
+                    @if (row.controls.mapResourceId.value && !uploads().get(row)) {
+                      <ft-button
+                        variant="ghost"
+                        size="sm"
+                        [label]="removeMapLabel(i)"
+                        (click)="removeMap(row)"
+                        >Remove map</ft-button
+                      >
+                    }
+                  </ft-cluster>
+                  <ft-file-dropzone
+                    heading="Upload an image"
+                    [accept]="imageTypes"
+                    [multiple]="false"
+                    [disabled]="!!uploads().get(row)"
+                    [invalid]="!!mapError(row, i)"
+                    (filesChosen)="uploadMap(row, $event)"
+                  />
+                  @if (mapError(row, i)) {
+                    <ft-inline-message>{{ mapError(row, i) }}</ft-inline-message>
+                  }
+                </ft-stack>
+              </div>
+            </ft-repeat-row>
+          }
+        </ft-repeat-list>
+        <ft-cluster>
+          <span>
+            <ft-button #add [disabled]="options.full" (click)="addOption()"
+              >Add an option</ft-button
+            >
+          </span>
+          <span class="text-caption">{{ countLine() }}</span>
+        </ft-cluster>
+      }
+      @if (saver.error('options')) {
+        <ft-inline-message>{{ saver.error('options') }}</ft-inline-message>
+      }
+    }
+  </ft-stack>
+
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooterStart
+      variant="ghost"
+      [loading]="busy() === 'later'"
+      [disabled]="!!busy()"
+      (click)="save('later')"
+      >{{ busy() === 'later' ? 'Saving…' : 'Save and finish later' }}</ft-button
+    >
+  }
+  @if (step() === 1) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'next'"
+      [disabled]="!!busy()"
+      (click)="save('next')"
+      >{{ busy() === 'next' ? 'Saving…' : 'Next' }}</ft-button
+    >
+  } @else {
+    <ft-button ftDialogFooter [disabled]="!!busy()" (click)="step.set(1)">Back</ft-button>
+  }
+  @if (step() === 2) {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [loading]="busy() === 'finish'"
+      [disabled]="!!busy() || uploads().size > 0"
+      (click)="save('finish')"
+      >{{ busy() === 'finish' ? 'Saving…' : 'Save' }}</ft-button
+    >
+  }
+</ft-dialog>

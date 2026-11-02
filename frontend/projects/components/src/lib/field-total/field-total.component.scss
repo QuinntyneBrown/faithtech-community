@@ -1,0 +1,22 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  font: var(--text-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-muted);
+}
+
+ft-icon {
+  flex: none;
+  color: var(--color-success-icon);
+}
+
+:host(.ft-field-total--off) {
+  color: var(--color-danger-fg);
+
+  ft-icon {
+    color: var(--color-danger-icon);
+  }
+}

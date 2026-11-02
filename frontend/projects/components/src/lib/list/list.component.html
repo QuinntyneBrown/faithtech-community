@@ -1,1 +1,8 @@
-<ng-content />
+<ng-template #rows><ng-content /></ng-template>
+@if (numbered()) {
+  <ol class="ft-list__ol" [attr.aria-label]="label()">
+    <ng-container [ngTemplateOutlet]="rows" />
+  </ol>
+} @else {
+  <ng-container [ngTemplateOutlet]="rows" />
+}

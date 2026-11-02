@@ -34,3 +34,16 @@ p {
 .hub-section__muted {
   color: var(--color-fg-muted);
 }
+
+/* Track, stage, parking and honor cards: side by side on wide screens, one column under 640px. */
+.hub-section__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-3);
+}
+
+/* "Track 1 · Primary focus", a stage's time, an honor's number. */
+.hub-section__overline {
+  font: var(--text-label);
+  color: var(--color-fg-muted);
+}

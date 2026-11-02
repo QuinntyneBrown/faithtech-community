@@ -53,3 +53,47 @@ tbody tr:last-child th {
   font-family: var(--font-family-mono);
   white-space: nowrap;
 }
+
+/* Stack (design system, table: stacks on a phone): below 40rem each row is a block and each cell shows its column name. */
+@media (max-width: 39.99rem) {
+  .ft-table--stack,
+  .ft-table--stack tbody,
+  .ft-table--stack tr,
+  .ft-table--stack td,
+  .ft-table--stack tbody th {
+    display: block;
+    inline-size: 100%;
+  }
+
+  .ft-table--stack thead {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .ft-table--stack tbody tr {
+    padding: var(--space-3) var(--space-4);
+    border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+  }
+
+  .ft-table--stack tbody tr:last-child {
+    border-block-end: 0;
+  }
+
+  .ft-table--stack td,
+  .ft-table--stack tbody th {
+    padding: var(--space-1) 0;
+    border-block-end: 0;
+    background: none;
+  }
+
+  .ft-table--stack [data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font: var(--text-label);
+    color: var(--color-fg-muted);
+  }
+}

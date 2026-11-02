@@ -1,17 +1,29 @@
-@if (heading(); as text) {
-  <div class="ft-card__header">
-    @switch (headingLevel()) {
-      @case (3) {
-        <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+<ng-template #content>
+  @if (heading(); as text) {
+    <div class="ft-card__header">
+      @switch (headingLevel()) {
+        @case (3) {
+          <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+        }
+        @case (4) {
+          <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
+        }
+        @default {
+          <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
+        }
       }
-      @case (4) {
-        <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
-      }
-      @default {
-        <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
-      }
-    }
-    <ng-content select="[ftCardActions]" />
+      <ng-content select="[ftCardActions]" />
+    </div>
+  }
+  <ng-content />
+</ng-template>
+@if (variant() === 'media') {
+  @if (mediaSrc(); as src) {
+    <img class="ft-card__media" [src]="src" [alt]="mediaAlt()" />
+  }
+  <div class="ft-card__body">
+    <ng-container [ngTemplateOutlet]="content" />
   </div>
+} @else {
+  <ng-container [ngTemplateOutlet]="content" />
 }
-<ng-content />

@@ -1,0 +1,40 @@
+<ft-dialog
+  heading="Choose from Resources"
+  [description]="description"
+  (closed)="ref.close(undefined)"
+>
+  <ft-stack>
+    <ft-form-field label="Search resources" help="By title">
+      <ft-text-field type="search" [formControl]="search" autocomplete="off" />
+    </ft-form-field>
+    @if (failed()) {
+      <ft-alert status="danger" heading="We couldn’t load Resources">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="load()">Try again</ft-button>
+      </ft-alert>
+    } @else if (items() === null) {
+      <ft-list-skeleton label="Loading resources…" [rows]="3" />
+    } @else if (shown().length === 0) {
+      <ft-empty-state size="sm" icon="search" [headingLevel]="3" [heading]="emptyLine()" />
+    } @else {
+      <ft-list label="Resources">
+        @for (r of shown(); track r.id) {
+          <ft-picker-row
+            [type]="type"
+            name="hub-resource"
+            [value]="r.id"
+            [checked]="isChosen(r.id)"
+            [thumbnailSrc]="thumbnails()[r.id] ?? null"
+            [title]="r.title"
+            [meta]="meta(r)"
+            (changed)="pick(r, $event)"
+          />
+        }
+      </ft-list>
+    }
+  </ft-stack>
+  <ft-button ftDialogFooter (click)="ref.close(undefined)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [disabled]="chosen().length === 0" (click)="choose()"
+    >Choose</ft-button
+  >
+</ft-dialog>

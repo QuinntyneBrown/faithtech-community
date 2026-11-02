@@ -65,4 +65,48 @@ export class HubSectionDialog {
   link(name: string | RegExp): Locator {
     return this.dialog.getByRole('link', { name });
   }
+
+  /** A row card of a list, such as "Rule 01", by its heading. */
+  row(heading: string): Locator {
+    return this.dialog.getByRole('group', { name: heading, exact: true });
+  }
+
+  /** A field inside a row card, by its label, with or without "(optional)". */
+  rowField(heading: string, label: string): Locator {
+    return this.row(heading).getByLabel(new RegExp(`^\\s*${label}(\\s*\\(optional\\))?\\s*$`));
+  }
+
+  /** A row card's Move up, Move down or Remove button, by the row's heading. */
+  rowAction(heading: string, action: 'up' | 'down' | 'remove'): Locator {
+    const name = { up: /^Move .* up$/, down: /^Move .* down$/, remove: /^Remove / }[action];
+    return this.row(heading).getByRole('button', { name });
+  }
+
+  /** The row cards' headings, in order. */
+  rowHeadings(): Locator {
+    return this.dialog.locator('[role="group"] h4');
+  }
+
+  /** A number field by its label. */
+  number(label: string): Locator {
+    return this.dialog.getByRole('spinbutton', { name: new RegExp(`^${label}`) });
+  }
+
+  checkbox(name: string | RegExp): Locator {
+    return this.dialog.getByRole('checkbox', { name });
+  }
+
+  radio(name: string | RegExp): Locator {
+    return this.dialog.getByRole('radio', { name });
+  }
+
+  /** A live line, such as the segments' or weights' running total. */
+  status(text: string | RegExp): Locator {
+    return this.dialog.getByRole('status').filter({ hasText: text });
+  }
+
+  /** The image or file input behind an upload button. */
+  upload(name: string): Locator {
+    return this.dialog.getByLabel(name, { exact: true });
+  }
 }

@@ -5,6 +5,8 @@ export const ICONS: Readonly<Record<string, string>> = {
   move: "<path d='M5 12h14M13 6l6 6-6 6'/>",
   'move-up': "<path d='M12 19V5M6 11l6-6 6 6'/>",
   'move-down': "<path d='M12 5v14M6 13l6 6 6-6'/>",
+  previous: "<path d='M15 18l-6-6 6-6'/>",
+  next: "<path d='M9 18l6-6-6-6'/>",
   'drag-handle':
     "<circle cx='9' cy='6' r='1'/><circle cx='15' cy='6' r='1'/><circle cx='9' cy='12' r='1'/><circle cx='15' cy='12' r='1'/><circle cx='9' cy='18' r='1'/><circle cx='15' cy='18' r='1'/>",
   home: "<path d='M3 12 12 3l9 9M5 10v10h14V10'/>",

@@ -73,4 +73,41 @@ describe('DescriptionListComponent', () => {
   it('is not busy once loaded', () => {
     expect(setup().querySelector('ft-description-list')?.getAttribute('aria-busy')).toBeNull();
   });
+
+  // docs/design-system/components/description-list.html#stacked: in a narrow card each term sits above its description.
+  describe('stacked layout', () => {
+    @Component({
+      imports: [DescriptionListComponent, DescriptionListItemComponent],
+      template: `<ft-description-list layout="stacked">
+        <ft-description-list-item label="Listen"
+          >Who does your track serve?</ft-description-list-item
+        >
+        <ft-description-list-item label="Repent"
+          >What in us needs to change?</ft-description-list-item
+        >
+      </ft-description-list>`,
+    })
+    class StackedHostComponent {}
+
+    it('marks the list and every item stacked, keeping each term with its description', () => {
+      const fixture = TestBed.createComponent(StackedHostComponent);
+      fixture.detectChanges();
+      const el = fixture.nativeElement as HTMLElement;
+      expect(el.querySelector('ft-description-list')?.classList).toContain(
+        'ft-description-list--stacked',
+      );
+      const items = Array.from(el.querySelectorAll('ft-description-list-item'));
+      expect(items.every((i) => i.classList.contains('ft-description-list-item--stacked'))).toBe(
+        true,
+      );
+      expect(items[1].querySelector('dt')?.textContent).toBe('Repent');
+      expect(items[1].querySelector('dd')?.textContent?.trim()).toBe('What in us needs to change?');
+    });
+
+    it('is not stacked by default', () => {
+      const el = setup();
+      expect(el.querySelector('.ft-description-list--stacked')).toBeNull();
+      expect(el.querySelector('.ft-description-list-item--stacked')).toBeNull();
+    });
+  });
 });

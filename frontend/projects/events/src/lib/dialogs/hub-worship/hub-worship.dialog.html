@@ -1,0 +1,69 @@
+<ft-dialog
+  heading="Worship"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">What will you sing?</h3>
+    <ft-form-field label="Note" [optional]="true" [error]="saver.error('note')">
+      <ft-textarea [formControl]="note" [rows]="2" [maxlength]="200" />
+    </ft-form-field>
+    @if (songs.count() === 0) {
+      <p class="text-muted">No songs yet.</p>
+    } @else {
+      <ft-repeat-list #list label="Songs">
+        @for (row of songs.rows; track row; let i = $index, first = $first, last = $last) {
+          <ft-repeat-row
+            [heading]="songs.heading(i)"
+            [object]="row.controls.title.value"
+            [first]="first"
+            [last]="last"
+            (moveUp)="songs.move(i, -1)"
+            (moveDown)="songs.move(i, 1)"
+            (remove)="remove(i)"
+            [formGroup]="row"
+          >
+            <ft-form-field label="Song" [error]="saver.error('songs[' + i + '].title')">
+              <ft-text-field formControlName="title" autocomplete="off" [maxlength]="80" />
+            </ft-form-field>
+            <ft-form-field
+              label="Artist"
+              [optional]="true"
+              [error]="saver.error('songs[' + i + '].artist')"
+            >
+              <ft-text-field formControlName="artist" autocomplete="off" [maxlength]="80" />
+            </ft-form-field>
+            <ft-form-field
+              label="Listen link"
+              [optional]="true"
+              [error]="saver.error('songs[' + i + '].url')"
+            >
+              <ft-text-field formControlName="url" type="url" autocomplete="off" />
+            </ft-form-field>
+          </ft-repeat-row>
+        }
+      </ft-repeat-list>
+    }
+    <div>
+      <ft-button #add [disabled]="songs.full" (click)="songs.add()">Add a song</ft-button>
+    </div>
+    @if (songs.count() > 0) {
+      <p class="text-caption">{{ songs.count() }} of 10.</p>
+    }
+    @if (saver.error('songs')) {
+      <ft-inline-message>{{ saver.error('songs') }}</ft-inline-message>
+    }
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>

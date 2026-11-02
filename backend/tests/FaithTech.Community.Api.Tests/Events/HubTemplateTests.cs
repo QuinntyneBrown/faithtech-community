@@ -1,4 +1,4 @@
-// Traces to: L2-169 AC2, L2-171 AC1 to AC3
+// Traces to: L2-169 AC2, L2-171 AC1 to AC3, L2-183 AC1
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -15,6 +15,13 @@ public class HubTemplateTests(CommunityApiFactory factory) : IClassFixture<Commu
     private const string Templates = "/api/event-hubs/templates";
 
     private static readonly string[] Every = ["Hero", "Agenda", "Venue", "People", "Links", "Giving", "UpcomingEvents"];
+
+    /// <summary>Every kind in catalogue order (L2-172 AC1): Hackathon shows them all (L2-183 AC1).</summary>
+    private static readonly string[] Catalogue =
+    [
+        "Hero", "Agenda", "Venue", "Parking", "WhatToBring", "Partners", "Tracks", "Process", "Rules", "People", "Links",
+        "DemoFormat", "Judging", "Worship", "Slides", "Giving", "UpcomingEvents",
+    ];
 
     // L2-169 AC2, L2-171 AC2: the FaithTech seed is the regression case.
     [Fact]
@@ -33,7 +40,7 @@ public class HubTemplateTests(CommunityApiFactory factory) : IClassFixture<Commu
             templates!.Select(t => (t.GetProperty("name").GetString(), t.GetProperty("description").GetString())));
         Assert.All(templates!, t => Assert.True(Guid.TryParse(t.GetProperty("id").GetString(), out _)));
         string[] Shown(JsonElement t) => [.. t.GetProperty("shown").EnumerateArray().Select(k => k.GetString()!)];
-        Assert.Equal(Every, Shown(templates[0]));
+        Assert.Equal(Catalogue, Shown(templates[0]));
         Assert.Equal(Every.Except(["Links"]), Shown(templates[1]));
         Assert.Equal(Every.Except(["Links", "Giving"]), Shown(templates[2]));
     }

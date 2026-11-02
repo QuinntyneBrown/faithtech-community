@@ -1,0 +1,36 @@
+<div class="ft-repeat-row__body" role="group" [attr.aria-labelledby]="headingId">
+  <div class="ft-repeat-row__header">
+    <h4 class="ft-repeat-row__heading" [id]="headingId">{{ heading() }}</h4>
+    <div class="ft-repeat-row__actions">
+      <ft-button
+        #upButton
+        variant="ghost"
+        size="sm"
+        [iconOnly]="true"
+        [label]="'Move ' + name() + ' up'"
+        [disabled]="first()"
+        (click)="move('up')"
+        ><ft-icon name="move-up"
+      /></ft-button>
+      <ft-button
+        #downButton
+        variant="ghost"
+        size="sm"
+        [iconOnly]="true"
+        [label]="'Move ' + name() + ' down'"
+        [disabled]="last()"
+        (click)="move('down')"
+        ><ft-icon name="move-down"
+      /></ft-button>
+      <ft-button
+        variant="ghost"
+        size="sm"
+        [iconOnly]="true"
+        [label]="'Remove ' + name()"
+        (click)="remove.emit()"
+        ><ft-icon name="delete"
+      /></ft-button>
+    </div>
+  </div>
+  <ng-content />
+</div>

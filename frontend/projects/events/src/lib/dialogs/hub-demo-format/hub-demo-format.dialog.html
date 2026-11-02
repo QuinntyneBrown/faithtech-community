@@ -1,0 +1,108 @@
+<ft-dialog
+  heading="Demo format"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    <ft-hub-preview-link [eventId]="hub.eventId" />
+    @if (saver.failed()) {
+      <ft-alert status="danger" heading="We couldn’t save this section">
+        Check your connection and try again.
+        <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+      </ft-alert>
+    }
+    <h3 class="section-title" [id]="questionId">How do demos run?</h3>
+    <div class="demo-minutes">
+      <ft-form-field label="Minutes per demo" [error]="saver.error('minutes')">
+        <ft-text-field [formControl]="minutes" type="number" min="1" max="30" />
+      </ft-form-field>
+      <ft-form-field label="Minutes for questions" [error]="saver.error('questionMinutes')">
+        <ft-text-field [formControl]="questionMinutes" type="number" min="0" max="30" />
+      </ft-form-field>
+    </div>
+
+    <h4 class="overline">Segments</h4>
+    @if (segments.count() === 0) {
+      <p class="text-muted">No segments yet.</p>
+    } @else {
+      <ft-repeat-list #segmentList label="Segments">
+        @for (row of segments.rows; track row; let i = $index, first = $first, last = $last) {
+          <ft-repeat-row
+            [heading]="segments.heading(i)"
+            [object]="row.controls.title.value"
+            [first]="first"
+            [last]="last"
+            (moveUp)="segments.move(i, -1)"
+            (moveDown)="segments.move(i, 1)"
+            (remove)="removeSegment(i)"
+            [formGroup]="row"
+          >
+            <ft-form-field label="Title" [error]="saver.error('segments[' + i + '].title')">
+              <ft-text-field formControlName="title" autocomplete="off" [maxlength]="60" />
+            </ft-form-field>
+            <ft-form-field
+              label="Detail"
+              [optional]="true"
+              [error]="saver.error('segments[' + i + '].detail')"
+            >
+              <ft-text-field formControlName="detail" autocomplete="off" [maxlength]="120" />
+            </ft-form-field>
+            <ft-form-field
+              label="Length in seconds"
+              [error]="saver.error('segments[' + i + '].seconds')"
+            >
+              <ft-text-field formControlName="seconds" type="number" min="15" max="1800" />
+            </ft-form-field>
+          </ft-repeat-row>
+        }
+      </ft-repeat-list>
+    }
+    <ft-field-total [ok]="fits()">{{ total() }}</ft-field-total>
+    @if (saver.error('segments')) {
+      <ft-inline-message>{{ saver.error('segments') }}</ft-inline-message>
+    }
+    <div>
+      <ft-button #addSegment [disabled]="segments.full" (click)="segments.add()"
+        >Add a segment</ft-button
+      >
+    </div>
+
+    <h4 class="overline">Tips <span class="text-muted">(optional)</span></h4>
+    @if (tips.count() > 0) {
+      <ft-repeat-list #tipList label="Tips">
+        @for (row of tips.rows; track row; let i = $index, first = $first, last = $last) {
+          <ft-repeat-row
+            [heading]="tipName(i)"
+            [object]="row.controls.text.value"
+            [first]="first"
+            [last]="last"
+            (moveUp)="tips.move(i, -1)"
+            (moveDown)="tips.move(i, 1)"
+            (remove)="removeTip(i)"
+            [formGroup]="row"
+          >
+            <ft-form-field
+              [label]="tipName(i)"
+              [labelHidden]="true"
+              [error]="saver.error('tips[' + i + ']')"
+            >
+              <ft-text-field formControlName="text" autocomplete="off" [maxlength]="80" />
+            </ft-form-field>
+          </ft-repeat-row>
+        }
+      </ft-repeat-list>
+    }
+    <div>
+      <ft-button #addTip [disabled]="tips.full" (click)="tips.add()">Add a tip</ft-button>
+    </div>
+    <p class="text-caption">{{ tips.count() }} of 5. For example, “Demo on a phone”.</p>
+    @if (saver.error('tips')) {
+      <ft-inline-message>{{ saver.error('tips') }}</ft-inline-message>
+    }
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>

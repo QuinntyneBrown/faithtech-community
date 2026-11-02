@@ -1,0 +1,94 @@
+@startuml
+title Class structure — Build a hackathon hub
+hide empty members
+enum HubSectionKind {
+  Hero
+  Agenda
+  Venue
+  Parking
+  WhatToBring
+  Partners
+  Tracks
+  Process
+  Rules
+  People
+  Links
+  DemoFormat
+  Judging
+  Worship
+  Slides
+  Giving
+  UpcomingEvents
+}
+class HubSectionKinds <<static>> {
+  Core : HubSectionKind[]
+  IsOptional(kind) : bool
+}
+class EventHub {
+  CreateBlank(eventId, now)
+  Start(key, sections, now)
+  Holds(kind) : bool
+}
+class HubSection {
+  Kind
+  Order
+  Visible
+  Content : json
+}
+class ParkingContent {
+  Note
+  Options[Title, Notes, MapResourceId]
+}
+class WhatToBringContent {
+  Bring[]
+  OnTheDay[Title, Detail]
+}
+class PartnersContent {
+  PartnerIds[]
+  Meet
+}
+class TracksContent {
+  Tracks[Title, Brief, LinkUrl, LinkText, Primary]
+  GoodLooksLike[Title, Detail]
+}
+class ProcessContent {
+  Name
+  Intro
+  Stages[Title, When, Summary, Points[Title, Detail]]
+}
+class RulesContent {
+  Rules[Title, Detail]
+  Note
+}
+class DemoFormatContent {
+  Minutes
+  QuestionMinutes
+  Segments[Title, Detail, Seconds]
+  Tips[]
+}
+class JudgingContent {
+  TopScore
+  Criteria[Title, Question, TopMark, Weight]
+  Honors[Title, Line, ChosenBy]
+  Note
+}
+class WorshipContent {
+  Note
+  Songs[Title, Artist, Url]
+}
+class SlidesContent {
+  Slides[ResourceId]
+}
+class HubContent <<static>> {
+  Parse(kind, json)
+  State(section, event, organisation)
+  ResourceIds(section)
+}
+EventHub "1" *-- "7..17" HubSection
+HubSection --> HubSectionKind
+HubSectionKinds ..> HubSectionKind
+HubContent ..> ParkingContent
+HubContent ..> SlidesContent
+HubContent ..> JudgingContent
+HubContent ..> DemoFormatContent
+@enduml

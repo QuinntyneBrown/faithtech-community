@@ -233,6 +233,16 @@ export class MockApi {
     resetRoleDefinitions();
     this.events.hubs.connect({
       organisation: () => this.host.organisation,
+      partner: (id) => {
+        const p = this.partners.active(id);
+        return p ? { id: p.id, name: p.name, offering: p.offering, website: p.website } : undefined;
+      },
+      file: (id, callerId) =>
+        this.resources.hubFile(
+          id,
+          callerId ? (this.signedIn?.profileId === callerId ? this.signedIn : null) : null,
+        ),
+      fileBody: (id, thumbnail) => this.resources.hubFileBody(id, thumbnail),
       member: (id) => {
         const profile = this.profiles.get(id);
         return profile

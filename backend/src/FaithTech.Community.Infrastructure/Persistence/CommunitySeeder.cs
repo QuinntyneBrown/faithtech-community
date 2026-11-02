@@ -67,12 +67,26 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         await SeedStarterResourcesAsync(cancellationToken);
     }
 
-    /// <summary>FaithTech's hub templates, found by fixed id and inserted only when missing, so later edits survive (L2-171 AC2).</summary>
+    /// <summary>
+    /// FaithTech's hub templates, found by fixed id and inserted only when missing, so later edits survive (L2-171 AC2). A
+    /// template whose sections are still exactly the core-only ones an earlier seed wrote gains the hackathon sections
+    /// (L2-183 AC1); any edit keeps it as it is.
+    /// </summary>
     private async Task SeedHubTemplatesAsync(CancellationToken cancellationToken)
     {
         var ids = FaithTechHubTemplates.Ids;
-        var existing = await db.HubTemplates.IgnoreQueryFilters().Where(t => ids.Contains(t.Id)).Select(t => t.Id).ToListAsync(cancellationToken);
-        db.HubTemplates.AddRange(FaithTechHubTemplates.Templates().Where(t => !existing.Contains(t.Id)));
+        var existing = await db.HubTemplates.IgnoreQueryFilters().Where(t => ids.Contains(t.Id)).ToListAsync(cancellationToken);
+        var seeded = FaithTechHubTemplates.Templates();
+        foreach (var template in existing)
+        {
+            var current = seeded.Single(t => t.Id == template.Id);
+            if (template.Sections == FaithTechHubTemplates.CoreOnlySections(template.Id) && current.Sections != template.Sections)
+            {
+                template.ReplaceSections(current.Sections);
+            }
+        }
+
+        db.HubTemplates.AddRange(seeded.Where(t => existing.All(e => e.Id != t.Id)));
         await db.SaveChangesAsync(cancellationToken);
     }
 

@@ -30,3 +30,9 @@ img {
   font-size: var(--font-size-xl);
   line-height: 1;
 }
+
+.ft-icon-tile__initials {
+  font: var(--text-label);
+  color: var(--color-fg-accent);
+  text-transform: uppercase;
+}

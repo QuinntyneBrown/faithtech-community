@@ -5,7 +5,10 @@ import { IconTileComponent } from './icon-tile.component';
 
 @Component({
   imports: [IconTileComponent],
-  template: `<ft-icon-tile name="workspaces" /><ft-icon-tile name="email" size="sm" />`,
+  template: `<ft-icon-tile name="workspaces" /><ft-icon-tile name="email" size="sm" /><ft-icon-tile
+      name="partners"
+      initials="BW"
+    />`,
 })
 class HostComponent {}
 
@@ -26,5 +29,14 @@ describe('IconTileComponent', () => {
     const [md, sm] = setup();
     expect(md.classList.contains('ft-icon-tile--sm')).toBe(false);
     expect(sm.classList.contains('ft-icon-tile--sm')).toBe(true);
+  });
+
+  // docs/design-system/components/list.html#icon-tile-initials: a partner without a logo shows its initials.
+  it('shows initials in place of the icon for a partner without a logo', () => {
+    const [, , partner] = setup();
+    expect(partner.classList.contains('ft-icon-tile--initials')).toBe(true);
+    expect(partner.querySelector('.ft-icon-tile__initials')?.textContent?.trim()).toBe('BW');
+    expect(partner.querySelector('ft-icon')).toBeNull();
+    expect(partner.getAttribute('aria-hidden')).toBe('true');
   });
 });

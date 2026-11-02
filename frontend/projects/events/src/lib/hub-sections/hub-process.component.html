@@ -1,0 +1,28 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">{{ content()?.name || 'Process' }}</h3>
+  @if (content()?.intro; as intro) {
+    <p>{{ intro }}</p>
+  }
+  <div class="hub-section__grid">
+    @for (stage of content()?.stages ?? []; track $index) {
+      <ft-card>
+        <ft-stack gap="2">
+          @if (stage.when; as when) {
+            <p class="hub-section__overline">{{ when }}</p>
+          }
+          <h4 class="section-title">{{ stage.title }}</h4>
+          @if (stage.summary; as summary) {
+            <p>{{ summary }}</p>
+          }
+          @if (stage.points.length) {
+            <ft-list [label]="stage.title">
+              @for (point of stage.points; track $index) {
+                <ft-list-item [label]="point.title" [description]="point.detail" />
+              }
+            </ft-list>
+          }
+        </ft-stack>
+      </ft-card>
+    }
+  </div>
+</section>

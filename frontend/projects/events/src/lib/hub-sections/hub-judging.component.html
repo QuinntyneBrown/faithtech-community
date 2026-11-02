@@ -1,0 +1,26 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">Judging and honors</h3>
+  <p>Judges score each team 1 to {{ top() }} on each criterion.</p>
+  <ft-table caption="How judges score" [columns]="columns()" [rows]="rows()" [stack]="true" />
+  @if (content()?.honors?.length) {
+    <h4 class="section-title">Honors</h4>
+    <div class="hub-section__grid">
+      @for (honor of content()!.honors; track $index) {
+        <ft-card>
+          <ft-stack gap="2">
+            <p class="hub-section__overline">
+              Honor {{ number($index) }} · {{ chosenBy(honor.chosenBy) }}
+            </p>
+            <h4 class="section-title">{{ honor.title }}</h4>
+            @if (honor.line; as line) {
+              <p>{{ line }}</p>
+            }
+          </ft-stack>
+        </ft-card>
+      }
+    </div>
+  }
+  @if (content()?.note; as note) {
+    <p>{{ note }}</p>
+  }
+</section>

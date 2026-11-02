@@ -1,10 +1,15 @@
 <div class="ft-table__wrap">
-  <table class="ft-table" [attr.aria-busy]="busy() || loading() ? 'true' : null">
+  <table
+    class="ft-table"
+    [class.ft-table--stack]="stack()"
+    [attr.role]="role('table')"
+    [attr.aria-busy]="busy() || loading() ? 'true' : null"
+  >
     <caption class="ft-table__caption" [textContent]="caption()"></caption>
-    <thead>
-      <tr>
+    <thead [attr.role]="role('rowgroup')">
+      <tr [attr.role]="role('row')">
         @for (col of columns(); track col.key) {
-          <th scope="col">
+          <th scope="col" [attr.role]="role('columnheader')">
             @if (col.hideHeader) {
               <span class="ft-table__visually-hidden">{{ col.header }}</span>
             } @else {
@@ -14,18 +19,18 @@
         }
       </tr>
     </thead>
-    <tbody>
+    <tbody [attr.role]="role('rowgroup')">
       @if (loading()) {
         @for (i of skeletonRows(); track i) {
-          <tr>
+          <tr [attr.role]="role('row')">
             @for (col of columns(); track col.key) {
-              <td><ft-skeleton shape="text" /></td>
+              <td [attr.role]="role('cell')"><ft-skeleton shape="text" /></td>
             }
           </tr>
         }
       } @else {
         @for (row of rows(); track $index) {
-          <tr>
+          <tr [attr.role]="role('row')">
             @for (col of columns(); track col.key) {
               <ng-template #cell>
                 @if (col.template; as tpl) {
@@ -38,11 +43,21 @@
                 }
               </ng-template>
               @if (col.rowHeader) {
-                <th scope="row" class="ft-table__row-header" [class.ft-table__mono]="col.mono">
+                <th
+                  scope="row"
+                  class="ft-table__row-header"
+                  [class.ft-table__mono]="col.mono"
+                  [attr.role]="role('rowheader')"
+                  [attr.data-label]="stackLabel(col)"
+                >
                   <ng-container [ngTemplateOutlet]="cell" />
                 </th>
               } @else {
-                <td [class.ft-table__mono]="col.mono">
+                <td
+                  [class.ft-table__mono]="col.mono"
+                  [attr.role]="role('cell')"
+                  [attr.data-label]="stackLabel(col)"
+                >
                   <ng-container [ngTemplateOutlet]="cell" />
                 </td>
               }

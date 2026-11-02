@@ -6,6 +6,10 @@
   border-block-end: var(--border-width-hairline) solid var(--color-border-default);
 }
 
+:host(.ft-list-item--numbered) {
+  align-items: flex-start;
+}
+
 :host(:last-child) {
   border-block-end: 0;
 }
@@ -75,4 +79,12 @@ a.ft-list-item__title {
   color: var(--color-fg-default);
   white-space: pre-line;
   overflow-wrap: anywhere;
+}
+
+.ft-list-item__number {
+  flex: none;
+  min-inline-size: var(--size-avatar-sm);
+  font: var(--text-h4);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-accent);
 }

@@ -1,0 +1,12 @@
+/* The two minutes fields side by side, stacked on a phone. */
+.demo-minutes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 39.99rem) {
+  .demo-minutes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

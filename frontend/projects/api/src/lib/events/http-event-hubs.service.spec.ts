@@ -7,7 +7,7 @@ import { apiTestProviders } from '../shared/api-test-providers';
 import { EVENT_HUBS_SERVICE } from './event-hubs.service';
 import { HttpEventHubsService } from './http-event-hubs.service';
 
-// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4; L2-156 AC4; L2-157 AC2.
+// Traces to: L2-153 AC3, AC7; L2-154 AC1, AC4; L2-156 AC4; L2-157 AC2; L2-182 AC3.
 describe('HttpEventHubsService', () => {
   let service: HttpEventHubsService;
   let controller: HttpTestingController;
@@ -82,5 +82,10 @@ describe('HttpEventHubsService', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual({ kinds: ['Agenda', 'Hero'] });
     req.flush(null);
+  });
+
+  it('names a hub file, and its thumbnail, under the event’s hub', () => {
+    expect(service.fileUrl('e1', 'r1')).toMatch(/\/events\/e1\/hub\/files\/r1$/);
+    expect(service.fileUrl('e1', 'r1', true)).toMatch(/\/events\/e1\/hub\/files\/r1\/thumbnail$/);
   });
 });

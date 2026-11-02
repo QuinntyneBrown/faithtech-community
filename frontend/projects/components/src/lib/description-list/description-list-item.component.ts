@@ -13,6 +13,7 @@ import { DescriptionListComponent } from './description-list.component';
   templateUrl: './description-list-item.component.html',
   styleUrl: './description-list-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.ft-description-list-item--stacked]': 'stacked()' },
 })
 export class DescriptionListItemComponent {
   private readonly list = inject(DescriptionListComponent, { optional: true });
@@ -21,4 +22,5 @@ export class DescriptionListItemComponent {
   readonly missing = input(false);
 
   protected readonly loading = computed(() => this.list?.loading() ?? false);
+  protected readonly stacked = computed(() => this.list?.layout() === 'stacked');
 }

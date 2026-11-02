@@ -50,7 +50,7 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 43 | Preview and publish a hub | Leads preview the real page at any step, then publish, unpublish and share its link. | 3 | 100 |
 | 44 | Visit an event hub | Attendees, and guests on a public event, open one page with the agenda's live "happening now", venue, people and links. | 5 | 100 |
 | 45 | Start a hub from a template | Leads start from a Hackathon, Meetup or Workshop template, or copy a past hub with its dates shifted. | 5 | 100 |
-| 46 | Build a hackathon hub | Leads add parking, what to bring, partners, tracks, process, rules, demo format, judging, worship and slides. | 14 | 0 |
+| 46 | Build a hackathon hub | Leads add parking, what to bring, partners, tracks, process, rules, demo format, judging, worship and slides. | 14 | 100 |
 | 47 | Edit hub templates | Organisation administrators edit the hub templates and their default text in Organisation settings. | 4 | 0 |
 | 48 | Run the day from a phone | Leads post an update banner, move a session or swap a link, and the hub changes at once. | 5 | 0 |
 | 49 | Share a hub by QR code | Leads show or print a QR code that opens the hub. | 1 | 0 |

@@ -1,0 +1,18 @@
+<section class="hub-section" [attr.aria-labelledby]="id">
+  <h3 [id]="id">What to bring</h3>
+  @if (content()?.bring?.length) {
+    <ft-list label="What to bring">
+      @for (item of content()!.bring; track $index) {
+        <ft-list-item [label]="item" />
+      }
+    </ft-list>
+  }
+  @if (content()?.onTheDay?.length) {
+    <h4 class="section-title">On the day</h4>
+    <ft-list label="On the day">
+      @for (line of content()!.onTheDay; track $index) {
+        <ft-list-item [label]="line.title" [description]="line.detail" />
+      }
+    </ft-list>
+  }
+</section>

@@ -53,17 +53,19 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Breadcrumb](components/breadcrumb.html) | Two and three levels. |
 | [Skip link](components/skip-link.html) | First stop for keyboard users. |
 | [Layout primitives](components/layout.html) | Container, stack, cluster, grid, split, page header. |
-| [Card](components/card.html) | Surfaces for grouped content. |
+| [Card](components/card.html) | Surfaces for grouped content; the media card (an image above a padded body). |
 | [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed; the shared role dialog. |
 | [Define role dialog](components/define-role-dialog.html) | Define or edit a role: name, description, capabilities, three switches. |
 | [Edit grants dialog](components/edit-grants-dialog.html) | Who may grant: a checkbox per role, administration disabled for non-administrators. |
 | [Archive role dialog](components/archive-role-dialog.html) | Confirm archiving a role; shows the 409 reason inside the dialog. |
 | [Notification panel](components/notification-panel.html) | Bell panel with unread notices. |
-| [List](components/list.html) | People, contacts, invites and check-in lists; current and finished row states (the live agenda). |
+| [List](components/list.html) | People, contacts, invites and check-in lists; current and finished row states (the live agenda); numbered rows (“01”) and the initials icon tile. |
 | [Checklist row](components/checklist-row.html) | `ft-checklist-row`: one row per hub section with a state icon, a Ready, Needs info or Hidden badge and an actions slot. |
 | [Reorderable list](components/reorderable-list.html) | Chapters and taxonomies: drag handle, move up and down, row menu, live announcement. |
-| [Table](components/table.html) | Audit log and admin tables. |
-| [Description list](components/description-list.html) | Profile and contact facts. |
+| [Repeat list](components/repeat-list.html) | `ft-repeat-list`, `ft-repeat-row`: the hub wizards’ ordered row cards (“Rule 01”) with Move up, Move down and Remove named after each row. |
+| [Picker row](components/picker-row.html) | `ft-picker-row`: one choice in Choose from Resources, a radio or checkbox with a thumbnail or icon tile, a title and a meta line. |
+| [Table](components/table.html) | Audit log and admin tables; a table that stacks one row per block on a phone. |
+| [Description list](components/description-list.html) | Profile and contact facts; stacked terms for a narrow card. |
 | [Activity feed](components/feed.html) | Activity on contacts, and typed partner activity. |
 | [Backlog tree](components/tree.html) | Initiatives, epics, stories, tasks. |
 | [Kanban board](components/kanban.html) | Partner pipeline and team board. |
@@ -87,7 +89,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Estimate card](components/sticker.html) | Revealed planning poker votes. |
 | [Toast](components/toast.html) | Info, success, warning, danger; with action. |
 | [Alert and banner](components/alert.html) | Inline alerts and page banners. |
-| [Inline message](components/inline-message.html) | Field errors and save status. |
+| [Inline message](components/inline-message.html) | Field errors and save status; the live total (“Weights total 100%”). |
 | [Progress](components/progress.html) | Determinate progress, attendance meter, progress line ("3 of 6 sections ready") and bar chart. |
 | [Stepper](components/stepper.html) | `ft-stepper`: "Step 2 of 4" and the step name over one segment per step, for wizards. |
 | [Skeleton](components/skeleton.html) | Loading placeholders, including the loading list. |
@@ -95,6 +97,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |
 | [Landing hero](components/landing-hero.html) | Split hero for the marketing page. |
 | [Video player](components/video-player.html) | Self-hosted video with captions. |
+| [Slide viewer](components/slide-viewer.html) | `ft-slide-viewer`: one slide at a time, Previous and Next, “Slide n of m”, thumbnails to jump, arrow keys; a PDF slide shows its thumbnail and “Open the slides (PDF)”. |
 | [Sign-in and sign-up forms](components/auth-forms.html) | Shared sign-in and sign-up forms, Google button. |
 | [Site footer](components/site-footer.html) | Marketing page footer. |
 
@@ -113,7 +116,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | [Notifications](patterns/notifications.html) | Bell, toast, banner, email. |
 | [Content and tone](patterns/content-and-tone.html) | Voice, verbs, dates, microcopy. |
 | [Private preview wall](patterns/private-preview-wall.html) | The unbranded unlock page served before either app. |
-| [Event hub sections](patterns/event-hub-sections.html) | The seven hub section displays (Hero, Agenda, Venue, People, Submission and feedback, Giving, Upcoming events): states, responsive, accessibility, composition; the hub page that stacks them under a Preview banner (managers) or without it (visitors and members), with its empty and not-available states; the live agenda (Finished, Happening now, Up next, “This event has finished.”, polite live region); the “Open the event hub” card. |
+| [Event hub sections](patterns/event-hub-sections.html) | The seven hub section displays (Hero, Agenda, Venue, People, Submission and feedback, Giving, Upcoming events): states, responsive, accessibility, composition; the hub page that stacks them under a Preview banner (managers) or without it (visitors and members), with its empty and not-available states; the live agenda (Finished, Happening now, Up next, “This event has finished.”, polite live region); the “Open the event hub” card; the ten optional displays (Parking, What to bring, Partners, Tracks, Process, Rules, Demo format, Judging and honors, Worship, Slides), the hub home with seventeen sections and their wizards. |
 
 ## Tokens
 
@@ -125,6 +128,8 @@ Each component page documents variants, sizes and the full state matrix in both 
 
 ## Changelog
 
+- 2026-11-01 — Hub wizards (event hubs slice 46). Added [Repeat list](components/repeat-list.html) (`ft-repeat-list`, `ft-repeat-row`): the wizards’ ordered row cards on the existing `.list__item`, `.list__body.stack`, `.overline` and `.list__actions` classes, with focus kept on the moved row’s button after a move; and [Picker row](components/picker-row.html) (`ft-picker-row`) for Choose from Resources on the existing `.choice` and `.icon-tile` classes. No new tokens or CSS classes.
+- 2026-11-01 — Build a hackathon hub (L2-172 to L2-183, event hubs slice 46). Added [Slide viewer](components/slide-viewer.html) (`ft-slide-viewer`, `.slide-viewer*`): the WAI-ARIA carousel pattern without rotation, a polite “Slide n of m” status, a thumbnail toolbar with a roving tab stop, arrow, Home and End keys, and the file variant `.slide-viewer--file` for a PDF slide (“Open the slides (PDF)”). Extended [List](components/list.html#numbered) with numbered rows (`.list--numbered`, `.list__number`; `ft-list numbered`, `ft-list-item number`) and the [initials icon tile](components/list.html#icon-tile-initials) (`.icon-tile--initials`; `ft-icon-tile initials`) for partners without a logo; [Card](components/card.html#card-v-media) with the media card (`.card__media`, `.card__body`; `ft-card variant="media"`); [Description list](components/description-list.html#stacked) with `.facts--stacked`; [Table](components/table.html#stack) with `.table--stack` (below 40rem each row is a block and each cell shows its `data-label`); [Inline message](components/inline-message.html#live-total) with the live total `.field__total` (`--off`) for the Judging weights and Demo format segments. [Event hub sections](patterns/event-hub-sections.html#optional-displays) gains the ten optional displays, the seventeen-row hub home and the wizards’ shared shape; `components.css` adds `.hub-section__time--range`. No new tokens. Two contrast pairs added, the live total’s success and danger icons on the raised dialog surface (3:1, both themes); the initials (`--color-fg-accent` on `--color-accent-subtle`), the current-thumbnail ring (`--color-accent`) and the total’s text (`--color-fg-muted`, `--color-danger-fg`) were already checked (230 checks pass).
 - 2026-11-01 — Start a hub from a template (L2-169 to L2-171, event hubs slice 45). [Radio group](components/radio-group.html) gains "A choice that asks a follow-up": Copy a past hub adds "Search past hubs" and a second group "Which hub?" in the same step, with its loading, no-results, failed and invalid states. [Empty state](components/empty-state.html) gains a small size, `.empty--sm` (40px icon circle, body-semibold title, 24 × 16px padding, `role="status"`; `ft-empty-state` `size="sm"`), for "No hubs match “{term}”." and "There are no other hubs to copy yet.". [Event hub sections](patterns/event-hub-sections.html) gains "Starting a hub" (step 2's order, Next applies the choice, step 3 pre-ticked with "Ticked for {template}." or "Ticked for the hub you copied."). `components.css` also gets `.skeleton.avatar { border-radius: full }`, so the documented round avatar skeleton is round again (it had been drawn square by `.skeleton`'s radius in every loading list). No new tokens and no new contrast pair: the small title is `--color-fg-default` on the dialog surface, already checked, and the icon is decorative, as on the default size (226 pairs pass).
 - 2026-11-01 — Visit an event hub (L2-166 to L2-168, event hubs slice 44). [Event hub sections](patterns/event-hub-sections.html) gains Live agenda (row states Finished, Happening now and Up next; “This event has finished.”; a polite live region that speaks only when the current row changes; no motion) with an Angular sketch, and Open the event hub (the Event hub card on the public and member event pages); the Hub page section covers visitors and the anonymous not-available text with Sign in. [List](components/list.html#row-states) gains the row states `.list__item--current`, `.list__item--finished` and the status line `.list__status` (`ListItemComponent` `state`). The agenda's slice-42 “Now” badge is now “Happening now”. No token changed; the contrast pairs used (`--color-accent` and `--color-fg-muted` on `--color-bg-subtle`) were already checked.
 - 2026-11-01 — Preview and publish a hub (L2-163 to L2-165, event hubs slice 43). Added a Hub page section to [Event hub sections](patterns/event-hub-sections.html) (Preview banner, stacked Ready sections, Nothing to show yet, This hub isn’t available) and a "Link button that opens a new tab" example to [Button](components/button.html) (the wizards' ghost small Preview). No new token or component: the unpublish confirmation is the existing danger dialog.

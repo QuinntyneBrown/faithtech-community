@@ -1,4 +1,4 @@
-// Traces to: L2-153, L2-169 AC3 (docs/detailed-designs/events/create-event-hub)
+// Traces to: L2-153, L2-169 AC3, L2-172 AC2 (docs/detailed-designs/events/create-event-hub)
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
@@ -15,7 +15,12 @@ const data: CreateEventHubData = {
   rsvpLink: 'http://localhost/public/events/e1',
 };
 
-function setup(create: () => Observable<{ id: string }> = () => of({ id: 'h1' })) {
+const CORE = ['Hero', 'Agenda', 'Venue', 'People', 'Links', 'Giving', 'UpcomingEvents'];
+
+function setup(
+  create: () => Observable<{ id: string }> = () => of({ id: 'h1' }),
+  kinds: string[] = CORE,
+) {
   const ref = { close: vi.fn(), disableClose: false };
   const service = {
     create: vi.fn(create),
@@ -25,9 +30,7 @@ function setup(create: () => Observable<{ id: string }> = () => of({ id: 'h1' })
     // Blank: every section shown (L2-169 AC3).
     start: vi.fn(() =>
       of({
-        sections: ['Hero', 'Agenda', 'Venue', 'People', 'Links', 'Giving', 'UpcomingEvents'].map(
-          (kind) => ({ kind, visible: true }),
-        ),
+        sections: kinds.map((kind) => ({ kind, visible: true })),
       }),
     ),
   };
@@ -130,5 +133,53 @@ describe('CreateEventHubDialog', () => {
     button('Try again')!.click();
     await settle();
     expect(status()).toContain('Step 2 of 4');
+  });
+
+  it('lists the hub’s own sections on step 3 and saves only those (L2-172 AC2)', async () => {
+    const kinds = [
+      'Hero',
+      'Agenda',
+      'Venue',
+      'Parking',
+      'Rules',
+      'People',
+      'Links',
+      'Giving',
+      'UpcomingEvents',
+    ];
+    const { button, settle, service, host } = setup(undefined, kinds);
+    const ticks = () =>
+      Array.from(host.querySelectorAll<HTMLInputElement>('input[type=checkbox]')).map(
+        (c) => c.value,
+      );
+
+    button('Next')!.click();
+    await settle();
+    button('Next')!.click();
+    await settle();
+    expect(ticks()).toEqual(kinds);
+    expect(host.textContent).toContain('Where to park, with a map and notes for each option.');
+
+    button('Next')!.click();
+    await settle();
+    const request = service.save.mock.calls.at(-1) as unknown as [
+      string,
+      { sections: { kind: string; visible: boolean }[] },
+    ];
+    expect(request[1].sections.map((s) => s.kind)).toEqual(kinds);
+  });
+
+  it('lists only the core sections after Blank', async () => {
+    const { button, settle, host } = setup();
+    button('Next')!.click();
+    await settle();
+    button('Next')!.click();
+    await settle();
+
+    expect(
+      Array.from(host.querySelectorAll<HTMLInputElement>('input[type=checkbox]')).map(
+        (c) => c.value,
+      ),
+    ).toEqual(CORE);
   });
 });

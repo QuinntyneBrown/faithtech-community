@@ -58,7 +58,7 @@
       <li><a href="../components/card.html">Card</a></li>
       <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
       <li><a href="../components/notification-panel.html">Notification panel</a></li>
-      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li><li><a href="../components/repeat-list.html">Repeat list</a></li><li><a href="../components/picker-row.html">Picker row</a></li>
       <li><a href="../components/table.html">Table</a></li>
       <li><a href="../components/description-list.html">Description list</a></li>
       <li><a href="../components/feed.html">Activity feed</a></li>
@@ -91,6 +91,7 @@
       <li><a href="../components/error-page.html">Error page</a></li>
       <li><a href="../components/landing-hero.html">Landing hero</a></li>
       <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/slide-viewer.html">Slide viewer</a></li>
       <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
       <li><a href="../components/site-footer.html">Site footer</a></li>
     </ul></details>
@@ -142,6 +143,11 @@
         <div class="ds-example__caption"><span>On the partner page the list sits in a titled card; values may hold a badge or a link but nothing larger.</span></div>
         
       </div>
+      <h3 id="stacked">Stacked (slice 46)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="card stack" style="width: 100%; max-width: 20rem;"><span class="overline">10:30 to 11:00</span><h3 class="card__title">Lament</h3><p>We patiently refuse to rush past pain.</p><dl class="facts facts--stacked"><div><dt>Listen</dt><dd>Who does your track serve? Whose pain have you heard?</dd></div><div><dt>Remember</dt><dd>Name the pain honestly. Who’s left out, and why?</dd></div><div><dt>Repent</dt><dd>What in us needs to change?</dd></div></dl></div></div>
+        <div class="ds-example__caption"><span>A process stage’s points on the hub. In a narrow card the two-column grid squeezes the description, so <code>.facts--stacked</code> puts each term above its description (one column, 2px between, 12px between pairs); the term turns <code>--color-fg-default</code> and the description small body in <code>--color-fg-muted</code>. <code>ft-description-list layout="stacked"</code>.</span></div>
+      </div>
     </section>
     <section class="ds-section" id="sizes" data-na="One density; the term column is fixed between 6 and 9rem."><h2><a href="#sizes">Sizes</a></h2>
       <p>There is one density. The term column is <code>minmax(6rem, 9rem)</code>; values take the rest.</p>
@@ -183,7 +189,8 @@
     </section>
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <p>Extracted from these mocks:</p>
-      <ul><li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (contact facts)</li><li><a href="../../mocks/pages/contact/linked.html">pages/contact/linked</a> (linked contact)</li><li><a href="../../mocks/pages/contact/missing.html">pages/contact/missing</a> (missing optional values)</li><li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (event facts)</li><li><a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a> (public event facts)</li><li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (partner facts)</li><li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (work item facts)</li><li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (workspace facts)</li></ul>
+      <ul><li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (contact facts)</li><li><a href="../../mocks/pages/contact/linked.html">pages/contact/linked</a> (linked contact)</li><li><a href="../../mocks/pages/contact/missing.html">pages/contact/missing</a> (missing optional values)</li><li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (event facts)</li><li><a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a> (public event facts)</li><li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (partner facts)</li><li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (work item facts)</li><li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (workspace facts)</li>  <li><a href="../../mocks/pages/hub-page/hackathon.html">pages/hub-page/hackathon</a> (slice 46, the Create Cycle’s stage points)</li>
+      </ul>
       <p>Drift noticed in those mocks:</p>
       <ul><li>Resolved: contact and partner emails are <code>mailto:</code> links in every mock (<a href="../../mocks/pages/contact/default.html">contact/default</a>, <code>linked</code>, <code>match</code> and <a href="../../mocks/pages/partner/default.html">partner/default</a>).</li><li>Resolved: <a href="../../mocks/pages/contact/missing.html">pages/contact/missing</a> shows a contact with no phone or organisation; both rows stay and read &ldquo;Not added&rdquo; in <code>.text-muted</code>. In Angular, set <code>[missing]="true"</code> on <code>ft-description-list-item</code>.</li><li>Resolved: <a href="../../mocks/pages/contact/loading.html">pages/contact/loading</a> now shows the Details card with its terms and skeleton values instead of skeletoning the whole page.</li></ul>
     </section>

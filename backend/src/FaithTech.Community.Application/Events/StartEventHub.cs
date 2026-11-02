@@ -74,7 +74,7 @@ public class StartEventHubHandler(
         else
         {
             key = EventHub.BlankTemplate;
-            sections = [.. Enum.GetValues<HubSectionKind>().Select(kind => new HubSectionStart(kind, true, null))];
+            sections = [.. HubSectionKinds.Core.Select(kind => new HubSectionStart(kind, true, null))];
         }
 
         hub.Start(key, sections, time.GetUtcNow());

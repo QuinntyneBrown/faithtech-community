@@ -1320,3 +1320,52 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 .hub-section__warning { display: flex; align-items: flex-start; gap: var(--space-1); margin: var(--space-1) 0 0; font: var(--text-body-sm); color: var(--color-warning-fg); }
 .hub-section__warning .icon { flex: none; width: var(--size-icon-sm); height: var(--size-icon-sm); margin-top: var(--space-0-5); color: var(--color-warning-icon); }
 @media (max-width: 39.99rem) { .hub-section__time { width: 3.75rem; } }
+
+/* ---------- Hackathon hub (event hubs slice 46, L2-172 to L2-183) ---------- */
+/* Card media: a flush card that leads with an image (a parking map) above a padded body. <ft-card variant="media">. */
+.card__media { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background: var(--color-bg-subtle); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.card__body { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); min-width: 0; }
+/* Description list, stacked: each term above its description (a process stage's points), for a narrow card. */
+.facts--stacked > div { grid-template-columns: 1fr; gap: var(--space-0-5); }
+.facts--stacked dt { color: var(--color-fg-default); }
+.facts--stacked dd { font: var(--text-body-sm); color: var(--color-fg-muted); }
+/* List: numbered rows (build rules, worship songs). <ol class="list list--numbered">; each row leads with .list__number ("01"), which is aria-hidden because the ol already gives the position. */
+.list--numbered .list__item { align-items: flex-start; }
+.list__number { flex: none; min-width: var(--size-avatar-sm); font: var(--text-h4); font-variant-numeric: tabular-nums; color: var(--color-fg-accent); }
+/* Icon tile with initials: a partner with no logo. <ft-icon-tile initials="BW">. */
+.icon-tile--initials { font: var(--text-label); color: var(--color-fg-accent); text-transform: uppercase; }
+/* The agenda time column, widened for a range ("0:30 to 2:00") in the demo segments. */
+.hub-section__time--range { width: 7rem; }
+/* Live total: a form step's running sum ("Weights total 100%", "Segments: 3:00 of 3:00"), role="status". */
+.field__total { display: flex; align-items: center; gap: var(--space-1); margin: 0; font: var(--text-label); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.field__total .icon { flex: none; width: var(--size-icon-sm); height: var(--size-icon-sm); color: var(--color-success-icon); }
+.field__total--off { color: var(--color-danger-fg); }
+.field__total--off .icon { color: var(--color-danger-icon); }
+/* Table that stacks under 40rem: each row becomes a block and each cell shows its column name from data-label. <ft-table stack>. */
+@media (max-width: 39.99rem) {
+  .table--stack, .table--stack tbody, .table--stack tr, .table--stack td { display: block; width: 100%; }
+  .table--stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .table--stack tr { padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+  .table--stack tbody tr:last-child { border-bottom: 0; }
+  .table--stack td { padding: var(--space-1) 0; border-bottom: 0; }
+  .table--stack td[data-label]::before { content: attr(data-label); display: block; font: var(--text-label); color: var(--color-fg-muted); }
+}
+/* ---------- Slide viewer (ft-slide-viewer): one slide at a time, Previous and Next, "Slide n of m", thumbnails to jump. ---------- */
+.slide-viewer { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; border-radius: var(--radius-lg); }
+.slide-viewer:focus-visible, .slide-viewer[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
+.slide-viewer__stage { margin: 0; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-bg-subtle); border: var(--border-width-hairline) solid var(--color-border-default); }
+.slide-viewer__stage img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.slide-viewer__bar { display: flex; align-items: center; gap: var(--space-3); }
+.slide-viewer__status { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.slide-viewer__count { font: var(--text-label); font-variant-numeric: tabular-nums; }
+.slide-viewer__title { max-width: 100%; font: var(--text-body-sm); color: var(--color-fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.slide-viewer__thumbs { margin: 0; padding: var(--space-1); display: flex; gap: var(--space-2); overflow-x: auto; scroll-snap-type: x proximity; }
+.slide-viewer__thumbs > * { flex: none; scroll-snap-align: start; }
+.slide-viewer__thumb { display: block; width: 6rem; padding: 0; border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-sm); overflow: hidden; background: var(--color-bg-subtle); cursor: pointer; }
+.slide-viewer__thumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.slide-viewer__thumb:hover, .slide-viewer__thumb[data-state="hover"] { border-color: var(--color-border-strong); }
+.slide-viewer__thumb:focus-visible, .slide-viewer__thumb[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
+.slide-viewer__thumb[aria-current="true"] { border-color: var(--color-accent); box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent); }
+/* A PDF: its first-page thumbnail and one link that opens it; no bar and no thumbnails. */
+.slide-viewer--file .slide-viewer__stage img { object-fit: cover; }
+@media (prefers-reduced-motion: no-preference) { .slide-viewer__thumbs { scroll-behavior: smooth; } }
