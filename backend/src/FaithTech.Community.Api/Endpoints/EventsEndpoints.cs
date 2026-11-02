@@ -98,6 +98,13 @@ public static class EventsEndpoints
                     : Results.NotFound())
             .AllowAnonymous();
 
+        // The hub as a zip to keep (L2-197, L2-198, ADR 0046): ManageEventHubs only; times in the caller's time zone.
+        events.MapGet("/{id:guid}/hub/archive", async (Guid id, string? timeZone, HubArchiveHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, file) = await handler.HandleAsync(id, timeZone, cancellationToken);
+            return result.ToHttp(() => Results.File(file!.Content, "application/zip", file.FileName));
+        });
+
         events.MapPut("/{id:guid}/hub", async (Guid id, SaveEventHubCommand command, SaveEventHubHandler handler, CancellationToken cancellationToken) =>
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventHubCommand>();

@@ -35,7 +35,7 @@ public class HubArchiveWriter : IHubArchiveWriter
             await page.WriteAsync(bytes, cancellationToken);
         }
 
-        foreach (var file in archive.Files.Values.Concat(archive.Photos.Values).DistinctBy(f => f.Path))
+        foreach (var file in archive.Slides.Values.Concat(archive.Maps.Values).Concat(archive.Photos.Values).DistinctBy(f => f.Path))
         {
             var entry = zip.CreateEntry($"{archive.Folder}/{file.Path}", CompressionLevel.Optimal);
             await using var source = await file.Open(cancellationToken);
@@ -133,8 +133,8 @@ public class HubArchiveWriter : IHubArchiveWriter
             ? $"{Day(from)} · {Times(from, to)}"
             : $"{Day(from)} · {Time(from)} – {Day(to)} · {Time(to)}";
 
-        private string? FilePath(Guid? resourceId) =>
-            resourceId is { } id && archive.Files.TryGetValue(id, out var entry) ? entry.Path : null;
+        private static string? PathOf(IReadOnlyDictionary<Guid, HubArchiveEntry> files, Guid? resourceId) =>
+            resourceId is { } id && files.TryGetValue(id, out var entry) ? entry.Path : null;
 
         private void Open(string kind, string heading) =>
             _html.Append($"<section aria-labelledby=\"s-{kind.ToLowerInvariant()}\"><h2 id=\"s-{kind.ToLowerInvariant()}\">{E(heading)}</h2>");
@@ -189,7 +189,7 @@ public class HubArchiveWriter : IHubArchiveWriter
                     foreach (var option in parking.Options)
                     {
                         _html.Append($"<article class=\"card stack\"><h3>{E(option.Title)}</h3>");
-                        if (FilePath(option.MapResourceId) is { } map)
+                        if (PathOf(archive.Maps, option.MapResourceId) is { } map)
                         {
                             _html.Append($"<a href=\"{map}\"><img src=\"{map}\" alt=\"Map of {E(option.Title)}\"></a>");
                         }
@@ -387,7 +387,7 @@ public class HubArchiveWriter : IHubArchiveWriter
                     var number = 0;
                     foreach (var slide in slides.Slides)
                     {
-                        if (FilePath(slide.ResourceId) is not { } file)
+                        if (PathOf(archive.Slides, slide.ResourceId) is not { } file)
                         {
                             continue;
                         }

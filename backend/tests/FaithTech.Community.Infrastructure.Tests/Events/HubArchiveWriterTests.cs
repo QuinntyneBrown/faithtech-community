@@ -108,7 +108,7 @@ public class HubArchiveWriterTests
     [Fact]
     public async Task A_file_with_no_entry_is_left_out()
     {
-        var html = await PageAsync(Archive(Toronto) with { Files = new Dictionary<Guid, HubArchiveEntry>(), Photos = new Dictionary<Guid, HubArchiveEntry>() });
+        var html = await PageAsync(Archive(Toronto) with { Slides = new Dictionary<Guid, HubArchiveEntry>(), Maps = new Dictionary<Guid, HubArchiveEntry>(), Photos = new Dictionary<Guid, HubArchiveEntry>() });
 
         Assert.DoesNotContain("slides/", html);
         Assert.DoesNotContain("images/", html);
@@ -201,12 +201,8 @@ public class HubArchiveWriterTests
 
     private static HubArchive Archive(TimeZoneInfo zone) => new(
         Hub(), zone, new DateTimeOffset(2026, 11, 9, 15, 0, 0, TimeSpan.Zero), Folder,
-        new Dictionary<Guid, HubArchiveEntry>
-        {
-            [Slide1] = Entry("slides/01.jpg", "slide one"),
-            [Slide2] = Entry("slides/02.pdf", "pdf"),
-            [Map] = Entry("images/parking-1.png", "map"),
-        },
+        new Dictionary<Guid, HubArchiveEntry> { [Slide1] = Entry("slides/01.jpg", "slide one"), [Slide2] = Entry("slides/02.pdf", "pdf") },
+        new Dictionary<Guid, HubArchiveEntry> { [Map] = Entry("images/parking-1.png", "map") },
         new Dictionary<Guid, HubArchiveEntry> { [Grace] = Entry("images/person-1.jpg", "grace") });
 
     private static HubSectionDto Section(string kind, object content) => new(kind, true, "Ready", content);
