@@ -30,3 +30,4 @@ export * from './post-hub-update';
 export * from './move-hub-session';
 export * from './swap-hub-link';
 export * from './share-hub';
+export * from './hub-qr-full-screen';

@@ -1,0 +1,62 @@
+:host {
+  display: block;
+  block-size: 100%;
+}
+
+/* The whole viewport, centred safely: a tall view scrolls instead of losing its top. */
+.ft-qr-presenter {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: var(--space-4);
+  min-block-size: 100%;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+  text-align: center;
+  background: var(--color-bg-canvas);
+  color: var(--color-fg-default);
+}
+
+.ft-qr-presenter__close {
+  align-self: flex-end;
+}
+
+.ft-qr-presenter__title {
+  margin: 0;
+  font: var(--text-display);
+}
+
+.ft-qr-presenter__lead {
+  margin: 0;
+  font: var(--text-body-lg);
+  color: var(--color-fg-muted);
+}
+
+.ft-qr-presenter__note {
+  max-inline-size: 40rem;
+  text-align: start;
+}
+
+.ft-qr-presenter__link {
+  margin: 0;
+  max-inline-size: 48rem;
+  font: var(--text-h3);
+  overflow-wrap: anywhere;
+}
+
+.ft-qr-presenter__hint {
+  margin: 0;
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+@media (max-width: 39.99rem) {
+  .ft-qr-presenter__title {
+    font: var(--text-h1);
+  }
+
+  .ft-qr-presenter__link {
+    font: var(--text-body);
+  }
+}

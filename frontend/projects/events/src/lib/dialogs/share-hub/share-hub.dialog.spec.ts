@@ -4,7 +4,8 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { QrCodeComponent } from '@faithtech-community/components';
 
-import { ShareHubData, ShareHubDialog } from './share-hub.dialog';
+import { ShareHubData } from './share-hub-data';
+import { ShareHubDialog } from './share-hub.dialog';
 
 const LINK = 'https://community.faithtech.example/public/events/e1/hub';
 

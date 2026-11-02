@@ -12,11 +12,24 @@ export class DialogService {
   open<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
     config: Partial<DialogConfig<D, DialogRef<R, C>>> = {},
-    /** `wide` is the 44rem panel for a dialog with a two-column body, such as the define-role dialog. */
-    options: { wide?: boolean } = {},
+    /**
+     * `wide` is the 44rem panel for a dialog with a two-column body, such as the define-role dialog.
+     * `fullScreen` fills the viewport on every width, for a view such as the QR presenter.
+     */
+    options: { wide?: boolean; fullScreen?: boolean } = {},
   ): DialogRef<R, C> {
     const sheet = this.isPhone();
     const position = this.overlay.position().global();
+    const fullScreen = options.fullScreen
+      ? {
+          width: '100vw',
+          height: '100dvh',
+          maxWidth: '100vw',
+          maxHeight: '100dvh',
+          panelClass: 'ft-dialog-panel--full-screen',
+          positionStrategy: position.top('0').left('0'),
+        }
+      : {};
     const ref = this.dialog.open<R, D, C>(component, {
       hasBackdrop: true,
       ariaModal: true,
@@ -28,6 +41,7 @@ export class DialogService {
       positionStrategy: sheet
         ? position.bottom().centerHorizontally()
         : position.centerHorizontally().centerVertically(),
+      ...fullScreen,
       ...config,
     });
     const backdrop = ref.overlayRef.backdropElement;

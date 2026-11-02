@@ -20,5 +20,8 @@
       (copied)="copied()"
     />
   </ft-stack>
+  <ft-button ftDialogFooterStart (click)="showFullScreen()">
+    <ft-icon name="full-screen" /> Show full screen
+  </ft-button>
   <ft-button ftDialogFooter variant="primary" initialFocus (click)="ref.close()">Done</ft-button>
 </ft-dialog>

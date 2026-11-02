@@ -52,6 +52,17 @@ describe('DialogService', () => {
     expect(open.mock.calls[1][1]?.width).toContain('44rem');
   });
 
+  it('fills the viewport on every width for a full-screen view (L2-194)', async () => {
+    const open = vi.spyOn(TestBed.inject(Dialog), 'open');
+    TestBed.inject(DialogService).open(ContentComponent, {}, { fullScreen: true });
+    await tick();
+    const config = open.mock.calls[0][1]!;
+    expect(config.width).toBe('100vw');
+    expect(config.height).toBe('100dvh');
+    expect(config.maxHeight).toBe('100dvh');
+    expect(config.panelClass).toContain('ft-dialog-panel--full-screen');
+  });
+
   it('closes on Escape', async () => {
     TestBed.inject(DialogService).open(ContentComponent);
     await tick();

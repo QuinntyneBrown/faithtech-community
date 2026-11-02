@@ -1,0 +1,8 @@
+<ft-qr-presenter
+  [value]="data.link"
+  [alt]="'QR code for the ' + data.eventTitle + ' hub'"
+  [heading]="data.eventTitle"
+  lead="Scan with a phone camera to open the hub"
+  [note]="data.status === 'Draft' ? draftNote : null"
+  (closed)="ref.close()"
+/>

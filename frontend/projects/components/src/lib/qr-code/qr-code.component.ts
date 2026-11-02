@@ -8,7 +8,8 @@ import {
 } from '@angular/core';
 import qrcode from 'qrcode-generator';
 
-export type QrCodeSize = 'sm' | 'md' | 'lg';
+/** `fill` is as large as the screen allows, for the QR presenter. */
+export type QrCodeSize = 'sm' | 'md' | 'lg' | 'fill';
 
 /** Modules of quiet zone around the code in the downloaded image (the plate's padding on screen). */
 const QUIET_ZONE = 4;
