@@ -12,6 +12,10 @@
   background: var(--color-bg-subtle);
 }
 
+.ft-photo--borderless .ft-photo__thumb {
+  border: 0;
+}
+
 .ft-photo--featured .ft-photo__thumb {
   border: var(--border-width-thick) solid var(--color-accent);
 }

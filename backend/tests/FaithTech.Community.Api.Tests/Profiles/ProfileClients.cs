@@ -14,11 +14,11 @@ public static class ProfileClients
     public record Member(Guid UserId, Guid ProfileId);
 
     public static async Task<Member> AddMemberAsync(
-        this CommunityApiFactory factory, string name, Action<Profile>? shape = null)
+        this CommunityApiFactory factory, string name, Action<Profile>? shape = null, DateTime? joinedAtUtc = null)
     {
         return await factory.WithDbAsync(async db =>
         {
-            var profile = new Profile(name);
+            var profile = new Profile(name, joinedAtUtc);
             shape?.Invoke(profile);
             var email = $"{Guid.NewGuid():N}@example.org";
             var user = new CommunityUser

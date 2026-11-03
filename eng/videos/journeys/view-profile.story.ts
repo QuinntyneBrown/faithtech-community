@@ -10,6 +10,7 @@ test('view-profile', async ({ page, api }) => {
   const shell = new AppShell(page);
   const profile = new ProfilePage(page);
   const leah = api.addAccount({ name: 'Leah Thompson', email: 'leah@example.org' });
+  api.profiles.get(leah.profileId)!.joinedAtUtc = '2026-09-14T10:00:00Z';
   const [portrait, pairing, whiteboard] = [
     loadPicture('samuel-mensah'),
     loadPicture('hackathon-pairing'),
@@ -18,9 +19,10 @@ test('view-profile', async ({ page, api }) => {
   api.addProfile({
     id: 'samuel',
     name: 'Samuel Mensah',
-    homeCity: 'Toronto',
+    chapterId: api.chapters.named('Toronto').id,
     bio: 'Backend engineer who loves helping new builders ship their first project.',
     roles: ['CityLead', 'ProductEngineer'],
+    joinedAtUtc: '2024-03-12T10:00:00Z',
     photos: [
       {
         id: 'p1',

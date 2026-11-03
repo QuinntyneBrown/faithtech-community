@@ -43,6 +43,11 @@ export class ProfilePage {
     await this.page.goto(`/people/${id}`);
   }
 
+  /** The line under the roles: home chapter and when the member joined. */
+  get location(): Locator {
+    return this.page.locator('.ft-profile-header__where');
+  }
+
   where(text: string): Locator {
     return this.page.locator('.ft-profile-header__where', { hasText: text });
   }

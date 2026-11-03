@@ -72,6 +72,13 @@ const TOO_LONG: Record<Field, string> = {
   chapterId: '',
   bio: 'Use 400 characters or fewer for your bio.',
 };
+// The error summary links with the short form of each error (design system, form field content rules).
+const MISSING_NAME = 'Enter your name as you’d like people to see it.';
+const SHORT: Record<string, string> = {
+  [MISSING_NAME]: 'Enter your name',
+  [TOO_LONG.name]: 'Shorten your name',
+  [TOO_LONG.bio]: 'Shorten your bio',
+};
 const MAX_ALT = 300;
 const MISSING_ALT = 'Describe what’s in the photo for people using screen readers.';
 const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
@@ -190,7 +197,10 @@ export class EditProfilePage {
   );
 
   protected readonly summary = computed<FormError[]>(() => [
-    ...this.errors().map((e) => ({ message: e.message, fieldId: this.fieldOf(e.field) })),
+    ...this.errors().map((e) => ({
+      message: SHORT[e.message] ?? e.message,
+      fieldId: this.fieldOf(e.field),
+    })),
     ...this.altErrors().flatMap((error, i) =>
       error
         ? [
@@ -393,7 +403,7 @@ export class EditProfilePage {
   private clientError(field: Field): string {
     if (!this.submitted()) return '';
     const value = this.form.controls[field].value.trim();
-    if (field === 'name' && value === '') return 'Enter your name as you’d like people to see it.';
+    if (field === 'name' && value === '') return MISSING_NAME;
     return value.length > MAX[field] ? TOO_LONG[field] : '';
   }
 

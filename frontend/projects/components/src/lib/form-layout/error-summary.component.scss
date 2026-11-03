@@ -32,9 +32,14 @@ ol {
   padding-inline-start: var(--space-5);
 }
 
+// Links take the link role, as in the mocks' .form-summary; the danger colour stays on the title.
 a {
-  color: inherit;
+  color: var(--color-fg-link);
   text-decoration: underline;
+
+  &:hover {
+    color: var(--color-fg-link-hover);
+  }
 
   &:focus-visible {
     outline: var(--focus-ring-width) solid var(--color-accent);

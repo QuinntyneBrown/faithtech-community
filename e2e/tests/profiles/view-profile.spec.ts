@@ -51,6 +51,44 @@ test.describe('View a profile', () => {
     await axe.check();
   });
 
+  test('a member sees when another member joined, beside their home city', async ({
+    page,
+    api,
+  }) => {
+    // Given Samuel, who joined in March 2024 and is tagged to Toronto
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    api.addProfile({
+      id: 'samuel',
+      name: 'Samuel Mensah',
+      chapterId: api.chapters.named('Toronto').id,
+      joinedAtUtc: '2024-03-12T15:00:00Z',
+    });
+    const profile = new ProfilePage(page);
+
+    // When Grace opens his profile
+    await api.signInAs(grace, '/people/samuel');
+
+    // Then the location line reads his city and when he joined
+    await expect(profile.location).toHaveText('Toronto · Member since March 2024');
+  });
+
+  test('a member from before join dates were recorded shows no member-since', async ({
+    page,
+    api,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    api.addProfile({
+      id: 'samuel',
+      name: 'Samuel Mensah',
+      chapterId: api.chapters.named('Toronto').id,
+    });
+    const profile = new ProfilePage(page);
+
+    await api.signInAs(grace, '/people/samuel');
+
+    await expect(profile.location).toHaveText('Toronto');
+  });
+
   test('the Photos heading uses the section-title type role, as in the mock', async ({
     page,
     api,

@@ -1872,6 +1872,7 @@ export class MockApi {
     return {
       ...profile,
       chapterName: this.chapters.nameOf(profile.chapterId),
+      joinedAtUtc: profile.joinedAtUtc ?? null,
       roles: this.profileRoles(profile),
       photos,
       featuredPhoto: photos.find((p) => p.isFeatured) ?? null,

@@ -20,6 +20,7 @@ import {
   ButtonComponent,
   DialogService,
   EmptyStateComponent,
+  formatMonthYear,
   IconComponent,
   ProfileHeaderComponent,
   ProfilePhoto,
@@ -60,6 +61,11 @@ export class ProfilePage {
 
   protected readonly avatarColor = computed(() => avatarColorFor(this.profile()?.id));
   protected readonly roles = computed(() => this.profile()?.roles.map(roleBadge) ?? []);
+  /** "March 2024", or empty for a member from before join dates were recorded. */
+  protected readonly memberSince = computed(() => {
+    const joined = this.profile()?.joinedAtUtc;
+    return joined ? formatMonthYear(joined) : '';
+  });
   protected readonly photos = computed<ProfilePhoto[]>(
     () => this.profile()?.photos.map((p) => ({ url: p.url, alt: p.altText })) ?? [],
   );

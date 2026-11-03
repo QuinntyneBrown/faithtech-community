@@ -15,11 +15,12 @@
   animation: dialog-in var(--duration-slow) var(--ease-enter) both;
 }
 
+// Paddings, gaps and the footer rule follow the design system's .dialog (components.css).
 .dialog__header {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-4);
   align-items: flex-start;
-  padding: var(--space-5) var(--space-5) var(--space-3);
+  padding: var(--space-6) var(--space-6) 0;
 }
 
 .dialog__icon {
@@ -52,7 +53,6 @@
 .dialog__description {
   margin: var(--space-1) 0 0;
   color: var(--color-fg-muted);
-  font: var(--text-body-sm);
 }
 
 .dialog__close {
@@ -88,7 +88,16 @@
 .dialog__body {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-2) var(--space-5);
+  padding: var(--space-4) var(--space-6);
+
+  // A confirmation with nothing in its body: the footer sits 16px under the header.
+  &:empty {
+    display: none;
+
+    + .dialog__footer {
+      margin-block-start: var(--space-4);
+    }
+  }
 }
 
 .dialog__footer {
@@ -98,7 +107,8 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5) var(--space-5);
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-block-start: var(--border-width-hairline) solid var(--color-border-default);
   background: var(--color-bg-surface-raised);
 
   &:empty {

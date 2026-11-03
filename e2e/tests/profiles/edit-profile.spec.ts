@@ -61,6 +61,8 @@ test.describe('Edit own profile', () => {
 
     await expect(edit.summary).toContainText('Fix 1 thing to save your profile');
     await expect(edit.summary).toBeFocused();
+    // The summary links with the short form of the error; the field says it in full.
+    await expect(edit.summaryLinks).toHaveText(['Enter your name']);
     await expect(edit.nameError).toHaveText('Enter your name as you’d like people to see it.');
     expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)).toHaveLength(0);
     await axe.check();
@@ -75,6 +77,7 @@ test.describe('Edit own profile', () => {
     await edit.save.click();
 
     await expect(edit.summary).toContainText('Fix 2 things to save your profile');
+    await expect(edit.summaryLinks).toHaveText(['Shorten your name', 'Shorten your bio']);
     await expect(edit.nameError).toHaveText('Use 100 characters or fewer for your name.');
     await expect(edit.bioError).toHaveText('Use 400 characters or fewer for your bio.');
     expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)).toHaveLength(0);

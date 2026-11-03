@@ -6,6 +6,7 @@
   @case ('not-found') {
     <h1 class="visually-hidden">Profile</h1>
     <ft-empty-state
+      icon="error"
       heading="We can’t find that profile"
       [text]="
         'The link may be wrong, or the person may not have joined ' +
@@ -33,6 +34,7 @@
         [avatarColor]="avatarColor()"
         [roles]="roles()"
         [location]="p.chapterName ?? ''"
+        [memberSince]="memberSince()"
         [bio]="p.bio ?? ''"
         [emptyBio]="p.isOwn ? 'You haven’t written a bio yet.' : null"
         [photoUrl]="p.featuredPhoto?.url ?? null"
@@ -57,6 +59,7 @@
       @if (p.isOwn && p.photos.length === 0) {
         <div class="photos-empty">
           <ft-empty-state
+            icon="photo"
             heading="No photos yet"
             [text]="
               'Add up to 10 photos. The one you feature becomes your picture across ' +

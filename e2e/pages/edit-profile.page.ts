@@ -17,6 +17,8 @@ export class EditProfilePage {
   /** The buttons and links at the end of the form, in DOM (and tab) order. */
   readonly actions: Locator;
   readonly summary: Locator;
+  /** The error summary's links, one per problem, in order. */
+  readonly summaryLinks: Locator;
   readonly nameError: Locator;
   readonly bioError: Locator;
   /** The characters-left counter under the bio. */
@@ -46,6 +48,7 @@ export class EditProfilePage {
     this.cancel = page.getByRole('link', { name: 'Cancel' });
     this.actions = page.locator('ft-form-actions').locator('a, button');
     this.summary = page.locator('ft-error-summary [role=alert]');
+    this.summaryLinks = this.summary.getByRole('link');
     this.nameError = fieldError(page, 'Name');
     this.bioError = page
       .locator('ft-form-field')
