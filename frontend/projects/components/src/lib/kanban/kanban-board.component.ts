@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { BadgeComponent } from '../badge/badge.component';
 import { BreakpointService } from '../breakpoint/breakpoint.service';
+import { KanbanCardComponent } from './kanban-card.component';
 import { KanbanColumnComponent } from './kanban-column.component';
 
 let nextId = 0;
@@ -40,6 +41,7 @@ export class KanbanBoardComponent {
   readonly announcement = input('');
 
   protected readonly stages = contentChildren(KanbanColumnComponent);
+  private readonly cards = contentChildren(KanbanCardComponent, { descendants: true });
   protected readonly tabButtons = viewChildren<ElementRef<HTMLButtonElement>>('tab');
   protected readonly phone = computed(() => this.breakpoint.current() === 'base');
   protected readonly selected = signal(0);
@@ -80,5 +82,15 @@ export class KanbanBoardComponent {
     event.preventDefault();
     this.select(next);
     this.tabButtons()[next]?.nativeElement.focus();
+  }
+
+  /**
+   * Focuses the card with this id. A moved card is drawn anew in its new column, so the button that had
+   * focus is gone; call this once the board has rendered the move.
+   */
+  focusCard(cardId: unknown): void {
+    this.cards()
+      .find((c) => c.cardId() === cardId)
+      ?.focusMove();
   }
 }

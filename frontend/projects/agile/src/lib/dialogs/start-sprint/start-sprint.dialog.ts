@@ -86,10 +86,11 @@ export class StartSprintDialog {
     goal: [''],
     startDate: [isoDay(new Date())],
     endDate: [isoDay(new Date(Date.now() + 13 * 24 * 60 * 60 * 1000))],
-    storyIds: [[] as string[]],
+    // Every candidate starts checked, as the mock does; the owner unticks what stays behind.
+    storyIds: [this.data.sprints.candidates.map((c) => c.id)],
   });
   private readonly chosen = toSignal(this.form.controls.storyIds.valueChanges, {
-    initialValue: [] as string[],
+    initialValue: this.form.controls.storyIds.value,
   });
   protected readonly candidates = this.data.sprints.candidates;
   protected readonly chosenPoints = computed(() =>

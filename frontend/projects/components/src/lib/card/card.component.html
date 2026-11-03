@@ -6,23 +6,27 @@
 <ng-template #content>
   @if (heading(); as text) {
     <div class="ft-card__header">
-      @switch (headingLevel()) {
-        @case (3) {
-          <h3 class="ft-card__title" [id]="headingId">
-            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
-          </h3>
+      <div class="ft-card__heading">
+        @switch (headingLevel()) {
+          @case (3) {
+            <h3 class="ft-card__title" [id]="headingId">
+              <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+            </h3>
+          }
+          @case (4) {
+            <h4 class="ft-card__title" [id]="headingId">
+              <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+            </h4>
+          }
+          @default {
+            <h2 class="ft-card__title" [id]="headingId">
+              <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+            </h2>
+          }
         }
-        @case (4) {
-          <h4 class="ft-card__title" [id]="headingId">
-            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
-          </h4>
-        }
-        @default {
-          <h2 class="ft-card__title" [id]="headingId">
-            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
-          </h2>
-        }
-      }
+        <!-- A badge that belongs to the title, such as a sprint's "Active", sits right after it. -->
+        <ng-content select="[ftCardTitleBadge]" />
+      </div>
       <ng-content select="[ftCardActions]" />
     </div>
   }

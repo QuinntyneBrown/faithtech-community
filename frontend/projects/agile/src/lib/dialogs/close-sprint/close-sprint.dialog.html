@@ -14,8 +14,8 @@
     <ft-card variant="flush">
       <ft-list label="Unfinished stories">
         @for (row of data.unfinished; track row.card.id) {
-          <ft-list-item [label]="row.card.title">
-            <ft-badge leading variant="success">Story</ft-badge>
+          <ft-list-item plain [label]="row.card.title">
+            <ft-badge leading variant="role" tone="success">Story</ft-badge>
             <span trailing class="text-caption">{{ labels[row.status] }}</span>
           </ft-list-item>
         }
@@ -23,7 +23,7 @@
     </ft-card>
   }
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
-  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="close()">
+  <ft-button ftDialogFooter data-autofocus variant="primary" [loading]="busy()" (click)="close()">
     {{ busy() ? 'Close sprint…' : 'Close sprint' }}
   </ft-button>
 </ft-dialog>

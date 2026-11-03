@@ -34,6 +34,8 @@ export class AlertComponent {
   readonly status = input<AlertStatus>('info');
   /** Optional: a one-line notice, such as a read-only explanation, has only text. */
   readonly heading = input<string | null>(null);
+  /** An icon in place of the status icon, such as `team` for a membership notice. */
+  readonly icon = input<string | null>(null);
   readonly dismissible = input(false);
   /** Lets the alert take focus as a form's error summary (see FormErrorFocusDirective). */
   readonly focusable = input(false);
@@ -44,5 +46,5 @@ export class AlertComponent {
   protected readonly role = computed(() =>
     this.status() === 'danger' && !this.polite() ? 'alert' : 'status',
   );
-  protected readonly icon = computed(() => ALERT_ICONS[this.status()]);
+  protected readonly iconName = computed(() => this.icon() ?? ALERT_ICONS[this.status()]);
 }

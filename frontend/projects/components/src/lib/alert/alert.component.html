@@ -3,7 +3,7 @@
   [attr.role]="role()"
   [attr.tabindex]="focusable() ? -1 : null"
 >
-  <ft-icon class="alert__icon" [name]="icon()" />
+  <ft-icon class="alert__icon" [name]="iconName()" />
   <div class="alert__body">
     @if (heading(); as title) {
       <div class="alert__title">{{ title }}</div>

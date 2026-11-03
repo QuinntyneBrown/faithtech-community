@@ -1,5 +1,13 @@
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { BadgeComponent, BadgeVariant } from '../badge/badge.component';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent } from '../icon/icon.component';
@@ -22,6 +30,7 @@ import { IconComponent } from '../icon/icon.component';
 })
 export class KanbanCardComponent {
   private readonly drag = inject(CdkDrag);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /** Identifies the card in drop events and `moveRequested`. */
   readonly cardId = input.required<unknown>();
@@ -39,6 +48,14 @@ export class KanbanCardComponent {
 
   /** The Move button was pressed; the app opens its move dialog. */
   readonly moveRequested = output<unknown>();
+
+  /** Focuses the Move button, or the card's link when it cannot move, after the card changed column. */
+  focusMove(): void {
+    const target =
+      this.host.nativeElement.querySelector<HTMLElement>('ft-button button') ??
+      this.host.nativeElement.querySelector<HTMLElement>('a');
+    target?.focus();
+  }
 
   constructor() {
     effect(() => {

@@ -4,10 +4,13 @@ import {
   Component,
   computed,
   DestroyRef,
+  Injector,
+  afterNextRender,
   effect,
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -94,6 +97,8 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
 export class BoardPage {
   private readonly agile = inject(AGILE_SERVICE);
   private readonly live = inject(AGILE_LIVE_SERVICE);
+  private readonly injector = inject(Injector);
+  private readonly kanban = viewChild(KanbanBoardComponent);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
@@ -139,7 +144,8 @@ export class BoardPage {
     return [
       firstName(card.assigneeName),
       points(card.storyPoints),
-      `${card.tasksDone}/${card.tasksTotal} tasks`,
+      // Only a story with tasks shows its progress (docs/mocks/pages/team-board).
+      card.tasksTotal > 0 ? `${card.tasksDone}/${card.tasksTotal} tasks` : null,
     ]
       .filter(Boolean)
       .join(' · ');
@@ -182,6 +188,8 @@ export class BoardPage {
     if (!moved) return;
     this.place(card.id, moved);
     this.announcement.set(`${card.title} moved to ${STATUS_LABELS[moved]}`);
+    // The card is drawn anew in its new column; focus follows it there.
+    afterNextRender(() => this.kanban()?.focusCard(card.id), { injector: this.injector });
   }
 
   protected async newStory(): Promise<void> {
@@ -204,6 +212,8 @@ export class BoardPage {
       .flatMap((c) => c.cards.map((card) => ({ card, status: c.status })));
     const ref = this.dialogs.open<boolean, CloseSprintData>(CloseSprintDialog, {
       data: { workspaceId: this.id(), sprint: board.sprint, unfinished },
+      // Focus starts on "Close sprint", the dialog's one answer (mock close-sprint/default).
+      autoFocus: '[data-autofocus] button',
     });
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: `${board.sprint.name} closed` });

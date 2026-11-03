@@ -256,6 +256,8 @@ export interface PokerParticipantDto {
   hasVoted: boolean;
   /** Hidden (null) until the reveal, except the caller's own vote. */
   vote: PokerCard | null;
+  /** The person's featured photo for the votes panel; null shows their initials. */
+  photoUrl: string | null;
 }
 
 /** The open Planning Poker session as the caller sees it (L2-038). */

@@ -1,1 +1,3 @@
-<span [class]="'ft-badge ft-badge--' + variant()"><ng-content /></span>
+<span [class]="'ft-badge ft-badge--' + variant() + (tone() ? ' ft-badge--tone-' + tone() : '')">
+  <ng-content />
+</span>

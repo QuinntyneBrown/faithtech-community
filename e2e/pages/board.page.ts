@@ -58,12 +58,29 @@ export class BoardPage {
 
   /** Drags a card onto another column with the mouse, the way CDK drag and drop expects. */
   async drag(title: string, to: 'To Do' | 'In Progress' | 'Done'): Promise<void> {
+    await this.startDrag(title, to);
+    await this.drop();
+  }
+
+  /** Picks a card up and holds it over another column, so the drag preview shows there. */
+  async startDrag(title: string, to: 'To Do' | 'In Progress' | 'Done'): Promise<void> {
+    // The mouse only reaches what is on screen, so the card must be in the viewport first.
+    await this.card(title).scrollIntoViewIfNeeded();
     const from = await this.card(title).boundingBox();
     const target = await this.column(to).boundingBox();
-    await this.page.mouse.move(from!.x + 20, from!.y + 20);
+    // Picked up at its middle and held over the column's middle, so the preview lines up with the column.
+    const grab = from!.x + from!.width / 2;
+    await this.page.mouse.move(grab, from!.y + 20);
     await this.page.mouse.down();
-    await this.page.mouse.move(from!.x + 30, from!.y + 30, { steps: 5 });
-    await this.page.mouse.move(target!.x + target!.width / 2, target!.y + 60, { steps: 10 });
+    await this.page.mouse.move(grab + 10, from!.y + 30, { steps: 5 });
+    const x = target!.x + target!.width / 2;
+    await this.page.mouse.move(x, target!.y + 60, { steps: 20 });
+    // A second move over the column lets CDK settle the placeholder there before the drop.
+    await this.page.mouse.move(x, target!.y + 64, { steps: 2 });
+  }
+
+  /** Drops the card picked up by startDrag. */
+  async drop(): Promise<void> {
     await this.page.mouse.up();
   }
 }

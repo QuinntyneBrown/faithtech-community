@@ -697,6 +697,7 @@ export class MockAgile {
         isFacilitator: id === session.facilitatorId,
         hasVoted: session.votes.has(id),
         vote: session.isRevealed || id === me ? (session.votes.get(id) ?? null) : null,
+        photoUrl: this.profiles.get(id)?.photos.find((p) => p.isFeatured)?.url ?? null,
       })),
       lastStoryTitle: this.items.find((i) => i.id === session.lastStoryId)?.title ?? null,
       lastPoints: session.lastPoints,

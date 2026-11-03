@@ -5,7 +5,11 @@
   [attr.aria-invalid]="isInvalid() ? 'true' : null"
   [attr.aria-describedby]="error() ? errorId : null"
 >
-  <div class="ft-estimate-picker__label" [id]="labelId">{{ label() }}</div>
+  @if (labelAs() === 'title') {
+    <h2 class="ft-estimate-picker__title" [id]="labelId">{{ label() }}</h2>
+  } @else {
+    <div class="ft-estimate-picker__label" [id]="labelId">{{ label() }}</div>
+  }
   <div class="ft-estimate-picker__deck">
     @for (option of options(); track option) {
       <button

@@ -6,7 +6,9 @@
   [notFound]="state() === 'not-found'"
 >
   @if (scrum() && workspace()?.canManage) {
-    <ft-button ftWorkspaceActions variant="ghost" (click)="startSprint()">Start sprint</ft-button>
+    <ft-button ftWorkspaceActions variant="ghost" (click)="startSprint()">
+      <ft-icon name="events" /> Start sprint
+    </ft-button>
   }
   @if (workspace()?.canEdit) {
     <ft-button ftWorkspaceActions variant="primary" (click)="newItem()">
@@ -56,7 +58,7 @@
       } @else {
         @if (sprints()?.active; as sprint) {
           <ft-card [heading]="sprint.name + ' · ' + sprint.goal">
-            <ft-badge ftCardActions variant="info">Active</ft-badge>
+            <ft-badge ftCardTitleBadge variant="info">Active</ft-badge>
             <p class="text-muted">
               {{ sprintLine(sprint) }} Unfinished stories return to the backlog when the sprint
               closes.

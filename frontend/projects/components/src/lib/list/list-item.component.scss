@@ -50,6 +50,10 @@
   overflow-wrap: anywhere;
 }
 
+:host(.ft-list-item--plain) .ft-list-item__title {
+  font: var(--text-body);
+}
+
 a.ft-list-item__title {
   color: var(--color-fg-link);
   text-decoration: underline;

@@ -5,15 +5,16 @@
   [subtitle]="subtitle()"
   [notFound]="state() === 'not-found'"
 >
+  <!-- One button per @if, so each is projected into the header's actions slot. -->
   @if (session()?.isFacilitator) {
     <ft-button ftWorkspaceActions variant="ghost" [disabled]="busy()" (click)="end()">
       End session
     </ft-button>
-    @if (!session()?.isRevealed) {
-      <ft-button ftWorkspaceActions variant="primary" [loading]="busy()" (click)="reveal()">
-        Reveal votes
-      </ft-button>
-    }
+  }
+  @if (session()?.isFacilitator && !session()?.isRevealed) {
+    <ft-button ftWorkspaceActions variant="primary" [loading]="busy()" (click)="reveal()">
+      <ft-icon name="read-only-view" /> Reveal votes
+    </ft-button>
   }
   @switch (state()) {
     @case ('loading') {
@@ -35,7 +36,7 @@
             <ft-card>
               <p class="overline">Now estimating · {{ s.storyNumber }} of {{ s.storyCount }}</p>
               <h2 class="story">
-                <ft-badge variant="success">Story</ft-badge>
+                <ft-badge variant="role" tone="success">Story</ft-badge>
                 {{ s.story.title }}
               </h2>
               @if (s.story.description) {
@@ -44,7 +45,11 @@
             </ft-card>
 
             @if (status(); as st) {
-              <ft-alert [status]="st.status" [heading]="st.heading">{{ st.text }}</ft-alert>
+              @if (st.plain) {
+                <p class="text-muted progress" role="status">{{ st.heading }} {{ st.text }}</p>
+              } @else {
+                <ft-alert [status]="st.status" [heading]="st.heading">{{ st.text }}</ft-alert>
+              }
             }
 
             @if (s.isFacilitator && s.isRevealed) {
@@ -56,9 +61,11 @@
                     </ft-form-field>
                   </div>
                   <ft-button variant="primary" [loading]="busy()" (click)="setPoints()">
-                    Set points
+                    <ft-icon name="done" /> Set points
                   </ft-button>
-                  <ft-button [disabled]="busy()" (click)="revote()">Re-vote</ft-button>
+                  <ft-button [disabled]="busy()" (click)="revote()">
+                    <ft-icon name="refresh" /> Re-vote
+                  </ft-button>
                 </ft-cluster>
               </ft-card>
             }
@@ -70,6 +77,7 @@
               <ft-card>
                 <ft-estimate-picker
                   label="Your vote"
+                  labelAs="title"
                   [(value)]="chosen"
                   [disabled]="s.isRevealed || busy()"
                   [error]="voteError()"
@@ -92,10 +100,10 @@
             variant="flush"
             [heading]="'Votes (' + s.participants.length + ' invited)'"
           >
-            <ft-list label="Votes">
+            <ft-list label="Votes" [flush]="false">
               @for (p of s.participants; track p.profileId) {
                 <ft-list-item [label]="title(p)">
-                  <ft-avatar leading size="sm" [name]="p.name" />
+                  <ft-avatar leading size="sm" [name]="p.name" [src]="p.photoUrl ?? null" />
                   <ft-estimate-card
                     trailing
                     [person]="p.name"
@@ -109,12 +117,14 @@
         </ft-split>
       } @else {
         <ft-empty-state
-          icon="team"
+          icon="planning-poker"
           heading="No session running"
           text="Any member can start one: pick stories, invite people, and vote together. Votes stay hidden until the facilitator reveals them."
         >
           @if (canStart()) {
-            <ft-button actions variant="primary" (click)="start()">Start a session</ft-button>
+            <ft-button actions variant="primary" (click)="start()">
+              <ft-icon name="planning-poker" /> Start a session
+            </ft-button>
           }
         </ft-empty-state>
       }

@@ -107,11 +107,25 @@ test.describe('Sprints', () => {
     await expect(dialog.story('Volunteer check-in kiosk')).toBeVisible();
     await expect(dialog.stories).toContainText('8 pts · returned from Sprint 7');
     await expect(dialog.average).toContainText('Recent sprints completed 20 points on average.');
+    // Every candidate starts checked; the owner unticks what stays behind.
+    await expect(dialog.story('Volunteer check-in kiosk')).toBeChecked();
+    await expect(dialog.story('Hackathon photo release form')).toBeChecked();
+    await expect(dialog.stories).toContainText('Stories from the backlog · 15 points');
     await axe.check();
     await dialog.start.click();
     await expect(
       dialog.error('Write a goal so the team knows what done looks like.'),
     ).toBeVisible();
+    await expect(dialog.error('Choose at least one story.')).toBeHidden();
+
+    for (const title of [
+      'Volunteer check-in kiosk',
+      'Shelter problem briefs for teams',
+      'Hackathon photo release form',
+    ]) {
+      await dialog.story(title).uncheck();
+    }
+    await dialog.start.click();
     await expect(dialog.error('Choose at least one story.')).toBeVisible();
 
     await dialog.goal.fill('Hackathon weekend runs smoothly');
@@ -145,6 +159,8 @@ test.describe('Sprints', () => {
 
     await board.closeSprint.click();
     const dialog = new CloseSprintDialog(page, 'Sprint 7');
+    // The dialog asks one question, so focus starts on its answer (docs/mocks/dialogs/close-sprint).
+    await expect(dialog.close).toBeFocused();
     await expect(dialog.dialog).toContainText(
       '6 of 16 points completed. 2 unfinished stories go back to the backlog and keep their status.',
     );

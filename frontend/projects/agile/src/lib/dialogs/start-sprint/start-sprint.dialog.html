@@ -12,7 +12,7 @@
           We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
         </ft-alert>
       }
-      <ft-grid>
+      <ft-grid [columns]="2">
         <ft-form-field label="Name" [error]="error('Name')">
           <ft-text-field formControlName="name" autocomplete="off" />
         </ft-form-field>
@@ -20,7 +20,7 @@
           <ft-text-field formControlName="goal" autocomplete="off" />
         </ft-form-field>
       </ft-grid>
-      <ft-grid>
+      <ft-grid [columns]="2">
         <ft-form-field label="Starts" [error]="error('StartDate')">
           <ft-text-field type="date" formControlName="startDate" />
         </ft-form-field>
