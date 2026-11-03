@@ -19,7 +19,7 @@
 | [notifications](notifications.md) | 9 days | 100% | A+ |
 | [announcements](announcements.md) | 8 days | 100% | A+ |
 | [search](search.md) | 4 days | 90% | B |
-| [agile](agile.md) | 36 days | 99% | B- |
+| [agile](agile.md) | 36 days | 99% | A |
 | [marketing](marketing.md) | 8 days | 95% | n/a |
 | [resources](resources.md) | 23 days | 99% | — |
 | [notes](notes.md) | 42 days | 98% | — |

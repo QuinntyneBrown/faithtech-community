@@ -3,10 +3,10 @@ WEBVTT
 00:00:00.000 --> 00:00:09.000
 In this video you are a team member using the sprint board. The app is real; the server is a local stand-in, and the people are made up.
 
-00:00:09.000 --> 00:00:24.000
+00:00:09.000 --> 00:00:25.000
 The board shows the stories in the active sprint in three columns: To Do, In Progress and Done. Above them are the sprint goal and how many points are complete, and each card shows its assignee, its points and its task progress.
 
-00:00:24.000 --> 00:00:33.000
+00:00:25.000 --> 00:00:33.000
 Every card has a Move button. Press Enter on it, choose a column, and confirm, so the board works fully from the keyboard.
 
 00:00:33.000 --> 00:00:41.000
