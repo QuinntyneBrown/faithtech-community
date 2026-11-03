@@ -8,18 +8,22 @@
 [![Status: in development](https://img.shields.io/badge/status-in%20development-orange.svg)](#project-status)
 [![Accessibility: WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG%202.2%20AA-green.svg)](#accessibility)
 
-FaithTech Community is an open-source community platform for [FaithTech](https://faithtech.com)
-staff, city leads, volunteers, builders, event attendees and partners. Anyone can join and create a
-profile. Leads get the tools to run a city: events, private contacts, a partner pipeline, their team
-and Agile workspaces with Planning Poker.
+FaithTech Community is an open-source, multi-tenant community platform. One deployment hosts many
+organisations, each on its own host with its own members, roles, chapters, vocabulary and data.
+[FaithTech](https://faithtech.com) is the first organisation, and it is seed data, not code. Anyone can
+sign up on an organisation's host and get a profile there. Its staff, leads, volunteers, builders,
+event attendees and partners get the tools to run a community: events with public hubs, private
+contacts, a partner pipeline, team, resources, docs & notes, Agile workspaces with Planning Poker and
+reports.
 
-> **Project status:** in development. Requirements, designs, mocks and the design system are in place,
-> and v1 is being built feature by feature. See [Project status](#project-status).
+> **Project status:** v1 is 97% built. Every v1 feature has been built; the remaining work is
+> finishing a few designs and deploying behind the private-preview wall. See
+> [Project status](#project-status).
 
 ## Contents
 
 - [Features](#features)
-- [Roles](#roles)
+- [Organisations, roles and capabilities](#organisations-roles-and-capabilities)
 - [Architecture](#architecture)
 - [Repository layout](#repository-layout)
 - [Getting started](#getting-started)
@@ -36,61 +40,67 @@ and Agile workspaces with Planning Poker.
 
 | Area | What it does |
 |---|---|
-| **Marketing page** | A public page at www.faithtech.community with a 21-second captioned brochure video, where visitors sign in, sign up or continue with Google and land in the community app. |
-| **Profiles** | Every member has a profile with a name, bio and up to 10 photos (one featured, alt text required). Profiles are visible to signed-in members. |
-| **Events** | Members-only or public events with city, venue and an online/in-person flag. Public events get a shareable page with guest RSVP (no account needed) and an `.ics` download. Cancelling notifies everyone who RSVP'd. Hackathons are an event type. |
-| **Contacts** | Leads keep private contacts and notes, visible only to them and System Admin. When a contact signs up with the same verified email, the lead is notified and can link to the real profile while keeping their notes. Archive and restore. |
-| **Partner pipeline** | One shared Kanban board for all leads: Lead → In Funnel → Confirmed, moved by drag or keyboard with each move recorded. Staff see it read-only. |
-| **Team** | Everyone holding a lead or volunteer role. |
-| **Agile workspaces** | City Leads create Scrum or Kanban workspaces for their leads and volunteers, with an Initiative → Epic → Story → Task hierarchy, sprints and live Planning Poker. |
-| **Resources** | Decks, logos, images, training and templates as uploaded files (up to 20 at a time, 100 MB each) or https links, with a type, tags and a visibility: Private, Shared with chosen members and roles, or Global. Sharing notifies each recipient; archived resources are purged after 30 days. |
-| **Global search** | People, events, partners, work items, resources and your own private contacts, filtered by what you are allowed to see. |
+| **Organisations** | Each organisation is resolved from its host and sees only its own data. Administrators set the name, the chapter label (City, Campus...), chapters, roles and grant rules, partner stages, event types, resource types and hub templates. Members of several organisations switch between them. Platform operators provision, suspend and lift organisations from the Cli and never read their data. |
+| **Marketing page** | A public page at www.faithtech.community with a captioned brochure video, where visitors sign in, sign up or continue with Google and land in the community app. |
+| **Identity and account** | Sign up, email verification, sign in and out, password reset and Google sign-in (OAuth2 code + PKCE). Account settings change email and password and sign out everywhere. |
+| **Profiles** | Every member has a profile with a name, bio and up to 10 photos (one featured, alt text required). Profiles are visible to signed-in members of the organisation. |
+| **Events** | Members-only or public events with a type, chapter, venue and an online/in-person flag. Public events get a shareable page with guest RSVP (no account needed) and an `.ics` download. Cancelling notifies everyone who RSVP'd. Check-in on the day runs from a phone. |
+| **Event hubs** | A public hub page for an event, built from sections or a template (including optional hackathon sections), previewed on its public route, published, shared by QR code, quick-edited live and downloaded as a static zip archive. |
+| **Contacts** | Private contacts and notes, visible only to the member who created them and an administrator override. When a contact signs up with the same verified email, the creator is notified and can link to the real profile while keeping their notes. Archive and restore. |
+| **Partner pipeline** | A Kanban board with one column per organisation stage, moved by drag or keyboard, with an activity timeline, duplicate detection, merge and restore. |
+| **Team** | Everyone holding a role, filterable by role and chapter. |
+| **Agile workspaces** | Scrum or Kanban workspaces with an Initiative → Epic → Story → Task hierarchy, backlog, board, sprints and live Planning Poker over SignalR. |
+| **Resources** | Uploaded files (up to 20 at a time, 100 MB each) or https links, with a type, tags and a visibility: Private, Shared with chosen members and roles, or Global. Sharing notifies each recipient; archived resources are purged after 30 days. |
+| **Docs & notes** | Block-based pages with formatting, images, drag-and-drop and keyboard reorder, page links, backlinks and nesting; private (the default), shared or global; archive and restore. |
+| **Global search** | People, events, partners, work items, resources, notes and your own private contacts, filtered by what you are allowed to see. |
 | **Announcements** | Send to everyone, to holders of a role, or to an event's RSVP list, in-app and by email (with opt-out). |
-| **Notifications** | In-app bell plus email for the events that matter. |
-| **Invites** | Leads invite people by email with an optional pre-assigned role. Invites expire after 14 days. City Leads also have **My QR code**: a reusable link that never expires (and can be replaced) which lets someone they meet join and become their private contact automatically once their email is verified. |
-| **Administration** | System Admins suspend users, assign any role, reassign workspace owners, and every admin action is written to an audit log. |
+| **Notifications** | In-app bell plus email for the events that matter, with per-type preferences. |
+| **Invites and connect links** | Invite people by email with an optional pre-assigned role; invites expire after 14 days. Holders of `ConnectLink` also have **My QR code**: a reusable link that never expires (and can be replaced) which lets someone they meet join and become their private contact once their email is verified. |
+| **Reports** | A fixed, read-only page of figures, charts and tables with filters and CSV export. |
+| **Administration** | Suspend members, assign roles, reassign workspace owners, and read the audit log of every override and role change. |
 
 Hackathon teams, projects and judging are planned for v2.
 
-## Roles
+## Organisations, roles and capabilities
 
-A profile can hold several global roles at once. New members start with no role.
+Permissions are capabilities, never role names ([ADR 0033](docs/adr/0033-capability-based-authorisation.md)).
+The platform defines the capability catalogue; each organisation defines its roles as named bundles
+of capabilities, plus grant rules saying which roles may grant which. A profile can hold several
+roles, each optionally tagged with a chapter, and new profiles hold no role. Chapters tag and filter;
+they never hide anything ([ADR 0034](docs/adr/0034-chapters-are-tags-not-boundaries.md)).
 
-| Role | Can do |
-|---|---|
-| **City Lead** | Contacts, partners, team, Agile workspaces, resources, invites and role assignment (except City Lead, Staff and System Admin) |
-| **Event Lead** | Events |
-| **Create Lead** | Hackathon builders and projects |
-| **Communications Lead** | Announcements |
-| **Volunteer**, **Product Engineer**, **Attendee** | Community membership; volunteers can be added to Agile workspaces |
-| **Staff** | Read-only view of everything except private contacts; may add resources and edit, share, archive and restore their own |
-| **System Admin** | Full override, including private contacts; every action is audited |
+FaithTech's seeded roles are City Lead, Event Lead, Create Lead, Communications Lead, Staff (read-only
+by construction), Volunteer, Product Engineer, Attendee and System Admin. A holder of
+`AdministerOrganisation` can override anything, every override and role change is audited, and an
+organisation always keeps at least one active administrator.
 
-All permissions are enforced on the server.
+All permissions are enforced on the server, and nothing crosses organisations: an id from another
+organisation is not found ([ADR 0032](docs/adr/0032-multi-tenancy-organisation-per-host.md)).
 
 ## Architecture
 
 ```text
 ┌─────────────────────┐   OAuth2 code + PKCE    ┌──────────────────────────────┐
-│  Angular SPA        │ ──────────────────────▶ │  ASP.NET Core API            │
-│  app shell +        │   REST + SignalR        │  ASP.NET Identity +          │
-│  feature libraries  │ ◀────────────────────▶  │  OpenIddict                  │
+│  Angular SPAs       │ ──────────────────────▶ │  ASP.NET Core API            │
+│  community app +    │   REST + SignalR        │  organisation per host,      │
+│  marketing page     │ ◀────────────────────▶  │  ASP.NET Identity+OpenIddict │
 └─────────────────────┘                         └──────┬──────────┬─────────┬──┘
                                                        │          │         │
                                               PostgreSQL     Azure Blob   SMTP /
-                                              (EF Core,      (photos)     SendGrid
-                                              full-text)                  (email)
+                                              (EF Core,      (photos,     SendGrid
+                                              full-text)     files)       (email)
 ```
 
 | Layer | Technology |
 |---|---|
-| Backend | .NET (LTS), ASP.NET Core, EF Core, clean architecture (Domain, Application, Infrastructure, Api, Cli) |
-| Identity | ASP.NET Identity + OpenIddict, authorization code + PKCE, email verification, password reset |
+| Backend | .NET 10 (LTS), ASP.NET Core, EF Core, clean architecture (Domain, Application, Infrastructure, Api, Cli) |
+| Identity | ASP.NET Identity + OpenIddict, authorization code + PKCE, email verification, password reset, Google sign-in |
+| Tenancy | One organisation per host, resolved by middleware and enforced by a global query filter |
 | Data | PostgreSQL with full-text search |
 | Real time | SignalR (Planning Poker, live boards) |
-| Frontend | Angular workspace: one app shell, a shared `components` library, an `api` library and one library per feature |
-| Testing | xUnit integration tests, Angular unit tests, Playwright (Chromium) with axe accessibility checks |
-| Hosting | Containers, Azure Blob storage, infrastructure as code in `eng/infra/` |
+| Frontend | Angular 21 workspace: the community app, the marketing app, a shared `components` library, an `api` library and one library per feature |
+| Testing | xUnit tests on the EF Core in-memory provider, Angular unit tests, Playwright (Chromium) against a fake backend with axe accessibility checks |
+| Hosting | Azure Container Apps behind a private-preview wall, Azure Blob storage, Bicep in `eng/infra/` |
 
 Architecture decisions are recorded in [`docs/adr/`](docs/adr/).
 
@@ -102,9 +112,7 @@ faithtech-community/
 ├── frontend/         # Angular workspace: community app, marketing app, components, api and feature libraries
 ├── e2e/              # Playwright end-to-end and accessibility suite
 ├── eng/              # Developer and CI scripts, infrastructure as code
-├── docs/             # Specs, detailed designs, mocks, design system, estimates, ADRs, videos
-├── idea.txt          # Original product brief
-└── decisions.txt     # Agreed product decisions (win over idea.txt)
+└── docs/             # Specs, detailed designs, mocks, design system, estimates, ADRs, journey videos, event material
 ```
 
 The full, mandatory layout is in [AGENTS.md](AGENTS.md#repository-layout-mandatory).
@@ -116,7 +124,7 @@ The full, mandatory layout is in [AGENTS.md](AGENTS.md#repository-layout-mandato
 The HTML mocks show every page, dialog and notification in every state, in light and dark themes.
 
 ```sh
-git clone https://github.com/<org>/faithtech-community.git
+git clone https://github.com/QuinntyneBrown/faithtech-community.git
 cd faithtech-community
 # Open the gallery in your browser
 start docs/mocks/index.html      # Windows
@@ -126,28 +134,27 @@ xdg-open docs/mocks/index.html   # Linux
 
 ### Watch the journeys that work today
 
-Narrated demo videos of sign up, email verification, sign in and out, password reset, the app
-shell, the error pages and member profiles (view, edit and photos) are in [`docs/videos/journeys/`](docs/videos/journeys/README.md). Regenerate
-them all with `pwsh eng/videos/Record-JourneyVideos.ps1`.
+Every journey in the [journey catalogue](docs/journeys.md) has a demo video in
+[`docs/videos/journeys/`](docs/videos/journeys/README.md). Re-record them with
+`pwsh eng/videos/Record-JourneyVideos.ps1`.
 
 ### Prerequisites for development
 
-When the application code lands you will need:
-
-- [.NET SDK](https://dotnet.microsoft.com/download) (LTS; pinned in `backend/global.json`)
+- [.NET SDK](https://dotnet.microsoft.com/download) 10 (pinned in `backend/global.json`)
 - [Node.js](https://nodejs.org/) LTS and npm
-- [Docker](https://www.docker.com/) for PostgreSQL and local services
+- [Docker](https://www.docker.com/) for PostgreSQL and Azurite in local development (not needed for tests)
 - [Python 3.11+](https://www.python.org/) to run the mock checks
 
-### Build and run (planned)
+### Build and run
 
 ```sh
 # Start PostgreSQL and Azurite (blob storage) for development
 docker compose -f backend/deploy/compose.yaml up -d postgres azurite
 
-# Apply migrations and seed data (the API never migrates on startup)
+# Apply migrations and seed data (the API never migrates on startup); reset drops and recreates the schema
 dotnet run --project backend/src/FaithTech.Community.Cli -- migrate
 dotnet run --project backend/src/FaithTech.Community.Cli -- seed
+dotnet run --project backend/src/FaithTech.Community.Cli -- reset
 
 # Make an account that has signed up the first System Admin (idempotent, audited)
 dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin you@example.org
@@ -196,28 +203,35 @@ az bicep build --file eng/infra/main.bicep && az bicep lint --file eng/infra/mai
 
 Development keeps the wall off (`PrivatePreview:Enabled` is `false` in `appsettings.Development.json`).
 
-### Test (planned)
+### Test
+
+No test needs Docker, a database or a running backend: backend tests use the EF Core in-memory
+provider, and the Playwright suite runs the real Angular app against a fake backend in
+`e2e/fixtures/` (its `webServer` starts only the Angular app).
 
 ```sh
-dotnet test backend/FaithTech.Community.sln   # backend unit and integration tests
-cd frontend && npm test                        # Angular unit tests
-cd e2e && npx playwright test                  # end-to-end and axe checks (Chromium)
+dotnet test backend/FaithTech.Community.sln          # backend handler, persistence, API and Cli tests
+cd frontend && npm test                               # Angular unit tests for every project
+cd frontend && npm run lint && npm run format:check   # angular-eslint and Prettier (CI fails on either)
+cd e2e && npm ci && npx playwright test               # end-to-end and axe checks (Chromium)
 ```
 
-Exact commands will be kept up to date here as each part of the stack is added.
+CI (`.github/workflows/`) builds and tests the backend and frontend on every change, and
+`deploy.yml` publishes the container images and deploys.
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
-| [`idea.txt`](idea.txt) | The original product brief |
-| [`decisions.txt`](decisions.txt) | Agreed product and technical decisions |
+| [`docs/specs/`](docs/specs/) | L1/L2 requirements with acceptance criteria |
+| [`docs/detailed-designs/`](docs/detailed-designs/) | Per-feature designs and diagrams |
 | [`docs/mocks/`](docs/mocks/README.md) | Static HTML mocks: the design reference, with a coverage matrix |
-| `docs/specs/` | L1/L2 requirements with acceptance criteria |
-| `docs/detailed-designs/` | Per-feature designs and diagrams |
-| `docs/design-system/` | Tokens, components and patterns extracted from the mocks |
+| [`docs/design-system/`](docs/design-system/README.md) | Tokens, components and patterns extracted from the mocks |
 | [`docs/adr/`](docs/adr/) | Architecture decision records |
-| [`docs/videos/journeys/`](docs/videos/journeys/README.md) | Narrated demo videos of the journeys implemented so far |
+| [`docs/estimates/`](docs/estimates/README.md) | Effort, percent complete, visual conformance and roadmap per subsystem |
+| [`docs/journeys.md`](docs/journeys.md) | User journeys, ordered by value, with effort and completion |
+| [`docs/videos/journeys/`](docs/videos/journeys/README.md) | Demo videos of every journey |
+| [`docs/events/`](docs/events/) | Real event material kept for the record |
 | [AGENTS.md](AGENTS.md) | Conventions for contributors and coding agents |
 
 ## Project status
@@ -225,10 +239,12 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | Milestone | Status |
 |---|---|
 | Product brief and decisions | ✅ Done |
+| Multi-tenancy design (organisations, capabilities, chapters, taxonomies) | ✅ Done |
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources, the marketing page with Google sign-in and the private-preview wall with its deployment assets are built; search, platform and identity are nearly done |
+| v1 implementation | 🚧 97% of 428 days ([estimates](docs/estimates/README.md)): profiles, invites, contacts, partners, team, events and event hubs, notifications, announcements and reports are complete; identity, admin, Agile, resources, notes, organisations, the marketing page and search are 90–99%; platform is at 84%, with deployment behind the private-preview wall next |
+| Visual conformance with the mocks | 🚧 Graded per journey (B to A+) in the [estimates](docs/estimates/README.md) |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility
