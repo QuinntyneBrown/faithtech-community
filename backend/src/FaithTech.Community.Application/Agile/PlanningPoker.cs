@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
 using FluentValidation;
@@ -66,7 +67,8 @@ public record PokerStoryDto(Guid Id, string Title, string Description, int? Stor
 /// <summary>
 /// One participant. <see cref="Vote"/> is withheld until the reveal, except the caller's own (L2-038 AC2, AC8).
 /// </summary>
-public record PokerParticipantDto(Guid ProfileId, string Name, bool IsFacilitator, bool HasVoted, string? Vote);
+/// <summary>An invited person; <see cref="PhotoUrl"/> is their featured photo, which the votes panel shows (null for initials).</summary>
+public record PokerParticipantDto(Guid ProfileId, string Name, bool IsFacilitator, bool HasVoted, string? Vote, string? PhotoUrl = null);
 
 /// <summary>The open session as the caller sees it (L2-038).</summary>
 public record PokerSessionDto(
@@ -97,7 +99,8 @@ public class PlanningPokerHandler(
     IApplicationDbContext db,
     WorkspaceAccessPolicy policy,
     AgileNotifier notifier,
-    IPokerBroadcaster broadcaster)
+    IPokerBroadcaster broadcaster,
+    IPhotoStorage storage)
 {
     public const string NotMemberMessage = "Only members of this workspace can be invited.";
 
@@ -286,8 +289,11 @@ public class PlanningPokerHandler(
         var storyIds = new[] { session.CurrentStoryId, session.LastStoryId, NextId(session) }.OfType<Guid>().ToList();
         var stories = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly).AsNoTracking().Where(i => storyIds.Contains(i.Id)).ToDictionaryAsync(i => i.Id, cancellationToken);
         var people = session.InvitedIds.Prepend(session.FacilitatorId).ToList();
-        var names = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
-        string NameOf(Guid id) => names.GetValueOrDefault(id) ?? "A former member";
+        var profiles = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
+            .Select(p => new { p.Id, p.Name, Featured = p.Photos.Where(f => f.IsFeatured).Select(f => f.BlobName).FirstOrDefault() })
+            .ToDictionaryAsync(p => p.Id, cancellationToken);
+        string NameOf(Guid id) => profiles.GetValueOrDefault(id)?.Name ?? "A former member";
+        string? PhotoOf(Guid id) => profiles.GetValueOrDefault(id)?.Featured is { } blob ? storage.GetReadUrl(blob) : null;
 
         var story = stories[session.CurrentStoryId!.Value];
         var participants = session.InvitedIds
@@ -297,7 +303,7 @@ public class PlanningPokerHandler(
             {
                 var vote = session.CurrentVoteOf(id);
                 var shown = vote is { } v && (session.IsRevealed || id == caller.ProfileId) ? PokerDeck.Text(v) : null;
-                return new PokerParticipantDto(id, NameOf(id), id == session.FacilitatorId, vote is not null, shown);
+                return new PokerParticipantDto(id, NameOf(id), id == session.FacilitatorId, vote is not null, shown, PhotoOf(id));
             })
             .ToList();
         var mine = session.CurrentVoteOf(caller.ProfileId);

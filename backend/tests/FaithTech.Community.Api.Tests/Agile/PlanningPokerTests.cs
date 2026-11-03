@@ -1,6 +1,7 @@
 // Traces to: L2-038, L2-027, L2-028
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
@@ -11,7 +12,7 @@ namespace FaithTech.Community.Api.Tests.Agile;
 
 public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    public record Participant(Guid ProfileId, string Name, bool IsFacilitator, bool HasVoted, string? Vote);
+    public record Participant(Guid ProfileId, string Name, bool IsFacilitator, bool HasVoted, string? Vote, string? PhotoUrl = null);
 
     public record Story(Guid Id, string Title);
 
@@ -45,6 +46,25 @@ public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<Com
 
     private static Task<Session?> CurrentAsync(HttpClient client, Guid workspaceId) =>
         client.GetFromJsonAsync<Session?>($"/api/workspaces/{workspaceId}/poker-sessions/current");
+
+    // The votes panel shows each person's featured photo, else their initials (docs/mocks/pages/planning-poker).
+    [Fact]
+    public async Task Each_participant_carries_their_featured_photo()
+    {
+        var (cast, _, _, _) = await StartAsync();
+        await factory.WithDbAsync(async db =>
+        {
+            var owner = await db.Profiles.Include(p => p.Photos).SingleAsync(p => p.Id == cast.Owner.ProfileId);
+            owner.AddPhoto(new ProfilePhoto($"profiles/{owner.Id}/featured.jpg", "Grace at Builders Night", DateTime.UtcNow));
+            return await db.SaveChangesAsync();
+        });
+
+        var session = await CurrentAsync(factory.MemberClient(cast), cast.WorkspaceId);
+
+        Assert.Equal(
+            [null, $"{FakePhotoStorage.BaseUrl}profiles/{cast.Owner.ProfileId}/featured.jpg"],
+            session!.Participants.Select(p => p.PhotoUrl));
+    }
 
     [Fact]
     public async Task Given_a_member_when_they_start_a_session_then_they_facilitate_the_first_story_and_invitees_are_notified_in_app_and_by_email()

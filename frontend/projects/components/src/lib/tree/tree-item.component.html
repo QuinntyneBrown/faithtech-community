@@ -10,7 +10,7 @@
     ></button>
   }
   @if (kind(); as k) {
-    <ft-badge [variant]="kindVariant()">{{ k }}</ft-badge>
+    <ft-badge variant="role" [tone]="kindVariant()">{{ k }}</ft-badge>
   }
   @if (href(); as url) {
     <a class="ft-tree-item__label" [attr.href]="url">{{ label() }}</a>

@@ -67,3 +67,24 @@
     display: none;
   }
 }
+
+// A role badge tinted as a work-item kind: the colours of the tone, the role's sentence case and no dot.
+.ft-badge--tone-info {
+  background: var(--color-info-bg);
+  color: var(--color-info-fg);
+}
+
+.ft-badge--tone-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-fg);
+}
+
+.ft-badge--tone-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-fg);
+}
+
+.ft-badge--tone-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-fg);
+}

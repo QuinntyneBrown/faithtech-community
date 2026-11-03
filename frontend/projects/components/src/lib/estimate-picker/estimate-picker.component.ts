@@ -21,6 +21,8 @@ let nextId = 0;
 })
 export class EstimatePickerComponent {
   readonly label = input.required<string>();
+  /** `title` shows the label as the card's title, as a deck alone in a card does ("Your vote"). */
+  readonly labelAs = input<'label' | 'title'>('label');
   readonly options = input<EstimateOption[]>(DEFAULT_SCALE);
   readonly value = model<EstimateOption | null>(null);
   readonly disabled = input(false);

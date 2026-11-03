@@ -28,7 +28,8 @@ export class PlanningPokerPage {
     this.startSession = page.getByRole('button', { name: 'Start a session' });
     this.nowEstimating = page.getByText(/^Now estimating · \d+ of \d+$/);
     this.story = page.getByRole('heading', { level: 2 }).first();
-    this.status = page.locator('ft-alert').first();
+    // Vote progress is a plain status line; outcomes such as "Votes differ" are alerts.
+    this.status = page.locator('ft-split').locator('p[role=status], ft-alert').first();
     this.deck = page.getByRole('group', { name: 'Your vote' });
     this.votesHeading = page.getByRole('heading', { name: /^Votes \(\d+ invited\)$/ });
     this.watching = page.locator('ft-alert').filter({ hasText: /^Watching/ });
@@ -54,6 +55,15 @@ export class PlanningPokerPage {
         `^${value === '?' ? '\\?' : value}\\s*${value === '?' ? 'Unsure' : 'points'}$`,
       ),
     });
+  }
+
+  /** The photo beside a person in the votes panel; absent when the panel shows their initials. */
+  participantPhoto(name: string): Locator {
+    return this.page
+      .getByRole('list', { name: 'Votes' })
+      .getByRole('listitem')
+      .filter({ hasText: name })
+      .locator('ft-avatar img');
   }
 
   /** A participant's tile, named "Grace Okonkwo: voted", "…: still choosing" or "…: 8 points". */

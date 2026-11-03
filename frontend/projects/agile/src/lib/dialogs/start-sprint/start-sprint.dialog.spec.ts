@@ -56,15 +56,19 @@ describe('StartSprintDialog', () => {
     expect(host.textContent).toContain('Recent sprints completed 21 points on average.');
   });
 
-  it('adds up the chosen stories’ points', () => {
+  it('starts with every story checked and adds up the chosen stories’ points', () => {
     const { fixture, host } = setup();
-    host.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach((c) => c.click());
-    fixture.detectChanges();
+    const boxes = host.querySelectorAll<HTMLInputElement>('input[type=checkbox]');
+    expect([...boxes].every((c) => c.checked)).toBe(true);
     expect(host.textContent).toContain('Stories from the backlog · 13 points');
+    boxes[0].click();
+    fixture.detectChanges();
+    expect(host.textContent).not.toContain('Stories from the backlog · 13 points');
   });
 
   it('asks for a goal and a story before starting', () => {
     const { fixture, host, agile, startButton } = setup();
+    host.querySelectorAll<HTMLInputElement>('input[type=checkbox]').forEach((c) => c.click());
     startButton().click();
     fixture.detectChanges();
     expect(host.textContent).toContain('Write a goal so the team knows what done looks like.');

@@ -1,5 +1,6 @@
 // Traces to: L2-038 (docs/detailed-designs/agile/planning-poker)
 import { expect, test } from '../../fixtures/app';
+import { photoUrl } from '../../fixtures/mock-api';
 import { PlanningPokerPage, StartPokerDialog } from '../../pages/planning-poker.page';
 
 test.describe('Planning Poker', () => {
@@ -81,10 +82,20 @@ test.describe('Planning Poker', () => {
       facilitatorId: marcus.profileId,
       invitedIds: [grace.profileId, ruth.profileId],
     });
+    api.profiles.get(ruth.profileId)!.photos.push({
+      id: 'ruth-photo',
+      url: photoUrl('#0b7285', 'ruth'),
+      altText: 'Ruth at Builders Night',
+      isFeatured: true,
+      uploadedAt: '2026-10-01T12:00:00Z',
+    });
     const poker = new PlanningPokerPage(page);
     await api.signInAs(grace, `/workspaces/${ws.id}/poker`);
     await expect(poker.story).toContainText('Shelter problem briefs for teams');
     await expect(poker.status).toContainText('0 of 3 have voted.');
+    // The votes panel shows each person's featured photo, else their initials.
+    await expect(poker.participantPhoto('Ruth Alvarez')).toHaveAttribute('src', /^data:image/);
+    await expect(poker.participantPhoto('Grace Okonkwo')).toHaveCount(0);
     await expect(poker.status).toContainText('Votes stay hidden until Marcus reveals them.');
 
     await poker.card('8').click();

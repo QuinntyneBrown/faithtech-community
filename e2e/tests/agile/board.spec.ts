@@ -102,6 +102,8 @@ test.describe('Board', () => {
     expect(api.callsTo('PUT', `/api/items/${kiosk.id}/status`)[0].body).toEqual({
       status: 'InProgress',
     });
+    // Focus follows the card to its new column, so the keyboard user carries on from it.
+    await expect(board.move('Volunteer check-in kiosk')).toBeFocused();
   });
 
   test('a member drags a card to another column', async ({ page, api }) => {

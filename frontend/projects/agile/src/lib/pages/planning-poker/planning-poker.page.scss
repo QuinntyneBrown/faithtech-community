@@ -4,7 +4,8 @@
 }
 
 .overline,
-.description {
+.description,
+.progress {
   margin: 0;
 }
 
@@ -13,7 +14,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
-  margin: var(--space-2) 0;
+  margin: 0;
   font: var(--text-h3);
 }
 

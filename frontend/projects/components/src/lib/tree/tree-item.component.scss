@@ -68,8 +68,10 @@
   }
 }
 
+// The design system's .tree__row a: default text at medium weight, underlined as a link.
 a.ft-tree-item__label {
-  color: var(--color-fg-link);
+  color: var(--color-fg-default);
+  font-weight: var(--font-weight-medium);
   text-decoration: underline;
 
   &:hover {

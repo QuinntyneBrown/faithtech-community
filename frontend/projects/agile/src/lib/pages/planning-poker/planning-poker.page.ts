@@ -33,6 +33,7 @@ import {
   EstimateCardComponent,
   EstimateOption,
   EstimatePickerComponent,
+  IconComponent,
   FormFieldComponent,
   ListComponent,
   ListItemComponent,
@@ -55,6 +56,8 @@ interface Status {
   status: AlertStatus;
   heading: string;
   text: string;
+  /** Vote progress reads as one plain muted line, not an alert (docs/mocks/pages/planning-poker/default). */
+  plain?: boolean;
 }
 
 /**
@@ -76,6 +79,7 @@ interface Status {
     EmptyStateComponent,
     EstimateCardComponent,
     EstimatePickerComponent,
+    IconComponent,
     FormFieldComponent,
     ListComponent,
     ListItemComponent,
@@ -138,13 +142,19 @@ export class PlanningPokerPage {
     if (!session.isRevealed) {
       const counted = `${voted} of ${session.participants.length} have voted.`;
       if (this.voteError()) {
-        return { status: 'info', heading: counted, text: 'Voting on this story has closed.' };
+        return {
+          status: 'info',
+          heading: counted,
+          text: 'Voting on this story has closed.',
+          plain: true,
+        };
       }
       if (this.withdrew()) {
         return {
           status: 'info',
           heading: 'You withdrew your vote.',
           text: `${counted} Votes stay hidden until ${facilitator} reveals them.`,
+          plain: true,
         };
       }
       if (session.lastPoints !== null && voted === 0) {
@@ -158,6 +168,7 @@ export class PlanningPokerPage {
         status: 'info',
         heading: counted,
         text: `Votes stay hidden until ${facilitator} reveals them.`,
+        plain: true,
       };
     }
     const numbers = session.participants

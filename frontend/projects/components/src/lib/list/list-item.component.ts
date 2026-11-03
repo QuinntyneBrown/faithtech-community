@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
  * One list row: optional leading slot (avatar or icon), a title that is a link when `href` is set,
@@ -17,6 +17,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
     '[class.ft-list-item--numbered]': '!!number()',
     '[class.ft-list-item--current]': "state() === 'current'",
     '[class.ft-list-item--finished]': "state() === 'finished'",
+    '[class.ft-list-item--plain]': 'plain()',
   },
 })
 export class ListItemComponent {
@@ -35,4 +36,6 @@ export class ListItemComponent {
    * because the ordered list already gives the position.
    */
   readonly number = input<string | null>(null);
+  /** The label reads as body text, not a title: a row that only names something (design system .list__body). */
+  readonly plain = input(false, { transform: booleanAttribute });
 }

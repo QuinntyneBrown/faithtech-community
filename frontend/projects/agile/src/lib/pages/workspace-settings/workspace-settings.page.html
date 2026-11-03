@@ -89,7 +89,9 @@
                 <ft-list label="Archived items">
                   @for (item of archived(); track item.id) {
                     <ft-list-item [label]="item.title" [meta]="archivedMeta(item)">
-                      <ft-badge leading [variant]="kindBadges[item.kind]">{{ item.kind }}</ft-badge>
+                      <ft-badge leading variant="role" [tone]="kindBadges[item.kind]">{{
+                        item.kind
+                      }}</ft-badge>
                       <ft-button trailing [label]="'Restore ' + item.title" (click)="restore(item)">
                         <ft-icon name="restore" /> Restore
                       </ft-button>
