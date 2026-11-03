@@ -20,6 +20,9 @@ class ActivityItemDto {
   +string Text
   +string LinkPath
   +DateTimeOffset OccurredAt
+  +Guid? ActorId
+  +string? ActorName
+  +string? ActorPhotoUrl
 }
 class Notification {
   +Guid Id

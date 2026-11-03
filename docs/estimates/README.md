@@ -6,7 +6,7 @@
 
 | Subsystem | Effort | Complete | Visual conformance |
 |---|---|---|---|
-| [platform](platform.md) | 33 days | 84% | C+ |
+| [platform](platform.md) | 33 days | 84% | A+ |
 | [organisations](organisations.md) | 52 days | 95% | — |
 | [identity](identity.md) | 23 days | 98% | A- |
 | [profiles](profiles.md) | 13 days | 100% | A- |

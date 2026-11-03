@@ -90,7 +90,7 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICur
 
         contact.LinkTo(profileId);
         var title = $"{person.Name} connected with you";
-        db.Notifications.Add(new Notification(leadId, NotificationKind.ContactSignedUp, title, $"/contacts/{contact.Id}", now));
+        db.Notifications.Add(new Notification(leadId, NotificationKind.ContactSignedUp, title, $"/contacts/{contact.Id}", now, profileId));
         if (await db.Users.Where(u => db.Profiles.Any(p => p.Id == leadId && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken) is { } address)
         {
             emails.Enqueue(new EmailMessage(

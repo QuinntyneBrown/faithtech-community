@@ -27,11 +27,11 @@ function setup(kind: ErrorKind = 'not-found') {
 }
 
 describe('ErrorPageComponent', () => {
-  it('not found: h1, home link and search link', () => {
+  it('not found: h1 and a home link only', () => {
     const { host } = setup('not-found');
     expect(host.querySelector('h1')?.textContent).toContain('find that page');
     const links = Array.from(host.querySelectorAll('a'));
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/', '/search']);
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['/']);
     expect(links[0].textContent).toContain('Go home');
   });
 

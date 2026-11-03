@@ -146,7 +146,12 @@
       (retry)="retryFeed()"
     >
       @for (item of feed(); track item.id) {
-        <ft-feed-item [actor]="actor()" [meta]="item.meta">
+        <ft-feed-item
+          [actor]="item.actor ?? organisationName()"
+          [color]="item.color"
+          [src]="item.photo"
+          [meta]="item.meta"
+        >
           <ft-link [href]="item.href">{{ item.text }}</ft-link>
         </ft-feed-item>
       }

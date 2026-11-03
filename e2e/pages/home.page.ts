@@ -68,6 +68,16 @@ export class HomePage {
     return this.activity.getByRole('link', { name: text });
   }
 
+  /** The photo on an activity item's avatar; absent when the actor has none. */
+  activityPhoto(text: string): Locator {
+    return this.activityItems.filter({ hasText: text }).locator('ft-avatar img');
+  }
+
+  /** The initials on an activity item's avatar. */
+  activityInitials(text: string): Locator {
+    return this.activityItems.filter({ hasText: text }).locator('ft-avatar');
+  }
+
   onboardingCard(heading: string): Locator {
     return this.page.getByRole('region', { name: heading });
   }

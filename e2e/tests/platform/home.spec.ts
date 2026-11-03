@@ -2,7 +2,7 @@
 import { Route } from '@playwright/test';
 
 import { expect, test } from '../../fixtures/app';
-import { MockApi } from '../../fixtures/mock-api';
+import { MockApi, photoUrl } from '../../fixtures/mock-api';
 import { HomePage } from '../../pages/home.page';
 import { BREAKPOINTS, BreakpointName, hasHorizontalScroll } from '../../pages/viewport';
 
@@ -156,6 +156,45 @@ test.describe('Home', () => {
 
     await home.comingUpLink('City Team Prayer & Planning').click();
     await expect(page).toHaveURL(`/events/${prayer.id}`);
+  });
+
+  test('each activity item shows the member who acted, with their photo', async ({ page, api }) => {
+    // Given notifications from a member with a featured photo, one without, and one with no actor
+    await arrange(api);
+    const grace = addGrace(api);
+    const tomas = api.addProfile({
+      id: 'profile-tomas',
+      name: 'Tomás Ortega',
+      photos: [
+        {
+          id: 'tomas-1',
+          url: photoUrl('#f0a', 'tomas'),
+          altText: 'Tomás smiling',
+          isFeatured: true,
+          uploadedAt: '2026-10-01T10:00:00Z',
+        },
+      ],
+    });
+    const ruth = api.addProfile({ id: 'profile-ruth', name: 'Ruth Alvarez' });
+    for (const n of api.notifications.notifications) {
+      const actor = n.title.startsWith('Tomás') ? tomas : ruth;
+      n.actorId = actor.id;
+      n.actorName = actor.name;
+    }
+    api.addNotification({ recipientId: grace.profileId, title: 'Your role changed' }, 9000);
+    const home = new HomePage(page);
+
+    // When Grace opens home
+    await api.signInAs(grace, '/');
+
+    // Then each item's avatar is the actor's photo, else their initials, else the organisation's
+    await expect(home.activityPhoto('Tomás Ortega just joined FaithTech')).toHaveAttribute(
+      'src',
+      photoUrl('#f0a', 'tomas'),
+    );
+    await expect(home.activityPhoto('Ruth Alvarez accepted your invite')).toHaveCount(0);
+    await expect(home.activityInitials('Ruth Alvarez accepted your invite')).toHaveText('RA');
+    await expect(home.activityInitials('Your role changed')).toHaveText('FC');
   });
 
   test('Staff see the read-only banner, no write actions and none of a lead’s private activity', async ({

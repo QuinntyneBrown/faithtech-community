@@ -1,8 +1,13 @@
 import { expect, test } from '../../../e2e/fixtures/app';
 import { AppShell } from '../../../e2e/pages/app-shell.page';
+import { HomePage } from '../../../e2e/pages/home.page';
+import { seedHomeMock } from '../home-mock-data';
 import { Presenter } from '../presenter';
 
+test.use({ timezoneId: 'America/Toronto' });
+
 // Journey: the app shell (docs/detailed-designs/platform/responsive-layout-and-theming, L2-045).
+// The tour runs on home, so the shell is compared with docs/mocks/pages/home at each width.
 // Viewports are capped at the video's 720px height, so phone and tablet frames are not scaled.
 const DESKTOP = { width: 1280, height: 720 };
 const TABLET = { width: 768, height: 720 };
@@ -11,7 +16,8 @@ const PHONE = { width: 390, height: 720 };
 test('app-shell-tour', async ({ page, api }) => {
   const show = await Presenter.start(page, 'app-shell-tour');
   const shell = new AppShell(page);
-  const account = api.addAccount({ name: 'Grace Okonkwo', email: 'grace@example.org' });
+  const home = new HomePage(page);
+  const account = await seedHomeMock(api);
 
   await show.card(
     'opening',
@@ -26,10 +32,12 @@ test('app-shell-tour', async ({ page, api }) => {
   await show.step(
     'desktop',
     async () => {
-      for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'People']) {
+      for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces']) {
         await expect(shell.navLink(name)).toBeVisible();
       }
+      await expect(shell.moreLink).toBeVisible();
       await expect(shell.navLink('Home')).toHaveAttribute('aria-current', 'page');
+      await expect(home.comingUpEvents).toHaveCount(3);
     },
     { poster: true },
   );
@@ -37,6 +45,7 @@ test('app-shell-tour', async ({ page, api }) => {
   await show.step('tablet', async () => {
     await page.setViewportSize(TABLET);
     await expect(shell.navLink('Events')).toBeVisible();
+    await expect(shell.moreLink).toBeVisible();
   });
 
   await show.step(
@@ -65,11 +74,15 @@ test('app-shell-tour', async ({ page, api }) => {
       await page.keyboard.press('Escape');
       await expect(shell.drawer).toBeHidden();
       await expect(shell.moreTab).toBeFocused();
+      // The capture shows the drawer, so it opens again once Escape is proven.
+      await shell.moreTab.click();
+      await expect(shell.drawer).toBeVisible();
     },
     { position: 'bottom' },
   );
 
   await show.step('dark-theme', async () => {
+    await page.keyboard.press('Escape');
     await page.setViewportSize(DESKTOP);
     await page.emulateMedia({ colorScheme: 'dark' });
     await expect(shell.navLink('Home')).toBeVisible();
@@ -79,15 +92,19 @@ test('app-shell-tour', async ({ page, api }) => {
     await page.emulateMedia({ colorScheme: 'light' });
   });
 
-  await show.step('keyboard', async () => {
-    await page.mouse.click(DESKTOP.width / 2, DESKTOP.height / 2);
+  await show.step('skip-link', async () => {
+    await page.mouse.click(DESKTOP.width / 2, DESKTOP.height - 8);
     await page.keyboard.press('Tab');
     await expect(shell.skipLink).toBeFocused();
-    await page.waitForTimeout(1500);
+  });
+
+  await show.step('keyboard', async () => {
+    await page.waitForTimeout(800);
     for (let i = 0; i < 4; i++) {
       await page.keyboard.press('Tab');
       await page.waitForTimeout(700);
     }
+    await expect(shell.navLink('Contacts')).toBeFocused();
   });
 
   await show.card('closing', 'closing', [

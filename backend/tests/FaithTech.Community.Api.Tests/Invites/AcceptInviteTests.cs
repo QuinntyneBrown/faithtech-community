@@ -75,6 +75,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var notification = await factory.WithDbAsync(db => db.Notifications.SingleAsync(n => n.RecipientId == grace.ProfileId));
         Assert.Equal(NotificationKind.InviteAccepted, notification.Kind);
         Assert.Equal("Ruth Alvarez accepted your invite", notification.Title);
+        Assert.Equal(profile.Id, notification.ActorId);
         var entry = await factory.WithDbAsync(db => db.AuditEntries.SingleAsync(a => a.TargetId == profile.Id.ToString()));
         Assert.Equal(("role.granted", grace.ProfileId), (entry.Action, entry.ActorId));
 

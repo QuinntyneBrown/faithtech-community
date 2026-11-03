@@ -40,7 +40,7 @@ const COPY: Record<ErrorKind, ErrorCopy> = {
 
 /**
  * Full-page error: a decorative icon, the page's h1, a plain explanation and a way back. Four
- * kinds share one layout. Not found also links to search; server error shows a `reference` to
+ * kinds share one layout; not found and forbidden link home. Server error shows a `reference` to
  * quote to support; server error and offline offer Try again (`retry`, busy while `retrying`).
  */
 @Component({
@@ -56,7 +56,6 @@ export class ErrorPageComponent {
   readonly reference = input<string | null>(null);
   readonly retrying = input(false);
   readonly homeHref = input('/');
-  readonly searchHref = input('/search');
   /** Overrides the default heading / explanation for the kind. */
   readonly heading = input<string | null>(null);
   readonly message = input<string | null>(null);

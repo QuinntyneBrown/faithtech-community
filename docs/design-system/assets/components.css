@@ -916,6 +916,9 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .nav-link--more { display: none; border: 0; background: none; cursor: pointer; }
 @media (min-width: 48rem) { .topbar__nav .nav-link--more { display: inline-flex; } }
 @media (min-width: 96rem) { .topbar__nav .nav-link--more { display: none; } }
+/* From 768 to 1023px nav links take 8px sides, so the five links, More, the bell and the avatar fit inside the capsule. */
+@media (min-width: 48rem) { .topbar__nav .nav-link { padding-inline: var(--space-2); } }
+@media (min-width: 64rem) { .topbar__nav .nav-link { padding-inline: var(--space-3); } }
 
 /* ---------- Mono (audit log) -------------------------------------------------- */
 .mono { font: var(--text-code); }

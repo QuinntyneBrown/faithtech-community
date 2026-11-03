@@ -1,10 +1,6 @@
-<!-- A live region that is always present, so the offline banner is announced when it appears. -->
-<div aria-live="polite">
-  @if (connectivity.offline()) {
-    <ft-banner status="warning" heading="No connection">
-      We’ll keep trying in the background.
-    </ft-banner>
-  }
-</div>
+<!-- A shell draws the offline banner under its top bar; pages without one show it at the top. -->
+@if (!shells.present()) {
+  <ft-offline-banner />
+}
 <router-outlet />
 <ft-toast-region />

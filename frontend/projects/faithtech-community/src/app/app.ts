@@ -1,17 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import {
-  BannerComponent,
-  ConnectivityService,
-  ToastRegionComponent,
-} from '@faithtech-community/components';
+import { ToastRegionComponent } from '@faithtech-community/components';
+
+import { OfflineBannerComponent, ShellPresence } from './shell';
 
 @Component({
   selector: 'ft-root',
-  imports: [RouterOutlet, BannerComponent, ToastRegionComponent],
+  imports: [RouterOutlet, OfflineBannerComponent, ToastRegionComponent],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {
-  protected readonly connectivity = inject(ConnectivityService);
+  protected readonly shells = inject(ShellPresence);
 }
