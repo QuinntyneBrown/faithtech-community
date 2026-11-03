@@ -21,6 +21,7 @@ function notification(id: string, overrides: Partial<NotificationDto> = {}): Not
     readAt: null,
     actorId: 'p1',
     actorName: 'Samuel Mensah',
+    actorPhotoUrl: null,
     ...overrides,
   };
 }

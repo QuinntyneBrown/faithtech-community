@@ -9,7 +9,7 @@
   </ft-button>
 </ft-page-header>
 
-<ft-cluster gap="2" class="filters" role="group" aria-label="Show notifications">
+<ft-cluster gap="3" class="filters" role="group" aria-label="Show notifications">
   <ft-chip [pressed]="!unreadOnly()" (click)="show(false)">All</ft-chip>
   <ft-chip [pressed]="unreadOnly()" (click)="show(true)">Unread</ft-chip>
 </ft-cluster>

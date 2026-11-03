@@ -22,7 +22,7 @@
 
 :host(.ft-empty--error) .ft-empty__icon {
   background: var(--color-danger-bg);
-  color: var(--color-danger-icon);
+  color: var(--color-danger-fg);
 }
 
 .ft-empty__title {
@@ -46,6 +46,11 @@
 
 .ft-empty__actions:empty {
   display: none;
+}
+
+/* In a card that already pads it: the mocks' .empty with padding: var(--space-4) 0 inside an auth card. */
+:host(.ft-empty--in-card) {
+  padding: var(--space-4) 0;
 }
 
 /* Small: a short list inside a dialog step (docs/design-system/components/empty-state.html). */

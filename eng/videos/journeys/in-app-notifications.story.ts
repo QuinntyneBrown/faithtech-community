@@ -1,6 +1,7 @@
 import { expect, test } from '../../../e2e/fixtures/app';
 import { AppShell } from '../../../e2e/pages/app-shell.page';
 import { NotificationsPage } from '../../../e2e/pages/notifications.page';
+import { featuredPhoto, Scene } from '../photos';
 import { Presenter } from '../presenter';
 
 // Journey: in-app notifications (docs/detailed-designs/notifications/in-app-notifications, L2-027).
@@ -9,36 +10,63 @@ test('in-app-notifications', async ({ page, api }) => {
   const shell = new AppShell(page);
   const notifications = new NotificationsPage(page);
 
+  // Wednesday 21 October 2026, 3:42 pm in Toronto, as the bell mock (docs/mocks/notifications/bell/unread.html).
+  api.now = new Date('2026-10-21T19:42:00Z');
+  await api.freezeBrowserClock();
   const grace = api.addAccount({
     email: 'grace@example.org',
-    name: 'Grace Okafor',
+    name: 'Grace Okonkwo',
     roles: ['CityLead'],
+    profileId: 'profile-grace7',
   });
-  api.notifications.add(
-    { recipientId: grace.profileId, title: 'Older notice', readAt: '2026-10-01' },
-    600,
+  api.profiles.get(grace.profileId)!.photos.push(featuredPhoto('grace-okonkwo'));
+  const person = (id: string, name: string, scene: Scene) => {
+    api.addProfile({ id, name, roles: ['Volunteer'], photos: [featuredPhoto(scene)] });
+    return { id, name };
+  };
+  const notify = (
+    actor: { id: string; name: string },
+    kind: string,
+    title: string,
+    linkPath: string,
+    minutesAgo: number,
+  ) =>
+    api.notifications.add(
+      {
+        recipientId: grace.profileId,
+        kind,
+        title,
+        linkPath,
+        actorId: actor.id,
+        actorName: actor.name,
+      },
+      minutesAgo,
+    );
+  const hannah = person('profile-hannah5', 'Hannah Kim', 'hannah-kim');
+  const ruth = person('profile-ruth1', 'Ruth Alvarez', 'ruth-alvarez');
+  const marcus = person('profile-marcus1', 'Marcus Lee', 'marcus-lee');
+  const tomas = person('profile-tomas', 'Tomás Ortega', 'tomas-ortega');
+  notify(
+    hannah,
+    'Announcement',
+    'Builders Night moves to Kestrel Labs',
+    '/announcements',
+    6000,
+  ).readAt = '2026-10-17T20:00:00Z';
+  notify(ruth, 'InviteAccepted', 'Ruth Alvarez accepted your invite', `/people/${ruth.id}`, 4320);
+  notify(
+    marcus,
+    'ResourceShared',
+    'Marcus Lee shared “Builders Night run sheet” with you',
+    '/resources/resource-4',
+    1412,
   );
-  api.notifications.add(
-    { recipientId: grace.profileId, title: 'Your roles changed', linkPath: '/team' },
-    30,
-  );
-  api.notifications.add(
-    {
-      recipientId: grace.profileId,
-      title: 'Tomás Ortega just joined FaithTech',
-      actorName: 'Tomás Ortega',
-      actorId: 'profile-9',
-      linkPath: '/team',
-    },
-    5,
-  );
-  api.notifications.add(
-    {
-      recipientId: grace.profileId,
-      title: 'Builders Night has a new venue',
-      linkPath: '/events',
-    },
-    2,
+  notify(
+    tomas,
+    'ContactSignedUp',
+    'Tomás Ortega just joined FaithTech',
+    '/contacts/contact-9',
+    240,
   );
 
   await show.card(
@@ -48,7 +76,7 @@ test('in-app-notifications', async ({ page, api }) => {
       'Keep up with the community',
       'Recorded against a local fake API · synthetic people and events',
     ],
-    () => api.signInAs(grace, '/team'),
+    () => api.signInAs(grace, '/'),
   );
 
   await show.step('bell', async () => {
@@ -60,14 +88,14 @@ test('in-app-notifications', async ({ page, api }) => {
     async () => {
       await shell.bell.click();
       await expect(shell.notificationPanel).toBeVisible();
-      await expect(shell.panelNotice('Your roles changed')).toBeVisible();
+      await expect(shell.panelNotice('Ruth Alvarez accepted your invite')).toBeVisible();
     },
     { poster: true },
   );
 
   await show.step('open-notice', async () => {
-    await shell.panelNotice('Your roles changed').click();
-    await expect(page).toHaveURL(/\/team$/);
+    await shell.panelNotice('Ruth Alvarez accepted your invite').click();
+    await expect(page).toHaveURL(/\/people\/profile-ruth1$/);
     await expect(shell.bell).toHaveAccessibleName('Notifications, 2 unread');
   });
 

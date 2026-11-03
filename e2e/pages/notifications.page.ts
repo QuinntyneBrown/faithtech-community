@@ -35,6 +35,11 @@ export class NotificationsPage {
     return this.notices.filter({ has: this.page.getByRole('link', { name: title, exact: true }) });
   }
 
+  /** The photo on a notice's avatar; absent when the actor has none. */
+  noticePhoto(title: string): Locator {
+    return this.notice(title).locator('ft-avatar img');
+  }
+
   async open(title: string): Promise<void> {
     await this.notice(title).getByRole('link', { name: title, exact: true }).click();
   }

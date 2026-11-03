@@ -43,7 +43,7 @@ export class NotificationBellComponent {
   );
 
   protected readonly positions: ConnectedPosition[] = [
-    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 4 },
+    { originX: 'end', originY: 'bottom', overlayX: 'end', overlayY: 'top', offsetY: 8 },
   ];
 
   protected toggle(): void {

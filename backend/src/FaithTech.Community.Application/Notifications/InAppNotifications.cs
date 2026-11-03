@@ -1,11 +1,23 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Notifications;
 
-/// <summary>A notification as its recipient sees it. The actor is the member whose action raised it, when known.</summary>
+/// <summary>
+/// A notification as its recipient sees it. The actor is the member whose action raised it, when known, with their
+/// featured photo for the notice's avatar.
+/// </summary>
 public record NotificationDto(
-    Guid Id, string Kind, string Title, string LinkPath, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt, Guid? ActorId, string? ActorName);
+    Guid Id,
+    string Kind,
+    string Title,
+    string LinkPath,
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? ReadAt,
+    Guid? ActorId,
+    string? ActorName,
+    string? ActorPhotoUrl = null);
 
 public record NotificationPage(
     IReadOnlyList<NotificationDto> Items, int Page, int PageSize, int TotalCount, int UnreadCount, bool HasMore);
@@ -14,7 +26,7 @@ public record NotificationPage(
 /// The caller's own notifications (L2-027): listed newest first, 50 at a time, and marked read. Every query is
 /// scoped to the caller's profile, so nobody else, Staff and System Admin included, reads or changes them.
 /// </summary>
-public class InAppNotificationsHandler(IApplicationDbContext db, ICurrentUser current, TimeProvider time)
+public class InAppNotificationsHandler(IApplicationDbContext db, ICurrentUser current, TimeProvider time, IPhotoStorage storage)
 {
     public const int PageSize = 50;
 
@@ -30,14 +42,29 @@ public class InAppNotificationsHandler(IApplicationDbContext db, ICurrentUser cu
                 from n in listed.OrderByDescending(n => n.CreatedAt).ThenByDescending(n => n.Id).Skip(request.Skip).Take(request.PageSize)
                 join actor in db.Profiles.AsNoTracking() on n.ActorId equals actor.Id into actors
                 from actor in actors.DefaultIfEmpty()
-                select new { n, ActorName = actor == null ? null : actor.Name })
+                select new
+                {
+                    n,
+                    ActorName = actor == null ? null : actor.Name,
+                    Featured = actor == null
+                        ? null
+                        : actor.Photos.Where(p => p.IsFeatured).Select(p => p.BlobName).FirstOrDefault(),
+                })
             .ToListAsync(cancellationToken);
 
         // The join may lose the order in some providers, so it is applied again in memory.
         var items = rows
             .OrderByDescending(r => r.n.CreatedAt).ThenByDescending(r => r.n.Id)
             .Select(r => new NotificationDto(
-                r.n.Id, r.n.Kind.ToString(), r.n.Title, r.n.LinkPath, r.n.CreatedAt, r.n.ReadAt, r.n.ActorId, r.ActorName))
+                r.n.Id,
+                r.n.Kind.ToString(),
+                r.n.Title,
+                r.n.LinkPath,
+                r.n.CreatedAt,
+                r.n.ReadAt,
+                r.n.ActorId,
+                r.ActorName,
+                r.Featured is null ? null : storage.GetReadUrl(r.Featured)))
             .ToList();
         return new NotificationPage(items, request.Page, request.PageSize, total, unreadCount, request.Skip + items.Count < total);
     }

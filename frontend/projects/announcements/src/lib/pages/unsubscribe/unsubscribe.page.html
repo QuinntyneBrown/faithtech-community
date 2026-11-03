@@ -5,6 +5,7 @@
         <div role="status">
           <ft-empty-state
             icon="email"
+            inCard
             [headingLevel]="1"
             heading="Turning off announcement emails…"
             text="This takes a moment. You don’t need to sign in."
@@ -14,6 +15,7 @@
       @case ('done') {
         <ft-empty-state
           icon="success"
+          inCard
           [headingLevel]="1"
           heading="You’re unsubscribed"
           text="We won’t email you announcements any more. You’ll still see them in the app, and you’ll still get other emails, such as event changes and password resets. You can turn announcement emails back on in Settings."
@@ -24,6 +26,7 @@
       @case ('invalid') {
         <ft-empty-state
           variant="error"
+          inCard
           [headingLevel]="1"
           heading="This unsubscribe link doesn’t work"
           text="It may be incomplete or more than a year old. Sign in and turn off announcement emails in Settings instead."

@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/app';
+import { photoUrl } from '../../fixtures/mock-api';
 import { AppShell } from '../../pages/app-shell.page';
 import { NotificationsPage } from '../../pages/notifications.page';
 
@@ -34,6 +35,69 @@ test.describe('In-app notifications', () => {
       'See all',
     ]);
     await axe.check();
+  });
+
+  test('each notice shows the member who acted, with their photo, in the panel and on the page', async ({
+    page,
+    api,
+  }) => {
+    // Given a notice raised by a member with a featured photo, one by a member without, and one with no actor
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const tomas = api.addProfile({
+      id: 'profile-tomas',
+      name: 'Tomás Ortega',
+      photos: [
+        {
+          id: 'tomas-1',
+          url: photoUrl('#f0a', 'tomas'),
+          altText: 'Tomás smiling',
+          isFeatured: true,
+          uploadedAt: '2026-10-01T10:00:00Z',
+        },
+      ],
+    });
+    const ruth = api.addProfile({ id: 'profile-ruth', name: 'Ruth Alvarez' });
+    api.notifications.add({ recipientId: grace.profileId, title: 'Your roles changed' }, 30);
+    api.notifications.add(
+      {
+        recipientId: grace.profileId,
+        title: 'Ruth Alvarez accepted your invite',
+        actorId: ruth.id,
+        actorName: ruth.name,
+      },
+      10,
+    );
+    api.notifications.add(
+      {
+        recipientId: grace.profileId,
+        title: 'Tomás Ortega just joined FaithTech',
+        actorId: tomas.id,
+        actorName: tomas.name,
+      },
+      5,
+    );
+    const shell = new AppShell(page);
+    const notifications = new NotificationsPage(page);
+
+    // When Grace opens the bell panel
+    await api.signInAs(grace, '/team');
+    await shell.bell.click();
+
+    // Then the notice shows the actor's photo, else their initials
+    await expect(shell.panelNoticePhoto('Tomás Ortega just joined FaithTech')).toHaveAttribute(
+      'src',
+      photoUrl('#f0a', 'tomas'),
+    );
+    await expect(shell.panelNoticePhoto('Ruth Alvarez accepted your invite')).toHaveCount(0);
+    await expect(shell.panelNoticePhoto('Your roles changed')).toHaveCount(0);
+
+    // And the Notifications page shows the same
+    await shell.panelSeeAll.click();
+    await expect(notifications.noticePhoto('Tomás Ortega just joined FaithTech')).toHaveAttribute(
+      'src',
+      photoUrl('#f0a', 'tomas'),
+    );
+    await expect(notifications.noticePhoto('Ruth Alvarez accepted your invite')).toHaveCount(0);
   });
 
   test('opening a notice marks it read and goes to the related item', async ({ page, api }) => {

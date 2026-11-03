@@ -7,6 +7,8 @@ export interface Notice {
   /** The person the notice is about; shown as initials. */
   name: string;
   color?: AvatarColor;
+  /** Their featured photo; without one the avatar shows initials. */
+  photo?: string | null;
   /** One sentence, past tense. Leave it empty when the link text is the whole sentence. */
   text: string;
   /** The one action: the object of the sentence, as a link. */

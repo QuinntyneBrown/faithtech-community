@@ -107,6 +107,7 @@ function toNotice(n: NotificationDto, organisation: string): Notice {
     id: n.id,
     name: n.actorName ?? organisation,
     color: avatarColorFor(n.actorId),
+    photo: n.actorPhotoUrl,
     text: '',
     linkText: n.title,
     href: n.linkPath,

@@ -13,7 +13,7 @@ In Settings, the Email me when card shows what you get by email. Event changes, 
 Announcements are the one thing you can switch off. Turn off Email me announcements and the choice is saved straight away.
 
 ## others: Everything else still arrives
-Turning announcements off does not silence anything else. Cancellations, confirmations and invites still reach you, and every link in an email is secure.
+Turning announcements off does not silence anything else. When an event you are going to changes, the notice still arrives, here and in your inbox. Cancellations, confirmations and invites still reach you, and every link in an email is secure.
 
 ## closing: Summary
 That is email: reliable, with a plain-text copy, and under your control where it counts.

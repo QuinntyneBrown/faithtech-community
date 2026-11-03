@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ANNOUNCEMENTS_SERVICE } from '@faithtech-community/api';
 import {
+  AlertComponent,
   CardComponent,
   InlineMessageComponent,
   PageHeaderComponent,
@@ -26,6 +27,7 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'failed';
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    AlertComponent,
     CardComponent,
     InlineMessageComponent,
     PageHeaderComponent,

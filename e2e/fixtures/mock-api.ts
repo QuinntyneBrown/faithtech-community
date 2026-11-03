@@ -180,7 +180,10 @@ export class MockApi {
     (entry) => this.addAuditEntry(entry),
   );
   /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
-  readonly notifications = new MockNotifications(() => this.now);
+  readonly notifications = new MockNotifications(
+    () => this.now,
+    (id) => this.profiles.get(id)?.photos.find((photo) => photo.isFeatured)?.url ?? null,
+  );
   /** Announcements and the announcement email opt-out (L2-029, L2-030). */
   readonly announcements = new MockAnnouncements(this);
   readonly calls: {

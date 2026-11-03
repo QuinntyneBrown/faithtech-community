@@ -1,14 +1,19 @@
+// The mocks' .page-header: 24px under the top bar and 24px above the first card.
 :host {
   display: block;
-  margin-block-start: var(--space-4);
 }
 
 ft-page-header {
-  margin-block-end: var(--space-4);
+  margin-block: var(--space-6);
 }
 
 .caption {
   margin: 0;
   color: var(--color-fg-muted);
   font: var(--text-caption);
+}
+
+// The live region stays rendered so its alert is announced, but takes no stack gap while it is empty.
+.status:empty {
+  position: absolute;
 }

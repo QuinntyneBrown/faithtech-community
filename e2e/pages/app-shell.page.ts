@@ -91,6 +91,14 @@ export class AppShell {
     return this.notificationPanel.getByRole('link', { name: title, exact: true });
   }
 
+  /** The photo on a panel notice's avatar; absent when the actor has none. */
+  panelNoticePhoto(title: string): Locator {
+    return this.notificationPanel
+      .getByRole('listitem')
+      .filter({ has: this.page.getByRole('link', { name: title, exact: true }) })
+      .locator('ft-avatar img');
+  }
+
   /** The panel's "Mark all read" and "See all" controls. */
   get panelMarkAllRead(): Locator {
     return this.notificationPanel.getByRole('button', { name: 'Mark all read' });

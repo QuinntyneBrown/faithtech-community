@@ -1,7 +1,12 @@
 <ul class="ft-notice-list">
   @for (notice of notices(); track notice.id) {
     <li class="ft-notice" [class.ft-notice--unread]="notice.unread">
-      <ft-avatar size="sm" [name]="notice.name" [color]="notice.color ?? 'plain'" />
+      <ft-avatar
+        size="sm"
+        [name]="notice.name"
+        [color]="notice.color ?? 'plain'"
+        [src]="notice.photo ?? null"
+      />
       <div class="ft-notice__body">
         {{ notice.text }}
         @if (notice.href && notice.linkText) {

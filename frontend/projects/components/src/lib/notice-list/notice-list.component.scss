@@ -20,28 +20,28 @@
 }
 
 .ft-notice--unread {
-  position: relative;
   background: var(--color-accent-subtle);
 }
 
-.ft-notice--unread::before {
+// The unread dot leads the sentence, inline, as the design system's .notice--unread .notice__body::before.
+.ft-notice--unread .ft-notice__body::before {
   content: '';
-  position: absolute;
-  inset-inline-start: var(--space-1);
-  inset-block-start: var(--space-5);
+  display: inline-block;
   inline-size: var(--space-2);
   block-size: var(--space-2);
+  margin-inline-end: var(--space-2);
   border-radius: var(--radius-full);
   background: var(--color-accent);
+  vertical-align: middle;
 }
 
 .ft-notice__body {
+  flex: 1;
   min-inline-size: 0;
   overflow-wrap: anywhere;
 }
 
 .ft-notice__meta {
-  margin-block-start: var(--space-1);
   color: var(--color-fg-muted);
   font: var(--text-caption);
 }

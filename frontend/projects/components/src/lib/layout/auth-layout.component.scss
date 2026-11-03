@@ -14,8 +14,9 @@
   gap: var(--space-4);
 }
 
+// The mocks' .auth-card .logo: 24px below the mark plus the 16px gap, so the card sits 40px under it.
 .logo {
   display: flex;
   justify-content: center;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-6);
 }

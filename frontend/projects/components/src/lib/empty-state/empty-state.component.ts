@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { IconComponent } from '../icon/icon.component';
 
 export type EmptyStateVariant = 'empty' | 'error';
@@ -30,9 +36,16 @@ export class EmptyStateComponent {
   readonly icon = input<string | null>(null);
   /** sm is announced as a status, so a search that empties a list is heard. */
   readonly size = input<EmptyStateSize>('md');
+  /**
+   * Inside a card that already pads it, such as an auth page's card (docs/mocks/pages/unsubscribe): only 16px
+   * above and below, and none at the sides.
+   */
+  readonly inCard = input(false, { transform: booleanAttribute });
 
   protected readonly hostClass = computed(
-    () => `ft-empty ft-empty--${this.variant()}${this.size() === 'sm' ? ' ft-empty--sm' : ''}`,
+    () =>
+      `ft-empty ft-empty--${this.variant()}${this.size() === 'sm' ? ' ft-empty--sm' : ''}` +
+      (this.inCard() ? ' ft-empty--in-card' : ''),
   );
   protected readonly role = computed(() =>
     this.variant() === 'error' ? 'alert' : this.size() === 'sm' ? 'status' : null,

@@ -1,3 +1,12 @@
+// The mocks' .page-header: 24px under the top bar and 24px above the list.
+:host {
+  display: block;
+}
+
+ft-page-header {
+  margin-block: var(--space-6);
+}
+
 .more {
   display: flex;
   justify-content: center;

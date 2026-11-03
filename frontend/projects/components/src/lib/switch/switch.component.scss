@@ -2,10 +2,12 @@
   display: block;
 }
 
+// The design system's .switch row: 4px above and below the label, a 32px row like a radio's.
 .switch {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
+  padding-block: var(--space-1);
   font: var(--text-body);
   color: var(--color-fg-default);
   cursor: pointer;

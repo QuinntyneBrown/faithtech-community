@@ -22,7 +22,11 @@ const PAGE_SIZE = 50;
 export class MockNotifications {
   readonly notifications: MockNotification[] = [];
 
-  constructor(private readonly now: () => Date) {}
+  /** `photoOf` answers a profile's featured photo URL, for the actor's avatar, or null. */
+  constructor(
+    private readonly now: () => Date,
+    private readonly photoOf: (profileId: string) => string | null = () => null,
+  ) {}
 
   /** A notification for `recipientId`; give `minutesAgo` to order them. */
   add(
@@ -65,7 +69,10 @@ export class MockNotifications {
       return route.fulfill({
         status: 200,
         json: {
-          items: items.map(({ recipientId: _, ...dto }) => dto),
+          items: items.map(({ recipientId: _, ...dto }) => ({
+            ...dto,
+            actorPhotoUrl: dto.actorId ? this.photoOf(dto.actorId) : null,
+          })),
           page,
           pageSize: PAGE_SIZE,
           totalCount: listed.length,

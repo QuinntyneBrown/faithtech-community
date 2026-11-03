@@ -91,7 +91,7 @@ describe('SettingsPage', () => {
     await settle();
 
     expect(announcements.setEmailOptOut).toHaveBeenCalledWith(true);
-    expect(host.textContent).toContain('Saved');
+    expect(host.textContent).toContain('Settings saved');
   });
 
   it('puts the switch back and says so when saving fails', async () => {

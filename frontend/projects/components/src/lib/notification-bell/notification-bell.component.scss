@@ -26,10 +26,6 @@
     outline: none;
     box-shadow: var(--shadow-focus);
   }
-
-  &[aria-expanded='true'] {
-    background: var(--color-bg-subtle);
-  }
 }
 
 .ft-notification-bell__count {
