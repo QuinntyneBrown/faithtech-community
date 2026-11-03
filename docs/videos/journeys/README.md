@@ -30,6 +30,7 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | [App shell tour](app-shell-tour/video.webm) · [poster](app-shell-tour/poster.png) · [captions](app-shell-tour/captions.vtt) · [narration](app-shell-tour/narration.md) | 1:36 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey app-shell-tour` |
 | [Error and system pages](error-and-system-pages/video.webm) · [poster](error-and-system-pages/poster.png) · [captions](error-and-system-pages/captions.vtt) · [narration](error-and-system-pages/narration.md) | 1:00 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey error-and-system-pages` |
 | [Your home page](home/video.webm) · [poster](home/poster.png) · [captions](home/captions.vtt) · [narration](home/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey home` |
+| [A fast, accessible, secure site](fast-accessible-secure-site/video.webm) · [poster](fast-accessible-secure-site/poster.png) · [narration](fast-accessible-secure-site/narration.md) | 1:42 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey fast-accessible-secure-site -Engine kokoro -NoCaptions -Music` |
 
 ### Profiles
 
@@ -46,6 +47,7 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 |---|---|---|
 | [Send an invite](send-invite/video.webm) · [poster](send-invite/poster.png) · [captions](send-invite/captions.vtt) · [narration](send-invite/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey send-invite` |
 | [Accept an invite](accept-invite/video.webm) · [poster](accept-invite/poster.png) · [captions](accept-invite/captions.vtt) · [narration](accept-invite/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey accept-invite` |
+| [Connect by QR code](connect-by-qr-code/video.webm) · [poster](connect-by-qr-code/poster.png) · [narration](connect-by-qr-code/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey connect-by-qr-code -Engine kokoro -NoCaptions -Music` |
 
 ### Contacts
 
@@ -103,6 +105,14 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 |---|---|---|
 | [Send an announcement](send-announcement/video.webm) · [poster](send-announcement/poster.png) · [captions](send-announcement/captions.vtt) · [narration](send-announcement/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey send-announcement` |
 | [Read announcements and opt out](read-announcements-and-opt-out/video.webm) · [poster](read-announcements-and-opt-out/poster.png) · [captions](read-announcements-and-opt-out/captions.vtt) · [narration](read-announcements-and-opt-out/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey read-announcements-and-opt-out` |
+
+### Resources
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Add and share resources](add-and-share-resources/video.webm) · [poster](add-and-share-resources/poster.png) · [narration](add-and-share-resources/narration.md) | 1:32 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey add-and-share-resources -Engine kokoro -NoCaptions -Music` |
+| [Find and download resources](find-and-download-resources/video.webm) · [poster](find-and-download-resources/poster.png) · [narration](find-and-download-resources/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey find-and-download-resources -Engine kokoro -NoCaptions -Music` |
+| [Archive and transfer resources](archive-and-transfer-resources/video.webm) · [poster](archive-and-transfer-resources/poster.png) · [narration](archive-and-transfer-resources/narration.md) | 1:16 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey archive-and-transfer-resources -Engine kokoro -NoCaptions -Music` |
 
 ### Docs & notes
 
@@ -208,9 +218,12 @@ to the file `python -c "import certifi; print(certifi.where())"` prints.
 
 ## Scope
 
-One journey per detailed design that has a screen. Designs with no screen of their own (accessibility,
-performance, server authorization, input validation and web protections, reliability and observability)
-are not filmed; the app shell tour covers responsive layout and theming. A new journey is a
+One journey per detailed design that has a screen, and at least one per user journey in
+[`docs/journeys.md`](../../journeys.md). Designs with no screen of their own (performance, server
+authorization, reliability and observability) are not filmed on their own: journey 31 ("Use a fast,
+accessible, secure site") is shown by the app shell tour (responsive layout, theming, keyboard), the error
+and system pages, and "A fast, accessible, secure site" (the private-preview wall, validation, output
+encoding, focus, dark mode and phone width). A new journey is a
 `eng/videos/journeys/<slug>.story.ts` plus `docs/videos/journeys/<slug>/narration.md`; the recorder
 finds it by file name. Re-record a journey when its screens change.
 
