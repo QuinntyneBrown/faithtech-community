@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Notice, NoticeListComponent } from './notice-list.component';
+import { Notice, NoticeListComponent, noticeSentence } from './notice-list.component';
 
 const NOTICES: Notice[] = [
   {
     id: 'n1',
     name: 'Samuel Mensah',
     color: 'mint',
-    text: 'Samuel Mensah assigned you',
+    text: 'Samuel Mensah assigned you ',
     linkText: 'Shelter problem briefs for teams',
     href: '/workspaces/w1/items/i1',
     meta: 'Today, 9:30 am',
@@ -91,5 +91,47 @@ describe('NoticeListComponent', () => {
     fixture.nativeElement.remove();
     expect(cmp.opened).toEqual(['n1']);
     expect(prevented).toBe(true);
+  });
+});
+
+describe('noticeSentence', () => {
+  it('links only the phrase that names the item, keeping the sentence around it', () => {
+    expect(
+      noticeSentence('Austin Faith & AI Panel was cancelled', 'Austin Faith & AI Panel'),
+    ).toEqual({ text: '', linkText: 'Austin Faith & AI Panel', after: ' was cancelled' });
+    expect(noticeSentence('Grace assigned you Kiosk', 'Kiosk')).toEqual({
+      text: 'Grace assigned you ',
+      linkText: 'Kiosk',
+      after: '',
+    });
+  });
+
+  it('links the whole sentence when it names no item, or not the given one', () => {
+    expect(noticeSentence('Your roles changed', null)).toEqual({
+      text: '',
+      linkText: 'Your roles changed',
+      after: '',
+    });
+    expect(noticeSentence('Your roles changed', 'Open it').linkText).toBe('Your roles changed');
+  });
+
+  it('renders the sentence as one line of text with the link inside it', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.notices.set([
+      {
+        id: 'n3',
+        name: 'Esther Nakamura',
+        ...noticeSentence('Austin Faith & AI Panel was cancelled', 'Austin Faith & AI Panel'),
+        href: '/events/e1',
+        meta: 'Mon 20 Oct',
+        unread: false,
+      },
+    ]);
+    fixture.detectChanges();
+    const sentence = (fixture.nativeElement as HTMLElement).querySelector('.ft-notice__sentence')!;
+    expect(sentence.textContent!.replace(/\s+/g, ' ').trim()).toBe(
+      'Austin Faith & AI Panel was cancelled',
+    );
+    expect(sentence.querySelector('a')!.textContent!.trim()).toBe('Austin Faith & AI Panel');
   });
 });

@@ -38,11 +38,13 @@ public class RsvpTests(CommunityApiFactory factory) : IClassFixture<CommunityApi
         var saved = await factory.LoadEventAsync(existing.Id);
         Assert.Single(saved.Rsvps, r => r.ProfileId == leah.ProfileId);
         var notification = await factory.WithDbAsync(db => db.Notifications.AsNoTracking().SingleAsync(n => n.RecipientId == leah.ProfileId));
-        Assert.Equal((NotificationKind.RsvpConfirmed, "You’re going to Toronto Builders Night", $"/events/{existing.Id}"),
-            (notification.Kind, notification.Title, notification.LinkPath));
+        Assert.Equal((NotificationKind.RsvpConfirmed, "You’re going to Toronto Builders Night", $"/events/{existing.Id}", "Toronto Builders Night"),
+            (notification.Kind, notification.Title, notification.LinkPath, notification.LinkText));
         var email = Assert.Single(await factory.QueuedEmailsToAsync(address));
         Assert.Equal("You’re going to Toronto Builders Night", email.Subject);
-        Assert.Contains($"{CommunityApiFactory.WebAppOrigin}/events/{existing.Id}", email.Body);
+        // The event's link is a paragraph of its own, so the HTML part shows it as the action button
+        // (docs/mocks/notifications/email/success.html).
+        Assert.EndsWith($"The calendar invite is attached.\n\n{CommunityApiFactory.WebAppOrigin}/events/{existing.Id}", email.Body);
         var ics = Assert.Single(email.Attachments!);
         Assert.Equal(("toronto-builders-night.ics", "text/calendar"), (ics.FileName, ics.ContentType));
         Assert.Contains($"UID:{existing.Id}@faithtech.community", ics.Content);

@@ -26,6 +26,14 @@ test('read-announcements-and-opt-out', async ({ page, api }) => {
   });
   const ruth = api.addAccount({ email: 'ruth@example.org', name: 'Ruth Alvarez' });
   api.profiles.get(ruth.profileId)!.photos.push(featuredPhoto('ruth-alvarez'));
+  // Three unread notices, so the bell carries its count as in the announcements mock.
+  for (const [title, minutesAgo] of [
+    ['Your roles changed', 30],
+    ['Builders Night moves to Kestrel Labs', 90],
+    ['November hackathon: teams are forming', 300],
+  ] as const) {
+    api.notifications.add({ recipientId: ruth.profileId, title }, minutesAgo);
+  }
   const builders = api.events.add({
     title: 'Toronto Builders Night',
     startsAt: '2026-11-06T23:30:00Z',

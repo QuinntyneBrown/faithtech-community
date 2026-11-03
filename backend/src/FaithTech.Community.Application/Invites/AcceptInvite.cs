@@ -160,7 +160,7 @@ public class AcceptInviteHandler(
         }
 
         db.Notifications.Add(new Notification(
-            invite.InvitedBy, NotificationKind.InviteAccepted, $"{profile.Name} accepted your invite", $"/people/{profile.Id}", now, profile.Id));
+            invite.InvitedBy, NotificationKind.InviteAccepted, $"{profile.Name} accepted your invite", $"/people/{profile.Id}", now, profile.Id, profile.Name));
     }
 
     // The organisation's definition of the invite's pre-assigned role (L2-151 AC4); slice 14 stores a definition id.

@@ -28,6 +28,7 @@ test('in-app-notifications', async ({ page, api }) => {
     actor: { id: string; name: string },
     kind: string,
     title: string,
+    linkText: string | null,
     linkPath: string,
     minutesAgo: number,
   ) =>
@@ -36,37 +37,58 @@ test('in-app-notifications', async ({ page, api }) => {
         recipientId: grace.profileId,
         kind,
         title,
+        linkText,
         linkPath,
         actorId: actor.id,
         actorName: actor.name,
       },
       minutesAgo,
     );
+  // The notices of the mocks (docs/mocks/pages/notifications/default.html), in the sentences the API writes.
   const hannah = person('profile-hannah5', 'Hannah Kim', 'hannah-kim');
   const ruth = person('profile-ruth1', 'Ruth Alvarez', 'ruth-alvarez');
-  const marcus = person('profile-marcus1', 'Marcus Lee', 'marcus-lee');
+  const esther = person('profile-esther1', 'Esther Nakamura', 'esther-nakamura');
   const tomas = person('profile-tomas', 'Tomás Ortega', 'tomas-ortega');
+  const marcus = person('profile-marcus1', 'Marcus Lee', 'marcus-lee');
   notify(
     hannah,
     'Announcement',
     'Builders Night moves to Kestrel Labs',
+    null,
     '/announcements',
     6000,
   ).readAt = '2026-10-17T20:00:00Z';
-  notify(ruth, 'InviteAccepted', 'Ruth Alvarez accepted your invite', `/people/${ruth.id}`, 4320);
   notify(
-    marcus,
-    'ResourceShared',
-    'Marcus Lee shared “Builders Night run sheet” with you',
-    '/resources/resource-4',
-    1412,
+    ruth,
+    'InviteAccepted',
+    'Ruth Alvarez accepted your invite',
+    'Ruth Alvarez',
+    `/people/${ruth.id}`,
+    4320,
+  );
+  notify(
+    esther,
+    'EventCancelled',
+    'Austin Faith & AI Panel was cancelled',
+    'Austin Faith & AI Panel',
+    '/events/event-austin',
+    1290,
   );
   notify(
     tomas,
     'ContactSignedUp',
     'Tomás Ortega just joined FaithTech',
+    'Tomás Ortega',
     '/contacts/contact-9',
     240,
+  );
+  notify(
+    marcus,
+    'PlanningPokerInvite',
+    'Marcus invited you to Planning Poker in Toronto team',
+    'Planning Poker',
+    '/workspaces/workspace-1/poker',
+    97,
   );
 
   await show.card(
@@ -80,7 +102,7 @@ test('in-app-notifications', async ({ page, api }) => {
   );
 
   await show.step('bell', async () => {
-    await expect(shell.bell).toHaveAccessibleName('Notifications, 3 unread');
+    await expect(shell.bell).toHaveAccessibleName('Notifications, 4 unread');
   });
 
   await show.step(
@@ -88,7 +110,9 @@ test('in-app-notifications', async ({ page, api }) => {
     async () => {
       await shell.bell.click();
       await expect(shell.notificationPanel).toBeVisible();
-      await expect(shell.panelNotice('Ruth Alvarez accepted your invite')).toBeVisible();
+      await expect(shell.panelNotice('Ruth Alvarez accepted your invite')).toHaveText(
+        'Ruth Alvarez',
+      );
     },
     { poster: true },
   );
@@ -96,20 +120,20 @@ test('in-app-notifications', async ({ page, api }) => {
   await show.step('open-notice', async () => {
     await shell.panelNotice('Ruth Alvarez accepted your invite').click();
     await expect(page).toHaveURL(/\/people\/profile-ruth1$/);
-    await expect(shell.bell).toHaveAccessibleName('Notifications, 2 unread');
+    await expect(shell.bell).toHaveAccessibleName('Notifications, 3 unread');
   });
 
   await show.step('see-all', async () => {
     await shell.bell.click();
     await shell.panelSeeAll.click();
     await expect(notifications.heading).toBeVisible();
-    await expect(notifications.subtitle).toHaveText('2 unread');
+    await expect(notifications.subtitle).toHaveText('3 unread');
   });
 
   await show.step('unread', async () => {
     await notifications.unread.click();
     await expect(notifications.unread).toHaveAttribute('aria-pressed', 'true');
-    await expect(notifications.notices).toHaveCount(2);
+    await expect(notifications.notices).toHaveCount(3);
   });
 
   await show.step('mark-all', async () => {

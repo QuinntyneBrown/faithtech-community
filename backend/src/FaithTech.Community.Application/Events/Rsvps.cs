@@ -52,7 +52,7 @@ public class RsvpHandler(
         e.Rsvp(me, time.GetUtcNow());
         var title = $"You’re going to {e.Title}";
         var link = $"/events/{e.Id}";
-        notifications.Publish(me, NotificationKind.RsvpConfirmed, title, link);
+        notifications.Publish(me, NotificationKind.RsvpConfirmed, title, link, e.Title);
 
         var address = await db.Users.Where(u => db.Profiles.Any(p => p.Id == me && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
@@ -126,7 +126,8 @@ public class RsvpHandler(
         $"You’re going to {e.Title}.\n\n" +
         $"{e.StartsAt.UtcDateTime.ToString("dddd d MMMM yyyy, HH:mm", CultureInfo.InvariantCulture)} UTC\n" +
         $"{(e.Format == EventFormat.Online ? e.OnlineLink : e.Chapter is { } chapter ? $"{e.Venue}, {chapter.Name}" : e.Venue)}\n\n" +
-        $"The calendar invite is attached. See the event: {pageUrl}" +
+        // The link stands alone, so the HTML part shows it as the action button.
+        $"The calendar invite is attached.\n\n{pageUrl}" +
         (extra is null ? string.Empty : $"\n\n{extra}"),
         [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]);
 

@@ -11,6 +11,8 @@ export interface MockNotification {
   readAt: string | null;
   actorId: string | null;
   actorName: string | null;
+  /** The phrase of the title that links to the item; null links the whole title (L2-027 AC7). */
+  linkText: string | null;
 }
 
 const PAGE_SIZE = 50;
@@ -41,6 +43,7 @@ export class MockNotifications {
       readAt: null,
       actorId: null,
       actorName: null,
+      linkText: null,
       ...notification,
     };
     this.notifications.push(full);

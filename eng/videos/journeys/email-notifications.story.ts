@@ -2,6 +2,8 @@ import { expect, test } from '../../../e2e/fixtures/app';
 import { AppShell } from '../../../e2e/pages/app-shell.page';
 import { EventPage } from '../../../e2e/pages/event.page';
 import { SettingsPage } from '../../../e2e/pages/settings.page';
+import { showEmail } from '../mail-preview';
+import { featuredPhoto } from '../photos';
 import { Presenter } from '../presenter';
 
 test.use({ timezoneId: 'America/Toronto' });
@@ -13,7 +15,11 @@ test('email-notifications', async ({ page, api }) => {
   const eventPage = new EventPage(page);
   const settings = new SettingsPage(page);
 
-  const marcus = api.addProfile({ name: 'Marcus Lee', roles: ['EventLead'] });
+  const marcus = api.addProfile({
+    name: 'Marcus Lee',
+    roles: ['EventLead'],
+    photos: [featuredPhoto('marcus-lee')],
+  });
   const event = api.events.add({
     title: 'Toronto Builders Night',
     description:
@@ -28,6 +34,7 @@ test('email-notifications', async ({ page, api }) => {
     name: 'Leah Thompson',
     roles: ['Attendee'],
   });
+  api.profiles.get(leah.profileId)!.photos.push(featuredPhoto('leah-thompson'));
 
   await show.card(
     'opening',
@@ -36,20 +43,31 @@ test('email-notifications', async ({ page, api }) => {
     () => api.signInAs(leah, `/events/${event.id}`),
   );
 
-  await show.step('rsvp-email', async () => {
+  await show.step('rsvp', async () => {
     await eventPage.rsvp.click();
     await expect(eventPage.going).toBeVisible();
-    expect(api.events.emails).toContainEqual(
+  });
+
+  // The confirmation the RSVP queued, as it reaches Leah's inbox (docs/mocks/notifications/email/success.html).
+  await show.step('rsvp-email', async () => {
+    const confirmation = api.events.emails.find((e) => e.to === 'leah@example.org');
+    expect(confirmation).toEqual(
       expect.objectContaining({
-        to: 'leah@example.org',
         attachment: { fileName: 'toronto-builders-night.ics', contentType: 'text/calendar' },
       }),
     );
+    await showEmail(page, {
+      from: 'FaithTech Community <hello@faithtech.community>',
+      to: confirmation!.to,
+      subject: confirmation!.subject,
+      body: confirmation!.body,
+    });
   });
 
   await show.step(
     'settings',
     async () => {
+      await page.goto(`/events/${event.id}`);
       await shell.accountMenu('Leah Thompson').click();
       await shell.menuItem('Settings').click();
       await expect(settings.heading).toBeVisible();
@@ -62,6 +80,8 @@ test('email-notifications', async ({ page, api }) => {
   await show.step('opt-out', async () => {
     await settings.emailAnnouncements.click();
     await expect(settings.saved).toContainText('Settings saved');
+    // Off the switch, so the frame shows its resting off colour rather than its hover.
+    await page.mouse.move(1000, 650);
   });
 
   // Other emails still come: the event changes, and Leah hears about it in the app and by email (L2-028 AC3).
@@ -71,7 +91,10 @@ test('email-notifications', async ({ page, api }) => {
       recipientId: leah.profileId,
       kind: 'EventChanged',
       title: 'Toronto Builders Night changed. Check the new details.',
+      linkText: 'Toronto Builders Night',
       linkPath: `/events/${event.id}`,
+      actorId: marcus.id,
+      actorName: marcus.name,
     });
     await page.reload();
     await shell.bell.click();

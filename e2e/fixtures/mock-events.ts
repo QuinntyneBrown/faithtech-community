@@ -80,6 +80,9 @@ export interface MockEmail {
 
 const LIST_FILTERS = ['upcoming', 'past', 'online'];
 
+/** The community host the API writes into email links (the organisation's origin). */
+const ORIGIN = 'https://faithtech.community';
+
 /** EventPermissions: who sees the RSVP list, guest emails and the CSV export (L2-022). */
 const seesList = (c: EventsCaller) => holds(c, 'ViewAttendees') || holds(c, 'ManageAttendance');
 const seesEmails = (c: EventsCaller) => holds(c, 'ManageAttendance');
@@ -703,9 +706,14 @@ export class MockEvents {
       rsvp = this.addGuest(event, name, email, 0);
     }
     rsvp.cancelToken = `cancel-${rsvp.id}-${this.emails.length + 1}`;
-    const confirmation = this.confirmation(event, email);
-    confirmation.body += ` Cancel: /public/events/${event.id}/cancel-rsvp?token=${rsvp.cancelToken}`;
-    this.emails.push(confirmation);
+    this.emails.push(
+      this.confirmation(
+        event,
+        email,
+        `/public/events/${event.id}`,
+        `Can’t come after all? Cancel your RSVP: ${ORIGIN}/public/events/${event.id}/cancel-rsvp?token=${rsvp.cancelToken}`,
+      ),
+    );
     return route.fulfill({ status: 204 });
   }
 
@@ -723,7 +731,7 @@ export class MockEvents {
   /** The cancel link in the latest confirmation sent to a guest, as a path in the web app. */
   cancelLinkFor(email: string): string {
     const body = [...this.emails].reverse().find((m) => m.to === email)?.body ?? '';
-    const link = / Cancel: (\S+)$/.exec(body)?.[1];
+    const link = /Cancel your RSVP: https:\/\/[^/]+(\/\S+)$/.exec(body)?.[1];
     if (!link) throw new Error(`No cancel link was sent to ${email}`);
     return link;
   }
@@ -757,12 +765,29 @@ export class MockEvents {
     return route.fulfill({ status: 204 });
   }
 
-  /** The confirmation email with the event's .ics attached. */
-  confirmation(event: MockEvent, to: string): MockEmail {
+  /** The confirmation email with the event's .ics attached, worded as RsvpsHandler.Confirmation. */
+  confirmation(
+    event: MockEvent,
+    to: string,
+    page = `/events/${event.id}`,
+    extra: string | null = null,
+  ): MockEmail {
+    const start = new Date(event.startsAt);
+    const part = (options: Intl.DateTimeFormatOptions) =>
+      new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', ...options }).format(start);
+    const when = `${part({ weekday: 'long' })} ${part({ day: 'numeric' })} ${part({ month: 'long' })} ${part({ year: 'numeric' })}, ${part({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })} UTC`;
+    const chapter = this.chapters.nameOf(event.chapterId);
+    const where =
+      event.format === 'Online'
+        ? event.onlineLink
+        : [event.venue, chapter].filter(Boolean).join(', ');
     return {
       to,
       subject: `You’re going to ${event.title}`,
-      body: `You’re going to ${event.title}.`,
+      body:
+        `You’re going to ${event.title}.\n\n${when}\n${where ?? ''}\n\n` +
+        `The calendar invite is attached.\n\n${ORIGIN}${page}` +
+        (extra ? `\n\n${extra}` : ''),
       attachment: { fileName: `${slug(event.title)}.ics`, contentType: 'text/calendar' },
     };
   }

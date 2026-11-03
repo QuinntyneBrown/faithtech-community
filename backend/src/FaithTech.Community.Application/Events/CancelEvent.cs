@@ -60,7 +60,7 @@ public class CancelEventHandler(
         var members = e.Rsvps.Select(r => r.ProfileId).OfType<Guid>().ToList();
         foreach (var member in members.Where(m => m != actor))
         {
-            notifications.Publish(member, NotificationKind.EventCancelled, $"{e.Title} was cancelled", link);
+            notifications.Publish(member, NotificationKind.EventCancelled, $"{e.Title} was cancelled", link, e.Title, actor);
         }
 
         if (permissions.IsAdminOverride)

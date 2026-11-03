@@ -6,7 +6,8 @@ namespace FaithTech.Community.Application.Notifications;
 
 /// <summary>
 /// A notification as its recipient sees it. The actor is the member whose action raised it, when known, with their
-/// featured photo for the notice's avatar.
+/// featured photo for the notice's avatar. <c>LinkText</c> is the phrase of the title that links to the item; without
+/// one the whole title is the link (L2-027 AC7).
 /// </summary>
 public record NotificationDto(
     Guid Id,
@@ -17,7 +18,8 @@ public record NotificationDto(
     DateTimeOffset? ReadAt,
     Guid? ActorId,
     string? ActorName,
-    string? ActorPhotoUrl = null);
+    string? ActorPhotoUrl = null,
+    string? LinkText = null);
 
 public record NotificationPage(
     IReadOnlyList<NotificationDto> Items, int Page, int PageSize, int TotalCount, int UnreadCount, bool HasMore);
@@ -64,7 +66,8 @@ public class InAppNotificationsHandler(IApplicationDbContext db, ICurrentUser cu
                 r.n.ReadAt,
                 r.n.ActorId,
                 r.ActorName,
-                r.Featured is null ? null : storage.GetReadUrl(r.Featured)))
+                r.Featured is null ? null : storage.GetReadUrl(r.Featured),
+                r.n.LinkText))
             .ToList();
         return new NotificationPage(items, request.Page, request.PageSize, total, unreadCount, request.Skip + items.Count < total);
     }

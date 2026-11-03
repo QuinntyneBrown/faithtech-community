@@ -8,12 +8,9 @@
         [src]="notice.photo ?? null"
       />
       <div class="ft-notice__body">
-        {{ notice.text }}
-        @if (notice.href && notice.linkText) {
-          <ft-link [href]="notice.href" (click)="open(notice, $event)">{{
-            notice.linkText
-          }}</ft-link>
-        }
+        <!-- One sentence: plain text with the item it names as the only link. -->
+        <!-- prettier-ignore -->
+        <span class="ft-notice__sentence">{{ notice.text }}@if (notice.href && notice.linkText) {<ft-link [href]="notice.href" (click)="open(notice, $event)">{{ notice.linkText }}</ft-link>}{{ notice.after ?? '' }}</span>
         <div class="ft-notice__meta">{{ notice.meta }}{{ notice.unread ? ' · Unread' : '' }}</div>
       </div>
     </li>

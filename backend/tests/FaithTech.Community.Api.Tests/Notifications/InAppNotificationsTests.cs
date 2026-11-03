@@ -13,7 +13,7 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
 {
     public sealed record NotificationItem(
         Guid Id, string Kind, string Title, string LinkPath, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt, Guid? ActorId, string? ActorName,
-        string? ActorPhotoUrl);
+        string? ActorPhotoUrl, string? LinkText);
 
     public sealed record NotificationPage(
         NotificationItem[] Items, int Page, int PageSize, int TotalCount, int UnreadCount, bool HasMore);
@@ -63,6 +63,23 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
         Assert.Equal(
             [$"{FakePhotoStorage.BaseUrl}profiles/{tomas.ProfileId}/featured.jpg", null, null],
             page.Items.Select(n => n.ActorPhotoUrl));
+    }
+
+    // Only the item a notice names is its link (L2-027 AC7, docs/mocks/notifications/bell/unread).
+    [Fact]
+    public async Task Each_notification_carries_the_phrase_that_links_to_its_item()
+    {
+        // Given a notice that names an event and one that names no item
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var start = factory.Time.GetUtcNow();
+        await AddAsync(grace, "Your roles changed", start.AddMinutes(-10));
+        await AddAsync(grace, "Austin Faith & AI Panel was cancelled", start.AddMinutes(-5), linkText: "Austin Faith & AI Panel");
+
+        // When Grace lists them
+        var page = await ListAsync(factory.ClientFor(grace));
+
+        // Then the event's notice links its title, and the other links the whole sentence
+        Assert.Equal(["Austin Faith & AI Panel", null], page.Items.Select(n => n.LinkText));
     }
 
     [Fact]
@@ -169,10 +186,11 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
         (await client.GetFromJsonAsync<NotificationPage>($"/api/notifications{query}"))!;
 
     private Task<Guid> AddAsync(
-        ProfileClients.Member recipient, string title, DateTimeOffset at, string link = "/people/me", ProfileClients.Member? actor = null) =>
+        ProfileClients.Member recipient, string title, DateTimeOffset at, string link = "/people/me", ProfileClients.Member? actor = null,
+        string? linkText = null) =>
         factory.WithDbAsync(async db =>
         {
-            var notification = new Notification(recipient.ProfileId, NotificationKind.RoleChanged, title, link, at, actor?.ProfileId);
+            var notification = new Notification(recipient.ProfileId, NotificationKind.RoleChanged, title, link, at, actor?.ProfileId, linkText);
             db.Notifications.Add(notification);
             await db.SaveChangesAsync();
             return notification.Id;

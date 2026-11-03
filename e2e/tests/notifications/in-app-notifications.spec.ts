@@ -100,6 +100,48 @@ test.describe('In-app notifications', () => {
     await expect(notifications.noticePhoto('Ruth Alvarez accepted your invite')).toHaveCount(0);
   });
 
+  test('only the item a notice names is its link, in the panel and on the page', async ({
+    page,
+    api,
+  }) => {
+    // Given a notice that names an event and one that names no item
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    api.notifications.add({ recipientId: grace.profileId, title: 'Your roles changed' }, 10);
+    api.notifications.add(
+      {
+        recipientId: grace.profileId,
+        kind: 'EventCancelled',
+        title: 'Austin Faith & AI Panel was cancelled',
+        linkText: 'Austin Faith & AI Panel',
+        linkPath: '/events/event-austin',
+      },
+      5,
+    );
+    const shell = new AppShell(page);
+    const notifications = new NotificationsPage(page);
+
+    // When Grace opens the bell panel
+    await api.signInAs(grace, '/team');
+    await shell.bell.click();
+
+    // Then the event notice reads as one sentence and links only the event's title
+    await expect(shell.panelNotice('Austin Faith & AI Panel was cancelled')).toHaveText(
+      'Austin Faith & AI Panel',
+    );
+    // And a notice that names no item links its whole sentence
+    await expect(shell.panelNotice('Your roles changed')).toHaveText('Your roles changed');
+
+    // And the Notifications page reads the same
+    await shell.panelSeeAll.click();
+    await expect(notifications.noticeLink('Austin Faith & AI Panel was cancelled')).toHaveText(
+      'Austin Faith & AI Panel',
+    );
+    expect(await notifications.titles()).toEqual([
+      'Austin Faith & AI Panel was cancelled',
+      'Your roles changed',
+    ]);
+  });
+
   test('opening a notice marks it read and goes to the related item', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org' });
     api.notifications.add({

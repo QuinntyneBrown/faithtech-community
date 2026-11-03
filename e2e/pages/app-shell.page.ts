@@ -86,17 +86,21 @@ export class AppShell {
     await this.topSearch.press('Enter');
   }
 
-  /** A notice in the open bell panel, found by its link text. */
-  panelNotice(title: string): Locator {
-    return this.notificationPanel.getByRole('link', { name: title, exact: true });
+  /** A notice row in the open bell panel, found by its whole sentence. */
+  panelNoticeRow(sentence: string): Locator {
+    return this.notificationPanel.getByRole('listitem').filter({
+      has: this.page.locator('.ft-notice__sentence').filter({ hasText: exactly(sentence) }),
+    });
+  }
+
+  /** The one link of a panel notice, found by its whole sentence. */
+  panelNotice(sentence: string): Locator {
+    return this.panelNoticeRow(sentence).getByRole('link');
   }
 
   /** The photo on a panel notice's avatar; absent when the actor has none. */
-  panelNoticePhoto(title: string): Locator {
-    return this.notificationPanel
-      .getByRole('listitem')
-      .filter({ has: this.page.getByRole('link', { name: title, exact: true }) })
-      .locator('ft-avatar img');
+  panelNoticePhoto(sentence: string): Locator {
+    return this.panelNoticeRow(sentence).locator('ft-avatar img');
   }
 
   /** The panel's "Mark all read" and "See all" controls. */
@@ -186,4 +190,9 @@ export class AppShell {
   drawerLink(name: string): Locator {
     return this.drawer.getByRole('link', { name, exact: true });
   }
+}
+
+/** Matches the whole text, whitespace-normalised, and nothing longer. */
+function exactly(text: string): RegExp {
+  return new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
 }

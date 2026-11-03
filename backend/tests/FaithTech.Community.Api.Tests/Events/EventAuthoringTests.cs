@@ -215,6 +215,8 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
             Assert.Equal(NotificationKind.EventChanged, n.Kind);
             Assert.Equal("Builders Night changed. Check the new details.", n.Title);
             Assert.Equal($"/events/{existing.Id}", n.LinkPath);
+            // Only the event's title links, and the notice shows the member who changed it (L2-027 AC7).
+            Assert.Equal(("Builders Night", (Guid?)lead.ProfileId), (n.LinkText, n.ActorId));
         });
     }
 

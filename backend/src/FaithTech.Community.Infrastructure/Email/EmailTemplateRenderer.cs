@@ -20,7 +20,7 @@ public static partial class EmailTemplateRenderer
 
     /// <summary>
     /// The HTML part, in the name of the organisation the email is sent in: the button reads "Open in {short name}" and the
-    /// footer carries the organisation's name (L2-134 AC5).
+    /// footer carries the organisation's name and says which emails can be turned off (L2-134 AC5, L2-028 AC3).
     /// </summary>
     public static string Render(string subject, string textBody, string organisationName, string organisationShortName)
     {
@@ -52,9 +52,13 @@ public static partial class EmailTemplateRenderer
             }
         }
 
-        html.Append($"<p class=\"email__footer\" style=\"{footer}\">{WebUtility.HtmlEncode(organisationName)}</p></div></body></html>");
+        html.Append($"<p class=\"email__footer\" style=\"{footer}\">{WebUtility.HtmlEncode(organisationName)} · {FooterNote}</p></div></body></html>");
         return html.ToString();
     }
+
+    /// <summary>Only announcement emails can be turned off (L2-028 AC3), as the email mocks' footer says.</summary>
+    private const string FooterNote =
+        "You can turn off announcement emails in Settings; account and activity emails are always sent.";
 
     private static IEnumerable<string> Paragraphs(string body) =>
         body.Replace("\r\n", "\n").Split("\n\n").Select(p => p.Trim()).Where(p => p.Length > 0);

@@ -138,6 +138,9 @@ public class CancelEventTests(CommunityApiFactory factory) : IClassFixture<Commu
         {
             Assert.Equal(NotificationKind.EventCancelled, n.Kind);
             Assert.Equal("Toronto Builders Night was cancelled", n.Title);
+            Assert.Equal("Toronto Builders Night", n.LinkText);
+            // The notice shows the member who cancelled it (L2-027 AC7).
+            Assert.Equal(lead.ProfileId, n.ActorId);
             Assert.Equal($"/events/{existing.Id}", n.LinkPath);
         });
     }

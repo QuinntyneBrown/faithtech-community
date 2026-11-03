@@ -286,6 +286,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             notification.Property(n => n.Kind).HasConversion<string>().HasMaxLength(48);
             notification.Property(n => n.Title).HasMaxLength(300);
             notification.Property(n => n.LinkPath).HasMaxLength(300);
+            notification.Property(n => n.LinkText).HasMaxLength(300);
             notification.Ignore(n => n.IsRead);
             notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
         });
