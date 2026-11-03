@@ -7,6 +7,7 @@ export const BREAKPOINTS = {
   md: { width: 768, height: 1024 },
   lg: { width: 1024, height: 900 },
   xl: { width: 1280, height: 900 },
+  '2xl': { width: 1536, height: 900 },
 } as const;
 
 export type BreakpointName = keyof typeof BREAKPOINTS;

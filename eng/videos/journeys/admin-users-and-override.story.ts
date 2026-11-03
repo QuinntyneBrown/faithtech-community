@@ -29,7 +29,7 @@ test('admin-users-and-override', async ({ page, api }) => {
   );
 
   await show.step('admin-link', async () => {
-    await shell.navLink('Admin').click();
+    await shell.openSection('Admin');
     await expect(users.heading).toHaveText('Admin');
   });
 

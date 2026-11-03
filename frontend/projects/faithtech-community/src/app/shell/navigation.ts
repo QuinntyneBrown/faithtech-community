@@ -40,7 +40,6 @@ export const SECTIONS: readonly Section[] = [
     label: 'Workspaces',
     href: '/workspaces',
     icon: 'workspaces',
-    secondary: true,
     opens: any('OwnWorkspaces', 'JoinWorkspaces', 'ReadAllWorkspaces'),
   },
   { label: 'Team', href: '/team', icon: 'team', secondary: true, opens: anyone },

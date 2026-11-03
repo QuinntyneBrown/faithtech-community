@@ -13,7 +13,8 @@
   inset-inline: 0;
   z-index: var(--z-sticky);
   margin-inline: auto;
-  max-inline-size: var(--layout-container-max);
+  // Inside the page margins, edge to edge with the content column below (design system components/top-bar).
+  inline-size: calc(min(var(--layout-container-max), 100%) - 2 * var(--layout-margin));
   block-size: var(--layout-topbar-height);
   display: flex;
   align-items: center;
@@ -120,30 +121,25 @@ a:focus-visible,
     display: flex;
   }
 
-  // Between 768px and 1023px More stands in for the hidden secondary links.
+  // From 768px to 1535px More stands in for the hidden secondary links (L2-045 AC5).
   .top-bar__more {
     display: inline-flex;
   }
 }
 
 @include bp.up(lg) {
+  .top-bar__search {
+    display: block;
+  }
+}
+
+@include bp.up('2xl') {
   .top-bar__link--secondary {
     display: inline-flex;
   }
 
   .top-bar__more {
     display: none;
-  }
-
-  .top-bar__search {
-    display: block;
-  }
-}
-
-// Every link fits from 1024px, Workspaces and Admin included: tighter links until 1280px.
-@media (min-width: 64rem) and (max-width: 79.99rem) {
-  .top-bar__link {
-    padding-inline: var(--space-2);
   }
 }
 

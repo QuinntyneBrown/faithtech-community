@@ -22,9 +22,9 @@ test('reports-dashboard', async ({ page, api }) => {
   );
 
   await show.step('nav', async () => {
-    await expect(shell.navLink('Reports')).toBeVisible();
+    await expect(shell.moreLink).toBeVisible();
     await page.waitForTimeout(1500);
-    await shell.navLink('Reports').click();
+    await shell.openSection('Reports');
     await expect(reports.heading).toHaveText('Reports');
     await expect(reports.subtitle).toContainText('All cities · Last 30 days');
   });
