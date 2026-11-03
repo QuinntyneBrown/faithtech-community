@@ -20,7 +20,9 @@ test.describe('Manage partners', () => {
     await dialog.add.click();
     await expect(dialog.nameError).toBeVisible();
 
+    // After the first submit, an error clears as soon as its field is fixed (patterns/forms).
     await dialog.name.fill('Lantern Foundation');
+    await expect(dialog.nameError).toBeHidden();
     await dialog.website.fill('lantern.example');
     await dialog.stage.selectOption({ label: 'In Funnel' });
     await dialog.contact.fill('Ada Mwangi');

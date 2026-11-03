@@ -13,6 +13,7 @@
     <ft-button
       variant="ghost"
       size="sm"
+      [block]="true"
       [label]="'Move ' + title() + ' to ' + moveTarget()"
       (click)="moveRequested.emit(cardId())"
     >

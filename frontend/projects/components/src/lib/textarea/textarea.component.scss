@@ -18,9 +18,11 @@
     color: var(--color-fg-subtle);
   }
 
+  // The design system's .input focus: the ring sits on the field's own edge, which takes its colour.
   &:focus-visible {
-    outline: var(--focus-ring-width) solid var(--color-accent);
-    outline-offset: var(--focus-ring-offset);
+    border-color: var(--color-focus-ring);
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: 0;
   }
 
   &:disabled {

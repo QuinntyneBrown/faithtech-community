@@ -50,15 +50,30 @@ export class PartnersPage {
 
   /** Drags a card onto another column with the pointer, in small steps as the CDK expects. */
   async drag(name: string, toColumn: string): Promise<void> {
-    const card = this.card(name);
-    const target = this.column(toColumn);
-    const from = (await card.boundingBox())!;
-    const to = (await target.boundingBox())!;
-    // Grab the card's padding, away from its link and Move button.
-    await this.page.mouse.move(from.x + 4, from.y + 4);
+    await this.dragOver(name, toColumn, 'middle');
+    await this.drop();
+  }
+
+  /**
+   * Picks a card up and holds it over another column without letting go: over the top of the column's
+   * first card, so the drop slot opens at the top, or over the middle of the column.
+   */
+  async dragOver(name: string, toColumn: string, where: 'top' | 'middle' = 'top'): Promise<void> {
+    const from = (await this.card(name).boundingBox())!;
+    const column = this.column(toColumn);
+    const to = (await column.boundingBox())!;
+    const first = where === 'top' ? await column.getByRole('listitem').first().boundingBox() : null;
+    // Grab the card's padding at its top right, away from its link and Move button, so the lifted
+    // card hangs to the left of the pointer and leaves the drop slot in view.
+    await this.page.mouse.move(from.x + from.width - 4, from.y + 4);
     await this.page.mouse.down();
-    await this.page.mouse.move(from.x + 20, from.y + 20, { steps: 5 });
-    await this.page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 20 });
+    await this.page.mouse.move(from.x + from.width - 20, from.y + 20, { steps: 5 });
+    if (first) await this.page.mouse.move(first.x + 8, first.y + 8, { steps: 20 });
+    else await this.page.mouse.move(to.x + to.width / 2, to.y + to.height / 2, { steps: 20 });
+  }
+
+  /** Lets go of the card being dragged. */
+  async drop(): Promise<void> {
     await this.page.mouse.up();
   }
 }

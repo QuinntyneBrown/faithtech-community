@@ -2,7 +2,11 @@
   display: block;
 }
 
+// The design system's .facts: the term in a 6 to 9rem column beside its description, 12px apart.
 .ft-dl {
+  display: grid;
+  grid-template-columns: minmax(6rem, 9rem) minmax(0, 1fr);
+  gap: var(--space-3);
   margin: 0;
 }
 
@@ -12,7 +16,7 @@
 }
 
 .ft-dl__detail {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   font: var(--text-body);
   color: var(--color-fg-default);
   overflow-wrap: anywhere;
@@ -22,13 +26,18 @@
   color: var(--color-fg-muted);
 }
 
+// .facts--stacked: the term above a small, muted description (a process stage's points).
 :host(.ft-description-list-item--stacked) {
+  .ft-dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-0-5);
+  }
+
   .ft-dl__term {
     color: var(--color-fg-default);
   }
 
   .ft-dl__detail {
-    margin-block-start: var(--space-0-5);
     font: var(--text-body-sm);
     color: var(--color-fg-muted);
   }

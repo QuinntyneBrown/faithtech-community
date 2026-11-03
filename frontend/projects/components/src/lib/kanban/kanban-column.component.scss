@@ -6,27 +6,30 @@
   display: none;
 }
 
+// The design system's .kanban__column: header, list and empty text 12px apart.
 .ft-kanban__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   min-block-size: 12rem;
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   background: var(--color-bg-subtle);
 }
 
-:host(.cdk-drop-list-dragging) .ft-kanban__column {
-  outline: var(--border-width-thick) dashed var(--color-accent);
-}
-
+// The stage name on the left, its count at the end.
 .ft-kanban__header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--space-2);
-  margin-block-end: var(--space-3);
+  padding-inline: var(--space-1);
 }
 
 .ft-kanban__title {
   margin: 0;
-  font: var(--text-h4);
+  font: var(--text-label);
+  font-weight: var(--font-weight-semibold);
 }
 
 .ft-kanban__list {
@@ -40,6 +43,8 @@
 
 .ft-kanban__empty {
   margin: 0;
+  padding: var(--space-4);
   color: var(--color-fg-muted);
-  font: var(--text-caption);
+  font: var(--text-body-sm);
+  text-align: center;
 }

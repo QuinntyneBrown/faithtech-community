@@ -2,6 +2,7 @@ import { expect, test } from '../../../e2e/fixtures/app';
 import { ContactFormPage } from '../../../e2e/pages/contact-form.page';
 import { ContactPage } from '../../../e2e/pages/contact.page';
 import { ContactsPage } from '../../../e2e/pages/contacts.page';
+import { featuredPhoto } from '../photos';
 import { Presenter, typeInto } from '../presenter';
 
 // Journey: manage private contacts (docs/detailed-designs/contacts/manage-contacts, L2-012, L2-013).
@@ -15,6 +16,14 @@ test('manage-contacts', async ({ page, api }) => {
     name: 'Grace Okonkwo',
     roles: ['CityLead'],
   });
+  api.profiles.get(grace.profileId)!.photos.push(featuredPhoto('grace-okonkwo'));
+  for (const [title, minutesAgo] of [
+    ['Marcus Lee published Builders Night', 5],
+    ['Kestrel Labs was moved to In Funnel', 40],
+    ['Toronto Builders Night changed. Check the new details.', 90],
+  ] as const) {
+    api.notifications.add({ recipientId: grace.profileId, title }, minutesAgo);
+  }
   api.contacts.add({
     ownerId: grace.profileId,
     name: 'Tomás Ortega',
@@ -26,6 +35,7 @@ test('manage-contacts', async ({ page, api }) => {
     ownerId: grace.profileId,
     name: 'Abby Brooks',
     organization: 'Ellis Design Studio',
+    city: 'Toronto',
   });
 
   await show.card(

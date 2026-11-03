@@ -74,6 +74,21 @@ export function clientErrors(value: PartnerFormValue): Partial<Record<PartnerFie
   return errors;
 }
 
+/**
+ * The errors still standing once the member edits the form: a name or email error the browser can
+ * check clears as soon as its field is fixed (design system patterns/forms); any other stays until
+ * the next save.
+ */
+export function unfixedErrors(
+  errors: Partial<Record<PartnerField, string>>,
+  value: PartnerFormValue,
+): Partial<Record<PartnerField, string>> {
+  const now = clientErrors(value);
+  const kept = { ...errors };
+  for (const field of ['name', 'email'] as const) if (!now[field]) delete kept[field];
+  return kept;
+}
+
 /** Maps the API's validation problem details (PascalCase keys) onto the fields. */
 export function serverErrors(error: unknown): Partial<Record<PartnerField, string>> | null {
   if (!(error instanceof HttpErrorResponse) || error.status !== 400) return null;

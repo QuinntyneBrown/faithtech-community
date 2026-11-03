@@ -12,8 +12,8 @@
 | [profiles](profiles.md) | 13 days | 100% | A- |
 | [admin](admin.md) | 17 days | 99% | B |
 | [invites](invites.md) | 14 days | 100% | A- |
-| [contacts](contacts.md) | 30 days | 100% | B |
-| [partners](partners.md) | 19 days | 100% | B- |
+| [contacts](contacts.md) | 30 days | 100% | B+ |
+| [partners](partners.md) | 19 days | 100% | A- |
 | [team](team.md) | 2 days | 100% | A- |
 | [events](events.md) | 84 days | 100% | B |
 | [notifications](notifications.md) | 9 days | 100% | B- |

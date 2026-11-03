@@ -5,7 +5,8 @@
 .dialog {
   display: flex;
   flex-direction: column;
-  max-block-size: 90vh;
+  // The design system's .dialog__panel: 24px clear of the viewport above and below.
+  max-block-size: calc(100dvh - var(--space-12));
   inline-size: 100%;
   background: var(--color-bg-surface-raised);
   color: var(--color-fg-default);
@@ -28,11 +29,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  border-radius: var(--radius-full, 50%);
-  background: var(--color-brand-subtle, var(--color-bg-subtle));
-  color: var(--color-brand-foreground, var(--color-fg-accent));
+  // The design system's .dialog__icon: a bare 40px icon; only the danger variant is tinted.
+  inline-size: var(--size-avatar-md);
+  block-size: var(--size-avatar-md);
+  border-radius: var(--radius-full);
 }
 
 .dialog__icon--danger {
