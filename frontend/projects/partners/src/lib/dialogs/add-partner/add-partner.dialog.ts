@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   ORGANISATION_SERVICE,
@@ -37,6 +37,7 @@ import {
   partnerForm,
   serverErrors,
   toRequest,
+  unfixedErrors,
 } from '../../partner-fields';
 
 /**
@@ -82,6 +83,9 @@ export class AddPartnerDialog {
       const initial = this.stages().find((s) => s.isInitial) ?? this.stages()[0];
       if (initial && !this.stage.value) this.stage.setValue(initial.key);
     });
+    this.form.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.errors.update((e) => unfixedErrors(e, this.form.getRawValue())));
   }
   protected readonly owners = toSignal(this.partners.owners(), { initialValue: [] });
   protected readonly ownerOptions = computed(() => ownerOptions(this.owners()));

@@ -26,6 +26,13 @@ export class AddPartnerDialog {
     this.nameError = this.dialog.getByText('Enter the organisation’s name.');
   }
 
+  /** Scrolls the dialog's fields back to the first one. */
+  async scrollToTop(): Promise<void> {
+    await this.name.evaluate((input) => {
+      for (let el = input.parentElement; el; el = el.parentElement) el.scrollTop = 0;
+    });
+  }
+
   /** Waits until the dialog has finished animating in, so colours are measured at full opacity. */
   async opened(): Promise<void> {
     await this.dialog.evaluate((el) =>

@@ -54,7 +54,9 @@
           text="Track churches, companies and foundations from first conversation to confirmed. Every lead sees the same board."
         >
           @if (b.canEdit) {
-            <ft-button actions variant="primary" (click)="addPartner()">Add partner</ft-button>
+            <ft-button actions variant="primary" (click)="addPartner()">
+              <ft-icon name="add" /> Add partner
+            </ft-button>
           }
         </ft-empty-state>
       } @else {

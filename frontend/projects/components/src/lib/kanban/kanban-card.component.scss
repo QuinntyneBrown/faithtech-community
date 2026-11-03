@@ -2,10 +2,10 @@
   display: block;
 }
 
+// The design system's .kanban__card: each line spans the card, so Move centres in it.
 .ft-kanban__card {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--space-1);
   padding: var(--space-3);
   border: var(--border-width-hairline) solid var(--color-border-default);
@@ -18,17 +18,23 @@
   cursor: grab;
 }
 
+.ft-kanban__card > ft-badge {
+  align-self: flex-start;
+}
+
 .ft-kanban__link {
   display: inline-flex;
   align-items: center;
   // The name is a target on its own line, so it keeps the WCAG 2.2 minimum height.
   min-block-size: var(--target-min);
-  color: var(--color-fg-link);
-  font: var(--text-label);
+  color: var(--color-fg-default);
+  font: var(--text-body);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
   overflow-wrap: anywhere;
 
   &:hover {
-    color: var(--color-fg-link-hover);
+    text-decoration: underline;
   }
 
   &:focus-visible {
@@ -43,16 +49,24 @@
   font: var(--text-caption);
 }
 
+// The card being dragged lifts and tilts, as the design system's .kanban__card[data-state='dragging'].
 :host(.cdk-drag-preview) .ft-kanban__card {
   box-shadow: var(--shadow-3);
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  rotate: 1deg;
   cursor: grabbing;
 }
 
+// Where it will land: the design system's .kanban__drop, a dashed accent slot.
 :host(.cdk-drag-placeholder) {
-  opacity: 0.4;
-  outline: var(--border-width-thick) dashed var(--color-border-strong);
+  min-block-size: 4rem;
+  border: var(--border-width-hairline) dashed var(--color-accent);
   border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+
+  .ft-kanban__card {
+    display: none;
+  }
 }
 
 :host(.cdk-drag-animating) {

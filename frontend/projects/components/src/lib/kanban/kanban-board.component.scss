@@ -5,7 +5,8 @@
 .ft-kanban {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-4);
+  // The design system's .kanban: columns a layout gutter apart (32px from 1280px).
+  gap: var(--layout-gutter);
   align-items: start;
 }
 

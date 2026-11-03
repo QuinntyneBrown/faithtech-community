@@ -12,10 +12,11 @@ fieldset {
   border: 0;
 }
 
+// The design system's .stack of choices: 16px apart.
 .ft-radio-group__options {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .ft-radio-group__options--inline {
@@ -36,7 +37,7 @@ fieldset {
 
 legend {
   padding: 0;
-  margin-block-end: var(--space-1);
+  margin-block-end: var(--space-2);
   font: var(--text-label);
   color: var(--color-fg-default);
 }
