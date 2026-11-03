@@ -27,7 +27,7 @@ test('event-list-and-filter', async ({ page, api }) => {
     type: 'panel',
     startsAt: '2026-10-30T23:00:00Z',
     endsAt: '2026-10-31T01:00:00Z',
-    city: 'Austin',
+    chapterId: api.chapters.named('Austin').id,
     format: 'Online',
     venue: null,
     onlineLink: 'https://meet.example.org/panel',
@@ -47,7 +47,7 @@ test('event-list-and-filter', async ({ page, api }) => {
     title: 'Vancouver Advent Build Night',
     startsAt: '2026-12-05T03:00:00Z',
     endsAt: '2026-12-05T04:30:00Z',
-    city: 'Vancouver',
+    chapterId: api.chapters.named('Vancouver').id,
     format: 'Online',
     venue: null,
     onlineLink: 'https://meet.example.org/advent',
@@ -100,19 +100,25 @@ test('event-list-and-filter', async ({ page, api }) => {
 
   await show.step('city', async () => {
     await events.filter('Upcoming').click();
-    await events.city.selectOption('Toronto');
+    await events.chapter.selectOption('Toronto');
     await expect
       .poll(() => events.titles())
       .toEqual(['Toronto Builders Night', 'Hackathon: Tech for Shelters']);
   });
 
-  await show.step('empty', async () => {
-    await events.filter('Online').click();
-    await expect(events.noResults('No upcoming online events in Toronto')).toBeVisible();
-    await page.waitForTimeout(1500);
-    await events.showAllCities.click();
-    await expect(events.city).toHaveValue('');
-  });
+  await show.step(
+    'empty',
+    async () => {
+      await events.filter('Online').click();
+      await expect(events.noResults('No upcoming online events in Toronto')).toBeVisible();
+    },
+    {
+      after: async () => {
+        await events.showAllChapters.click();
+        await expect(events.chapter).toHaveValue('');
+      },
+    },
+  );
 
   await show.card('closing', 'closing', [
     'Upcoming events first, soonest at the top',

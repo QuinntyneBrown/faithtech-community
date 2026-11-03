@@ -1,6 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
+import { IconComponent } from '../icon';
+
 export type CardVariant = 'plain' | 'flush' | 'strip' | 'success' | 'media';
 export type CardHeadingLevel = 2 | 3 | 4;
 
@@ -14,7 +16,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'ft-card',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, IconComponent],
   templateUrl: './card.component.html',
   styleUrl: './card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -29,6 +31,8 @@ export class CardComponent {
   readonly variant = input<CardVariant>('plain');
   readonly heading = input<string | null>(null);
   readonly headingLevel = input<CardHeadingLevel>(2);
+  /** A decorative icon on its own line above the title, such as `success` on a confirmation card. */
+  readonly headingIcon = input<string | null>(null);
   readonly busy = input(false);
   /** Media variant: the image the card leads with. */
   readonly mediaSrc = input<string | null>(null);

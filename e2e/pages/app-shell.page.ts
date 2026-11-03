@@ -105,6 +105,13 @@ export class AppShell {
     await this.toasts.filter({ hasText: heading }).getByRole('button', { name: 'Dismiss' }).focus();
   }
 
+  /** Closes a toast with its Dismiss button and waits for it to go. */
+  async dismissToast(heading: string): Promise<void> {
+    const toast = this.toasts.filter({ hasText: heading });
+    await toast.getByRole('button', { name: 'Dismiss' }).click();
+    await toast.waitFor({ state: 'detached' });
+  }
+
   /** The top bar's avatar, a menu button named "Account menu for {name}". */
   accountMenu(name: string): Locator {
     return this.page.getByRole('button', { name: `Account menu for ${name}` });

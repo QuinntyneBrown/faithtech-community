@@ -30,6 +30,11 @@ interface StepOptions {
   position?: 'top' | 'bottom';
   /** Use a frame from this step as the video's poster. */
   poster?: boolean;
+  /**
+   * Runs once the step has been shown: after its screenshot, or after its narration has been read.
+   * For a step whose state the next step leaves behind, such as an open dialog.
+   */
+  after?: () => Promise<void>;
 }
 
 const MARGIN_MS = 700;
@@ -125,6 +130,7 @@ export class Presenter {
     if (SHOTS) {
       if (action) await action();
       if (!change.card) await this.capture(id);
+      if (options.after) await options.after();
       return;
     }
     await this.render({ ...change, caption: NO_CAPTIONS ? null : clip.text });
@@ -137,6 +143,7 @@ export class Presenter {
     if (action) await action();
     const remaining = shownAt + clip.duration * 1000 + MARGIN_MS - Date.now();
     if (remaining > 0) await this.page.waitForTimeout(remaining);
+    if (options.after) await options.after();
   }
 
   private async capture(id: string): Promise<void> {

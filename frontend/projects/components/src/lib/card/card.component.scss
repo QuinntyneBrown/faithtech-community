@@ -70,6 +70,11 @@
   font: var(--text-h4);
 }
 
+// The heading icon sits on its own line above the title text, as the mocks' .card__title > .icon.
+.ft-card__title ft-icon {
+  display: flex;
+}
+
 :host(.ft-card--strip) .ft-card__header {
   inline-size: 100%;
 }

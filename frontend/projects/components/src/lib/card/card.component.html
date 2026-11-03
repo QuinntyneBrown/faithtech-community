@@ -1,15 +1,26 @@
+<ng-template #headingIconTpl>
+  @if (headingIcon(); as icon) {
+    <ft-icon [name]="icon" />
+  }
+</ng-template>
 <ng-template #content>
   @if (heading(); as text) {
     <div class="ft-card__header">
       @switch (headingLevel()) {
         @case (3) {
-          <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+          <h3 class="ft-card__title" [id]="headingId">
+            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+          </h3>
         }
         @case (4) {
-          <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
+          <h4 class="ft-card__title" [id]="headingId">
+            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+          </h4>
         }
         @default {
-          <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
+          <h2 class="ft-card__title" [id]="headingId">
+            <ng-container [ngTemplateOutlet]="headingIconTpl" />{{ text }}
+          </h2>
         }
       }
       <ng-content select="[ftCardActions]" />
