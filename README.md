@@ -24,7 +24,6 @@ reports.
 - [Repository layout](#repository-layout)
 - [Getting started](#getting-started)
 - [Documentation](#documentation)
-- [Project status](#project-status)
 - [Accessibility](#accessibility)
 - [Contributing](#contributing)
 - [Security](#security)
@@ -229,19 +228,6 @@ CI (`.github/workflows/`) builds and tests the backend and frontend on every cha
 | [`docs/videos/journeys/`](docs/videos/journeys/README.md) | Demo videos of every journey |
 | [`docs/events/`](docs/events/) | Real event material kept for the record |
 | [AGENTS.md](AGENTS.md) | Conventions for contributors and coding agents |
-
-## Project status
-
-| Milestone | Status |
-|---|---|
-| Product brief and decisions | ✅ Done |
-| Multi-tenancy design (organisations, capabilities, chapters, taxonomies) | ✅ Done |
-| HTML mocks for every screen and state | ✅ Done |
-| Requirements (`docs/specs/`) | ✅ Done |
-| Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% of 428 days ([estimates](docs/estimates/README.md)): profiles, invites, contacts, partners, team, events and event hubs, notifications, announcements and reports are complete; identity, admin, Agile, resources, notes, organisations, the marketing page and search are 90–99%; platform is at 84%, with deployment behind the private-preview wall next |
-| Visual conformance with the mocks | 🚧 Graded per journey (B to A+) in the [estimates](docs/estimates/README.md) |
-| v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility
 
