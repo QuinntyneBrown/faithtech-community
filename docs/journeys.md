@@ -56,6 +56,6 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 49 | Share a hub by QR code | Leads show or print a QR code that opens the hub. | 1 | 100 |
 | 50 | Download a hub archive | Leads download a self-contained copy of the hub, with its images and slides, to keep after the event. | 4 | 100 |
 
-Journeys 33 to 35 (Resources) are not yet recorded in [`videos/journeys/`](videos/journeys/README.md); record them with `pwsh eng/videos/Record-JourneyVideos.ps1` once the screens are built. The app shell tour needs re-recording too, because the shell gains the Resources nav item.
+Every journey above has at least one video in [`videos/journeys/`](videos/journeys/README.md). The app shell tour still needs re-recording, because it was recorded before the shell gained the Resources nav item.
 
 Journeys 41 to 50 (Event hubs) come from the draft [event hubs proposal](proposals/event-hubs.md): 41 to 44 are its phase 1, 45 to 47 phase 2 and 48 to 50 phase 3. Their effort is a provisional sizing until `estimates/events.md` gains the event hub designs, and the journeys may change as the proposal's open questions are settled.
