@@ -1,0 +1,19 @@
+<ft-dialog
+  heading="Sign out everywhere?"
+  description="This ends every session on every device, including this one. You’ll need your password to sign back in."
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Devices not signed out">
+      We couldn’t reach {{ organisation.shortName() }}. You’re still signed in everywhere — try
+      again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter data-autofocus [disabled]="busy()" (click)="ref.close()">
+    Cancel
+  </ft-button>
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
+    <ft-icon name="sign-out" /> {{ busy() ? 'Signing out…' : 'Sign out everywhere' }}
+  </ft-button>
+</ft-dialog>

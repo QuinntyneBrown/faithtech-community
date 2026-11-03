@@ -16,6 +16,26 @@
           </ft-button>
           <p class="text-center"><ft-link href="/">Skip for now</ft-link></p>
         }
+        @case ('email-changed') {
+          <h1 class="text-center">Your new email is confirmed</h1>
+          <p class="text-center">
+            Sign in with {{ changedEmail() }} from now on. Your profile, roles and settings are
+            unchanged.
+          </p>
+          <ft-button href="/settings" variant="primary" size="lg" [block]="true">
+            Open settings
+          </ft-button>
+        }
+        @case ('email-change-expired') {
+          <h1 class="text-center">This link has expired</h1>
+          <p class="text-center">
+            Links to confirm a new email work once, for 24 hours. You still sign in with your
+            current email; change it again in Settings.
+          </p>
+          <ft-button href="/settings" variant="primary" size="lg" [block]="true">
+            Open settings
+          </ft-button>
+        }
         @default {
           @if (state() === 'expired') {
             <h1 class="text-center">This link has expired</h1>

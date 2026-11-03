@@ -1,7 +1,8 @@
-// Traces to: L2-045 AC6, L2-030 AC2
+// Traces to: L2-045 AC6, L2-030 AC2, L2-052
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ANNOUNCEMENTS_SERVICE } from '@faithtech-community/api';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ACCOUNT_SERVICE, ANNOUNCEMENTS_SERVICE, AUTH_SERVICE } from '@faithtech-community/api';
 import { ThemePreference, ThemeService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -9,7 +10,11 @@ import { SettingsPage } from './settings.page';
 
 function setup(
   initial: ThemePreference = 'system',
-  options: { optedOut?: boolean; save?: () => Observable<void> } = {},
+  options: {
+    optedOut?: boolean;
+    save?: () => Observable<void>;
+    update?: () => Observable<unknown>;
+  } = {},
 ) {
   const preference = signal<ThemePreference>(initial);
   const theme = { preference, set: vi.fn((p: ThemePreference) => preference.set(p)) };
@@ -17,11 +22,20 @@ function setup(
     getEmailOptOut: vi.fn(() => of(options.optedOut ?? false)),
     setEmailOptOut: vi.fn(options.save ?? (() => of(undefined))),
   };
+  const account = {
+    get: vi.fn(() => of({ email: 'grace@example.org', hasPassword: true })),
+    update: vi.fn(
+      options.update ?? (() => of({ pendingEmail: 'grace.o@example.org', passwordChanged: false })),
+    ),
+  };
+  const auth = { currentUser: () => null, signOut: vi.fn(() => of(undefined)) };
   TestBed.configureTestingModule({
     imports: [SettingsPage],
     providers: [
       { provide: ThemeService, useValue: theme },
       { provide: ANNOUNCEMENTS_SERVICE, useValue: announcements },
+      { provide: ACCOUNT_SERVICE, useValue: account },
+      { provide: AUTH_SERVICE, useValue: auth },
     ],
   });
   const fixture = TestBed.createComponent(SettingsPage);
@@ -38,15 +52,36 @@ function setup(
     await fixture.whenStable();
     fixture.detectChanges();
   };
-  return { fixture, host, theme, radio, announcements, announcementsSwitch, settle };
+  const input = (label: string) =>
+    host.querySelector<HTMLInputElement>(
+      `#${[...host.querySelectorAll('label')].find((l) => l.textContent?.includes(label))!.htmlFor}`,
+    )!;
+  const type = (label: string, value: string) => {
+    input(label).value = value;
+    input(label).dispatchEvent(new Event('input'));
+  };
+  const submit = () => host.querySelector('form')!.dispatchEvent(new Event('submit'));
+  return {
+    fixture,
+    host,
+    theme,
+    radio,
+    announcements,
+    announcementsSwitch,
+    settle,
+    account,
+    input,
+    type,
+    submit,
+  };
 }
 
 describe('SettingsPage', () => {
   it('has the Settings heading and an Appearance card', () => {
     const { host } = setup();
     expect(host.querySelector('h1')?.textContent).toContain('Settings');
-    const card = host.querySelector('[role="region"]');
-    expect(card?.textContent).toContain('Appearance');
+    const cards = [...host.querySelectorAll('[role="region"]')].map((c) => c.textContent);
+    expect(cards.some((c) => c?.includes('Appearance'))).toBe(true);
   });
 
   it('offers Light, Dark and Match my device, with the current preference checked', async () => {
@@ -105,5 +140,49 @@ describe('SettingsPage', () => {
 
     expect(announcementsSwitch().checked).toBe(true);
     expect(host.textContent).toContain('We couldn’t save that. Try again.');
+  });
+
+  it('shows the sign-in email in the Account card', async () => {
+    const { input, settle } = setup();
+    await settle();
+    expect(input('Email').value).toBe('grace@example.org');
+  });
+
+  it('saves a new email and says where the link went, keeping the current one', async () => {
+    const { account, host, input, type, submit, settle } = setup();
+    await settle();
+    type('Email', 'grace.o@example.org');
+    submit();
+    await settle();
+    expect(account.update).toHaveBeenCalledWith({ email: 'grace.o@example.org' });
+    expect(host.textContent).toContain('We sent a link to grace.o@example.org.');
+    expect(input('Email').value).toBe('grace@example.org');
+  });
+
+  it('asks for the current password before sending a new one', async () => {
+    const { account, host, type, submit, settle } = setup();
+    await settle();
+    type('New password', 'kestrel-labs-2026');
+    submit();
+    await settle();
+    expect(account.update).not.toHaveBeenCalled();
+    expect(host.textContent).toContain('Enter your current password to change it.');
+    expect(host.textContent).toContain('Fix 1 thing to save');
+  });
+
+  it('shows the API’s field error under its field', async () => {
+    const refused = new HttpErrorResponse({
+      status: 400,
+      error: { errors: { CurrentPassword: ['Your current password is incorrect.'] } },
+    });
+    const { host, type, submit, settle } = setup('system', {
+      update: () => throwError(() => refused),
+    });
+    await settle();
+    type('Current password', 'not-it');
+    type('New password', 'kestrel-labs-2026');
+    submit();
+    await settle();
+    expect(host.textContent).toContain('Your current password is incorrect.');
   });
 });

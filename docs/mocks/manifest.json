@@ -109,12 +109,15 @@
       "title": "Verify email",
       "route": "/verify-email",
       "requirements": [
-        "L2-002"
+        "L2-002",
+        "L2-052"
       ],
       "states": [
         "default",
         "success",
-        "error"
+        "error",
+        "email-changed",
+        "email-change-expired"
       ],
       "not_applicable": {
         "loading": "The link is checked server-side before the page renders.",

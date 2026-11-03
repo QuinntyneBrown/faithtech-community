@@ -42,6 +42,7 @@ import {
 } from './organisations';
 import { NOTES_SERVICE, HttpNotesService } from './notes';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
+import { ACCOUNT_SERVICE, HttpAccountService } from './account';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
 import {
   CONNECT_SERVICE,
@@ -93,6 +94,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: NOTES_SERVICE, useClass: HttpNotesService },
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
     { provide: ANNOUNCEMENTS_SERVICE, useClass: HttpAnnouncementsService },
+    { provide: ACCOUNT_SERVICE, useClass: HttpAccountService },
     { provide: INVITES_SERVICE, useClass: HttpInvitesService },
     { provide: CONNECT_SERVICE, useClass: HttpConnectService },
     { provide: ADMIN_USERS_SERVICE, useClass: HttpAdminUsersService },

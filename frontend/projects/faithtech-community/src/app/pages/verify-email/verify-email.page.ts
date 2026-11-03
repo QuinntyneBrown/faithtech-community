@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AUTH_SERVICE } from '@faithtech-community/api';
+import { ACCOUNT_SERVICE, AUTH_SERVICE } from '@faithtech-community/api';
 import {
   AlertComponent,
   AuthLayoutComponent,
@@ -22,10 +22,14 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-type State = 'pending' | 'verifying' | 'verified' | 'expired';
+type State =
+  'pending' | 'verifying' | 'verified' | 'expired' | 'email-changed' | 'email-change-expired';
 type Resend = { kind: 'sent'; email: string } | { kind: 'limited' } | { kind: 'failed' };
 
-/** Verify an email from its link, or ask for a new link (L2-002), matching docs/mocks/pages/verify-email. */
+/**
+ * Verify an email from its link, or ask for a new link (L2-002), matching docs/mocks/pages/verify-email. A link that
+ * also carries `email` confirms a new sign-in email instead (L2-052 AC1, mocks `email-changed` and `email-change-expired`).
+ */
 @Component({
   selector: 'ft-verify-email-page',
   imports: [
@@ -44,6 +48,7 @@ type Resend = { kind: 'sent'; email: string } | { kind: 'limited' } | { kind: 'f
 })
 export class VerifyEmailPage implements OnInit {
   private readonly auth = inject(AUTH_SERVICE);
+  private readonly account = inject(ACCOUNT_SERVICE);
 
   readonly userId = input<string>();
   readonly token = input<string>();
@@ -69,12 +74,31 @@ export class VerifyEmailPage implements OnInit {
     () => this.auth.currentUser()?.name?.split(' ')[0] ?? null,
   );
 
+  /** The address a confirmed email-change link made the sign-in email. */
+  protected readonly changedEmail = signal('');
+
+  private async confirmEmailChange(userId: string, email: string, token: string): Promise<void> {
+    try {
+      await firstValueFrom(this.account.confirmEmailChange(userId, email, token));
+      this.changedEmail.set(email);
+      this.state.set('email-changed');
+      if (this.auth.isAuthenticated()) await firstValueFrom(this.auth.loadCurrentUser());
+    } catch {
+      this.state.set('email-change-expired');
+    }
+  }
+
   async ngOnInit(): Promise<void> {
     const userId = this.userId();
     const token = this.token();
     if (!userId || !token) return;
 
     this.state.set('verifying');
+    const email = this.email();
+    if (email) {
+      await this.confirmEmailChange(userId, email, token);
+      return;
+    }
     try {
       const name = this.name();
       const join = this.join();

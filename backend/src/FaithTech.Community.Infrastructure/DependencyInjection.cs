@@ -55,6 +55,8 @@ public static class DependencyInjection
                 options.Password.RequireNonAlphanumeric = false;
                 options.Tokens.EmailConfirmationTokenProvider = EmailConfirmationTokenProvider<CommunityUser>.Name;
                 options.Tokens.PasswordResetTokenProvider = PasswordResetTokenProvider<CommunityUser>.Name;
+                // An email change (L2-052 AC1) is confirmed with the same 24-hour provider; its purpose names the new address.
+                options.Tokens.ChangeEmailTokenProvider = EmailConfirmationTokenProvider<CommunityUser>.Name;
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 options.Lockout.AllowedForNewUsers = true;

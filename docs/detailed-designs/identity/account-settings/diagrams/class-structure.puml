@@ -1,0 +1,52 @@
+@startuml
+title UML class structure — account settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  BackgroundColor #F9FAFB
+}
+class AccountSettingsHandler {
+  +GetAsync(): AccountDto
+  +UpdateAsync(UpdateAccountCommand): Result<AccountUpdated>
+  +ConfirmEmailChangeAsync(ConfirmEmailChangeCommand): Result
+  +SignOutEverywhereAsync(): Result
+}
+class UpdateAccountCommand {
+  +Email: string
+  +CurrentPassword: string?
+  +NewPassword: string?
+}
+class UpdateAccountValidator
+class ConfirmEmailChangeCommand {
+  +UserId: Guid
+  +Email: string
+  +Token: string
+}
+class AccountDto {
+  +Email: string
+  +HasPassword: bool
+}
+class AccountUpdated {
+  +PendingEmail: string?
+  +PasswordChanged: bool
+}
+class CommunityUser
+interface IEmailSender
+interface ITokenRevocation
+interface IBreachedPasswordChecker
+class "UserManager<CommunityUser>" as UserManager
+AccountSettingsHandler --> UserManager
+AccountSettingsHandler --> IEmailSender
+AccountSettingsHandler --> ITokenRevocation
+AccountSettingsHandler ..> UpdateAccountCommand
+AccountSettingsHandler ..> ConfirmEmailChangeCommand
+AccountSettingsHandler ..> AccountDto
+AccountSettingsHandler ..> AccountUpdated
+UpdateAccountValidator ..> UpdateAccountCommand
+UpdateAccountValidator --> IBreachedPasswordChecker
+UserManager --> CommunityUser
+@enduml

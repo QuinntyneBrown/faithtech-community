@@ -10,6 +10,10 @@ export class VerifyEmailPage {
   readonly emailError: Locator;
   readonly message: Locator;
   readonly setUpProfile: Locator;
+  /** An email-change link (L2-052 AC1): confirmed, or expired or used. */
+  readonly emailChanged: Locator;
+  readonly emailChangeExpired: Locator;
+  readonly openSettings: Locator;
 
   constructor(private readonly page: Page) {
     this.pending = page.getByRole('heading', { level: 1, name: 'Verify your email' });
@@ -20,6 +24,14 @@ export class VerifyEmailPage {
     this.emailError = fieldError(page, 'Email');
     this.message = page.locator('ft-alert [role=status], ft-alert [role=alert]');
     this.setUpProfile = page.getByRole('link', { name: 'Set up my profile' });
+    this.emailChanged = page.getByRole('heading', {
+      level: 1,
+      name: 'Your new email is confirmed',
+    });
+    this.emailChangeExpired = page.getByText(
+      'Links to confirm a new email work once, for 24 hours.',
+    );
+    this.openSettings = page.getByRole('link', { name: 'Open settings' });
   }
 
   /** Opens the page the way the verification email's link does. */
@@ -33,6 +45,11 @@ export class VerifyEmailPage {
   async openJoinLink(userId: string, token: string, name: string, join: string): Promise<void> {
     const query = new URLSearchParams({ userId, token, name, join });
     await this.page.goto(`/verify-email?${query}`);
+  }
+
+  /** Opens a link sent to confirm a new sign-in email (L2-052 AC1); `path` is the link's path and query. */
+  async openEmailChangeLink(path: string): Promise<void> {
+    await this.page.goto(path);
   }
 
   async openPending(email: string): Promise<void> {

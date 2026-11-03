@@ -45,6 +45,25 @@ public static class AccountEndpoints
             .Validate<ResetPasswordCommand>()
             .AllowAnonymous();
 
+        // Account settings (L2-052): the caller's own account. Confirming an email change is anonymous by opt-in,
+        // because the link's token proves the request.
+        account.MapGet("", async (AccountSettingsHandler handler) =>
+            await handler.GetAsync() is { } dto ? Results.Ok(dto) : Results.Forbid());
+
+        account.MapPut("", async (UpdateAccountCommand command, AccountSettingsHandler handler, CancellationToken ct) =>
+            {
+                var (result, updated) = await handler.UpdateAsync(command, ct);
+                return result.ToHttp(() => Results.Ok(updated));
+            })
+            .Validate<UpdateAccountCommand>();
+
+        account.MapPost("/confirm-email-change", async (ConfirmEmailChangeCommand command, AccountSettingsHandler handler) =>
+                (await handler.ConfirmEmailChangeAsync(command)).ToHttp(Results.NoContent))
+            .Validate<ConfirmEmailChangeCommand>()
+            .AllowAnonymous();
+
+        account.MapPost("/sign-out-everywhere", SignOutEverywhereAsync);
+
         account.MapPost("/sign-in", SignInAsync).Validate<SignInCommand>().AllowAnonymous();
         account.MapPost("/sign-out", SignOutAsync);
 
@@ -148,5 +167,16 @@ public static class AccountEndpoints
         await revocation.RevokeAllAsync(user.UserId!.Value, ct);
         await context.SignOutAsync(IdentityConstants.ApplicationScheme);
         return Results.NoContent();
+    }
+
+    private static async Task<IResult> SignOutEverywhereAsync(AccountSettingsHandler handler, HttpContext context, CancellationToken ct)
+    {
+        var result = await handler.SignOutEverywhereAsync(ct);
+        if (result.Status == ResultStatus.Ok)
+        {
+            await context.SignOutAsync(IdentityConstants.ApplicationScheme);
+        }
+
+        return result.ToHttp(Results.NoContent);
     }
 }
