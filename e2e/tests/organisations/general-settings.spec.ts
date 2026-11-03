@@ -22,7 +22,7 @@ test.describe('Organisation settings: General', () => {
     await api.signInAs(grace, '/');
 
     await expect.poll(() => shell.navLabels()).toContain('Organisation');
-    await shell.navLink('Organisation').click();
+    await shell.openSection('Organisation');
     await expect(page).toHaveURL(/\/organisation$/);
     await expect(general.heading).toHaveText('FaithTech Community');
     await expect(general.tabs).toHaveText([

@@ -1,5 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
+type Box = { x: number; y: number; width: number; height: number };
+
 /** The signed-in chrome around every member page. */
 export class AppShell {
   readonly verifyBanner: Locator;
@@ -8,7 +10,7 @@ export class AppShell {
   readonly primaryNav: Locator;
   /** The tab bar's last tab, a button that opens the menu of every section. */
   readonly moreTab: Locator;
-  /** The top bar's More, shown between 768px and 1023px where the secondary links hide. */
+  /** The top bar's More, shown between 768px and 1535px where the secondary links hide. */
   readonly moreLink: Locator;
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
@@ -45,6 +47,24 @@ export class AppShell {
     this.bell = page.locator('header').getByRole('button', { name: /^Notifications/ });
     this.notificationPanel = page.getByRole('dialog', { name: 'Notifications' });
     this.brand = page.getByRole('banner').locator('.top-bar__brand');
+  }
+
+  /** The top bar's capsule and the page's content column, side by side (L2-045 AC5). */
+  async barAndColumn(): Promise<{ bar: Box; column: Box }> {
+    const bar = await this.page.locator('header.top-bar').boundingBox();
+    const column = await this.pageHeader.boundingBox();
+    if (!bar || !column) throw new Error('The top bar or the page header is not on screen');
+    return { bar, column };
+  }
+
+  /**
+   * Opens a section as a member does at the current width: its top-bar link when the bar shows it, otherwise
+   * through the top bar's More (768px to 1535px, L2-045 AC5).
+   */
+  async openSection(name: string): Promise<void> {
+    if (await this.navLink(name).isVisible()) return this.navLink(name).click();
+    await this.moreLink.click();
+    await this.drawerLink(name).click();
   }
 
   /** The top bar's search box (wider screens). */
@@ -121,7 +141,9 @@ export class AppShell {
 
   /** The top bar's section links, in order (including those hidden at the current width). */
   async navLabels(): Promise<string[]> {
-    return (await this.primaryNav.getByRole('link').allTextContents()).map((t) => t.trim());
+    return (await this.primaryNav.getByRole('link', { includeHidden: true }).allTextContents()).map(
+      (t) => t.trim(),
+    );
   }
 
   /** A link tab of the tab bar. */

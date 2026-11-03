@@ -12,7 +12,7 @@ test.describe('App shell', () => {
 
     await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
-    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces', 'Team', 'People']) {
+    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces']) {
       await expect(shell.navLink(name)).toBeVisible();
     }
     await expect(shell.navLink('Home')).toHaveAttribute('aria-current', 'page');
@@ -20,6 +20,49 @@ test.describe('App shell', () => {
     await expect(shell.tabBar).toBeHidden();
     await axe.check();
   });
+
+  // L2-045 AC5: below 2XL the secondary sections wait behind the top bar's More, so the bell and the avatar
+  // always fit beside the search.
+  test('up to 1535px the secondary sections wait behind More, and from 1536px they join the top bar', async ({
+    page,
+    api,
+  }) => {
+    await page.setViewportSize(BREAKPOINTS.xl);
+    const shell = new AppShell(page);
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
+
+    await expect(shell.navLink('Workspaces')).toBeVisible();
+    for (const name of ['Team', 'Announcements', 'People']) {
+      await expect(shell.navLink(name)).toBeHidden();
+    }
+    await expect(shell.moreLink).toBeVisible();
+    await expect(shell.bell).toBeInViewport({ ratio: 1 });
+
+    await page.setViewportSize(BREAKPOINTS['2xl']);
+    for (const name of ['Team', 'Announcements', 'People']) {
+      await expect(shell.navLink(name)).toBeVisible();
+    }
+    await expect(shell.moreLink).toBeHidden();
+    await expect(shell.bell).toBeInViewport({ ratio: 1 });
+  });
+
+  // L2-045 AC5, design system components/top-bar: the capsule floats inside the page margins, edge to edge with
+  // the content column below it.
+  for (const size of ['md', 'xl', '2xl'] as const) {
+    test(`at ${size} the top bar lines up with the content column`, async ({ page, api }) => {
+      await page.setViewportSize(BREAKPOINTS[size]);
+      const shell = new AppShell(page);
+      await api.signInAs(
+        api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }),
+        '/events',
+      );
+      await expect(shell.pageHeader).toBeVisible();
+
+      const { bar, column } = await shell.barAndColumn();
+      expect(Math.round(bar.x)).toBe(Math.round(column.x));
+      expect(Math.round(bar.x + bar.width)).toBe(Math.round(column.x + column.width));
+    });
+  }
 
   // One rule for every role (docs/adr/0009-shell-navigation-by-role.md); Reports for Staff and System Admin
   // only (L2-123 AC4, L2-045 AC4).
@@ -148,7 +191,7 @@ test.describe('App shell', () => {
     api,
   }) => {
     const shell = new AppShell(page);
-    await page.setViewportSize(BREAKPOINTS.xl);
+    await page.setViewportSize(BREAKPOINTS['2xl']);
     const account = api.addAccount({
       email: 'grace@example.org',
       roles: ['Analyst'],
@@ -243,8 +286,8 @@ test.describe('App shell', () => {
     await expect(shell.moreLink).toBeFocused();
 
     await page.setViewportSize(BREAKPOINTS.lg);
-    await expect(shell.navLink('Team')).toBeVisible();
-    await expect(shell.moreLink).toBeHidden();
+    await expect(shell.navLink('Team')).toBeHidden();
+    await expect(shell.moreLink).toBeVisible();
   });
 
   test('the skip link is the first thing keyboard users reach', async ({ page, api }) => {

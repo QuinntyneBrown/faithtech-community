@@ -87,8 +87,9 @@ test.describe('Admin users', () => {
     const shell = new AppShell(page);
     await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
-    await expect(shell.navLink('Announcements')).toBeVisible();
-    await expect(shell.navLink('Admin')).toHaveCount(0);
+    await expect(shell.navLink('Home')).toBeVisible();
+    expect(await shell.navLabels()).toContain('Announcements');
+    expect(await shell.navLabels()).not.toContain('Admin');
   });
 
   test('a System Admin reaches the admin area from the Admin link', async ({ page, api }) => {
@@ -97,7 +98,7 @@ test.describe('Admin users', () => {
       api.addAccount({ email: 'priya@example.org', name: 'Priya Shah', roles: ['SystemAdmin'] }),
     );
 
-    await shell.navLink('Admin').click();
+    await shell.openSection('Admin');
     await expect(new AdminUsersPage(page).heading).toHaveText('Admin');
   });
 });

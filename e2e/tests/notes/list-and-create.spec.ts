@@ -12,7 +12,7 @@ test.describe('Notes: list and create', () => {
   }) => {
     const samuel = api.addAccount({ email: 'samuel@example.org', name: 'Samuel Mensah' });
     await api.signInAs(samuel, '/');
-    await new AppShell(page).navLink('Notes').click();
+    await new AppShell(page).openSection('Notes');
     const notes = new NotesPage(page);
 
     await expect(notes.heading).toHaveText('Notes');

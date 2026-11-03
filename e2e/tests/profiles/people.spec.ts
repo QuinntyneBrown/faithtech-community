@@ -245,7 +245,7 @@ test.describe('People and roles', () => {
     const shell = new AppShell(page);
     await api.signInAs(grace);
 
-    await shell.navLink('People').click();
+    await shell.openSection('People');
     await expect(new PeoplePage(page).heading).toHaveText('People and roles');
   });
 });
