@@ -16,8 +16,8 @@ event attendees and partners get the tools to run a community: events with publi
 contacts, a partner pipeline, team, resources, docs & notes, Agile workspaces with Planning Poker and
 reports.
 
-> **Project status:** v1 is 97% built. Every v1 feature is implemented and covered by tests; the
-> remaining work is finishing touches and deploying behind the private-preview wall. See
+> **Project status:** v1 is 97% built. Every v1 feature has been built; the remaining work is
+> finishing a few designs and deploying behind the private-preview wall. See
 > [Project status](#project-status).
 
 ## Contents
