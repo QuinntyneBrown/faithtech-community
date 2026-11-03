@@ -64,7 +64,11 @@
           </ft-card>
           <div ftSplitAside>
             @if (confirmed(); as guest) {
-              <ft-card variant="success" [heading]="'You’re on the list, ' + guest.firstName">
+              <ft-card
+                variant="success"
+                headingIcon="success"
+                [heading]="'You’re on the list, ' + guest.firstName"
+              >
                 <ft-stack role="status">
                   <p class="text">
                     We sent a confirmation to <strong>{{ guest.email }}</strong
@@ -114,7 +118,13 @@
                             autocomplete="email"
                           />
                         </ft-form-field>
-                        <ft-button type="submit" variant="primary" size="lg" [loading]="busy()">
+                        <ft-button
+                          type="submit"
+                          variant="primary"
+                          size="lg"
+                          [block]="true"
+                          [loading]="busy()"
+                        >
                           {{ busy() ? 'Sending your RSVP…' : 'I’m going' }}
                         </ft-button>
                       </ft-stack>

@@ -1,4 +1,5 @@
 import { expect, test } from '../../../e2e/fixtures/app';
+import { AppShell } from '../../../e2e/pages/app-shell.page';
 import { CancelRsvpDialog } from '../../../e2e/pages/cancel-rsvp.dialog';
 import { EventPage } from '../../../e2e/pages/event.page';
 import { Presenter } from '../presenter';
@@ -10,6 +11,7 @@ test('rsvp', async ({ page, api }) => {
   const show = await Presenter.start(page, 'rsvp');
   const eventPage = new EventPage(page);
   const dialog = new CancelRsvpDialog(page);
+  const shell = new AppShell(page);
 
   const marcus = api.addProfile({ name: 'Marcus Lee', roles: ['EventLead'] });
   const event = api.events.add({
@@ -53,14 +55,22 @@ test('rsvp', async ({ page, api }) => {
     { poster: true },
   );
 
-  await show.step('keep', async () => {
-    await eventPage.cancelMyRsvp.click();
-    await expect(dialog.dialog).toBeVisible();
-    await page.waitForTimeout(2500);
-    await dialog.keep.click();
-    await expect(dialog.dialog).toHaveCount(0);
-    await expect(eventPage.going).toBeVisible();
-  });
+  await show.step(
+    'keep',
+    async () => {
+      // From the keyboard, so the focus ring shows on Keep my RSVP as the dialog opens.
+      await eventPage.cancelMyRsvp.press('Enter');
+      await expect(dialog.dialog).toBeVisible();
+      await expect(dialog.keep).toBeFocused();
+    },
+    {
+      after: async () => {
+        await dialog.keep.click();
+        await expect(dialog.dialog).toHaveCount(0);
+        await expect(eventPage.going).toBeVisible();
+      },
+    },
+  );
 
   await show.step('cancel', async () => {
     await eventPage.cancelMyRsvp.click();
@@ -71,6 +81,10 @@ test('rsvp', async ({ page, api }) => {
   });
 
   await show.step('again', async () => {
+    // The narrated take outlasts the toast; the screenshot run closes it so the page shows one state.
+    if (await shell.toasts.filter({ hasText: 'Your RSVP is cancelled' }).count()) {
+      await shell.dismissToast('Your RSVP is cancelled');
+    }
     await eventPage.rsvp.click();
     await expect(eventPage.going).toBeVisible();
   });

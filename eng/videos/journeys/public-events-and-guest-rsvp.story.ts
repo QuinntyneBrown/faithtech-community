@@ -55,6 +55,8 @@ test('public-events-and-guest-rsvp', async ({ page, api }) => {
   await show.step('cancelled', async () => {
     await cancelPage.cancel.click();
     await expect(cancelPage.cancelled).toBeVisible();
+    // Move the pointer off Back to the event, which takes the pressed button's place.
+    await page.mouse.move(0, 0);
   });
 
   await show.card('closing', 'closing', [

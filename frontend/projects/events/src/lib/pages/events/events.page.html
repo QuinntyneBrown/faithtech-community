@@ -63,20 +63,19 @@
         </ft-empty-state>
       }
     } @else {
-      <ft-card variant="flush">
-        <ft-list label="Events">
-          @for (row of rows(); track row.id) {
-            <ft-event-card
-              [title]="row.title"
-              [href]="'/events/' + row.id"
-              [month]="row.month"
-              [day]="row.day"
-              [meta]="row.meta"
-              [visibility]="row.visibility"
-            />
-          }
-        </ft-list>
-      </ft-card>
+      <!-- A flush list is its own card, as the mocks' ul.list.card.card--flush. -->
+      <ft-list label="Events">
+        @for (row of rows(); track row.id) {
+          <ft-event-card
+            [title]="row.title"
+            [href]="'/events/' + row.id"
+            [month]="row.month"
+            [day]="row.day"
+            [meta]="row.meta"
+            [visibility]="row.visibility"
+          />
+        }
+      </ft-list>
     }
   }
 }

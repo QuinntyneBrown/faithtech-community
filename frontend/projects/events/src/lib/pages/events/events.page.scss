@@ -1,10 +1,10 @@
+// The mocks' .page-header: 24px under the top bar and 24px above the filters.
 :host {
   display: block;
-  margin-block-start: var(--space-4);
 }
 
 ft-page-header {
-  margin-block-end: var(--space-4);
+  margin-block: var(--space-6);
 }
 
 .filters {
