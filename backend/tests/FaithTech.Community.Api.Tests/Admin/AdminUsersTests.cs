@@ -1,6 +1,7 @@
 // Traces to: L2-040
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,22 @@ public class AdminUsersTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.Empty(first.Items.Select(u => u.Id).Intersect(second.Items.Select(u => u.Id)));
     }
 
+    // AC1: each row carries the member's featured photo, or none.
+    [Fact]
+    public async Task Each_user_carries_their_featured_photo_or_none()
+    {
+        var priya = await factory.AddMemberAsync("Priya Shah");
+        var tag = Guid.NewGuid().ToString("N")[..8];
+        var grace = await factory.AddMemberAsync($"Grace {tag}", p =>
+            p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/featured.jpg", "Grace at Builders Night", DateTimeOffset.UtcNow)));
+        await factory.AddMemberAsync($"Leah {tag}");
+
+        var page = await factory.ClientFor(priya, Role.SystemAdmin).GetFromJsonAsync<Page>($"/api/admin/users?q={tag}");
+
+        Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{grace.ProfileId}/featured.jpg", page!.Items[0].PhotoUrl);
+        Assert.Null(page.Items[1].PhotoUrl);
+    }
+
     [Theory]
     [InlineData]
     [InlineData(Role.Staff)]
@@ -74,7 +91,7 @@ public class AdminUsersTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
-    private sealed record User(Guid Id, string Name, string Email, string[] Roles, string Status);
+    private sealed record User(Guid Id, string Name, string Email, string[] Roles, string Status, string? PhotoUrl = null);
 
     private sealed record Page(List<User> Items, int PageSize, int TotalCount);
 }

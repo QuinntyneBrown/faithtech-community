@@ -7,6 +7,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  // The count sits beside the bell, as the design system's .btn--icon with .badge--count.
+  gap: var(--space-2);
   inline-size: var(--target-comfortable);
   block-size: var(--target-comfortable);
   padding: 0;
@@ -31,7 +33,5 @@
 }
 
 .ft-notification-bell__count {
-  position: absolute;
-  inset-block-start: 0;
-  inset-inline-end: 0;
+  flex: none;
 }

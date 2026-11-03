@@ -786,6 +786,10 @@ export class MockApi {
         name: account.name,
         email: account.email,
         emailVerified: account.verified,
+        // The featured photo the top bar's avatar shows (L2-003 AC9).
+        photoUrl:
+          this.profiles.get(account.profileId)?.photos.find((photo) => photo.isFeatured)?.url ??
+          null,
         roles: heldRolesOf(account.roles, this.profiles.get(account.profileId)?.roleChapters),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
         capabilities: account.capabilities ?? capabilitiesOf(account.roles),
@@ -1464,6 +1468,8 @@ export class MockApi {
         email: a.email,
         roles: this.profiles.get(a.profileId)?.roles ?? a.roles,
         status: a.suspended ? 'Suspended' : a.verified ? 'Active' : 'Unverified',
+        photoUrl:
+          this.profiles.get(a.profileId)?.photos.find((photo) => photo.isFeatured)?.url ?? null,
       }))
       .filter((u) => !term || u.name.toLowerCase().includes(term) || u.email.includes(term))
       .sort((a, b) => a.name.localeCompare(b.name));

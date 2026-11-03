@@ -6,7 +6,9 @@
 
 .tabs {
   display: flex;
+  gap: var(--space-1);
   overflow-x: auto;
+  scrollbar-width: none;
   border-block-end: var(--border-width-hairline) solid var(--color-border-default);
 }
 
@@ -16,7 +18,6 @@
   align-items: center;
   min-block-size: var(--target-comfortable);
   padding: 0 var(--space-3);
-  margin-block-end: calc(-1 * var(--space-0-5));
   border: 0;
   border-block-end: var(--space-0-5) solid transparent;
   background: transparent;

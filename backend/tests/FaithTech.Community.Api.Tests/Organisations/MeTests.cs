@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ public class MeTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFa
 
     public sealed record MeOrganisation(string Slug, string Name, string ShortName, string Host);
 
-    public sealed record Me(Guid ProfileId, string Name, MeOrganisation Organisation, Membership[] Memberships);
+    public sealed record Me(Guid ProfileId, string Name, MeOrganisation Organisation, Membership[] Memberships, string? PhotoUrl = null);
 
     [Fact]
     public async Task A_member_of_one_organisation_has_no_other_memberships()
@@ -25,6 +26,21 @@ public class MeTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFa
         Assert.Equal(grace.ProfileId, me!.ProfileId);
         Assert.Equal("faithtech", me.Organisation.Slug);
         Assert.Empty(me.Memberships);
+    }
+
+    // L2-003 AC9: the top bar's avatar shows the member's featured photo, and initials without one.
+    [Fact]
+    public async Task The_featured_photo_is_given_and_null_without_one()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo", p =>
+            p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/featured.jpg", "Grace at Builders Night", DateTimeOffset.UtcNow)));
+        var leah = await factory.AddMemberAsync("Leah Thompson");
+
+        var withPhoto = await factory.ClientFor(grace).GetFromJsonAsync<Me>("/api/me");
+        var without = await factory.ClientFor(leah).GetFromJsonAsync<Me>("/api/me");
+
+        Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{grace.ProfileId}/featured.jpg", withPhoto!.PhotoUrl);
+        Assert.Null(without!.PhotoUrl);
     }
 
     [Fact]

@@ -22,6 +22,8 @@ export interface FormError {
   templateUrl: './error-summary.component.html',
   styleUrl: './error-summary.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // Without errors it takes no room, so a stack's gap never opens above the first card.
+  host: { '[class.ft-error-summary--empty]': '!errors().length' },
 })
 export class ErrorSummaryComponent {
   readonly errors = input<FormError[]>([]);

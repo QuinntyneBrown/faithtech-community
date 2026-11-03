@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/app';
+import { photoUrl } from '../../fixtures/mock-api';
 import { AppShell } from '../../pages/app-shell.page';
 import { ReportsPage } from '../../pages/reports.page';
 import { SignInPage } from '../../pages/sign-in.page';
@@ -315,6 +316,28 @@ test.describe('App shell', () => {
     await page.keyboard.press('Escape');
     await expect(shell.menuItem('Sign out')).toBeHidden();
     await expect(shell.accountMenu('Grace Okonkwo')).toBeFocused();
+  });
+
+  // L2-003 AC9: the avatar shows your featured photo, and your initials without one.
+  test('the account menu avatar shows your featured photo', async ({ page, api }) => {
+    const shell = new AppShell(page);
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    const leah = api.addAccount({ email: 'leah@example.org', name: 'Leah Thompson' });
+    api.profiles.get(grace.profileId)!.photos.push({
+      id: 'photo-1',
+      url: photoUrl('#0b7285'),
+      altText: 'Grace at Builders Night',
+      isFeatured: true,
+      uploadedAt: '2026-10-01T09:00:00Z',
+    });
+
+    await api.signInAs(grace);
+    await expect(shell.yourPhoto('Grace Okonkwo')).toBeVisible();
+
+    await shell.signOut('Grace Okonkwo');
+    await api.signInAs(leah);
+    await expect(shell.yourAvatar('Leah Thompson')).toHaveAttribute('data-initials', 'LT');
+    await expect(shell.yourPhoto('Leah Thompson')).toHaveCount(0);
   });
 
   test('on a phone the account menu still offers sign out', async ({ page, api }) => {
