@@ -126,7 +126,8 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
             $"/notes/{page.Id}",
             actor,
             recipient => new NotificationEmail(heading, Body(owner, title, Via(page, recipient, held))),
-            cancellationToken);
+            cancellationToken,
+            title);
     }
 
     private static string Via(NotePage page, Guid recipient, Dictionary<Guid, List<HeldShareRole>> held)

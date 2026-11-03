@@ -30,17 +30,36 @@ export class NotificationsPage {
     await this.page.goto('/notifications');
   }
 
-  /** The notice whose link reads `title`. */
-  notice(title: string): Locator {
-    return this.notices.filter({ has: this.page.getByRole('link', { name: title, exact: true }) });
+  /** The notice whose sentence reads `sentence`. */
+  notice(sentence: string): Locator {
+    return this.notices.filter({
+      has: this.page.locator('.ft-notice__sentence').filter({ hasText: exactly(sentence) }),
+    });
   }
 
-  async open(title: string): Promise<void> {
-    await this.notice(title).getByRole('link', { name: title, exact: true }).click();
+  /** The one link of a notice: the item it names, or the whole sentence when it names none. */
+  noticeLink(sentence: string): Locator {
+    return this.notice(sentence).getByRole('link');
   }
 
-  /** The notices' link texts, top to bottom. */
+  /** The photo on a notice's avatar; absent when the actor has none. */
+  noticePhoto(title: string): Locator {
+    return this.notice(title).locator('ft-avatar img');
+  }
+
+  async open(sentence: string): Promise<void> {
+    await this.noticeLink(sentence).click();
+  }
+
+  /** The notices' sentences, top to bottom. */
   async titles(): Promise<string[]> {
-    return (await this.notices.getByRole('link').allTextContents()).map((t) => t.trim());
+    return (await this.notices.locator('.ft-notice__sentence').allTextContents()).map((t) =>
+      t.replace(/\s+/g, ' ').trim(),
+    );
   }
+}
+
+/** Matches the whole text, whitespace-normalised, and nothing longer. */
+function exactly(text: string): RegExp {
+  return new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
 }

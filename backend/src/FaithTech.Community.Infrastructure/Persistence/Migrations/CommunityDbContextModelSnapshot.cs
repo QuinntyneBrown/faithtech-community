@@ -1022,6 +1022,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
 
+                    b.Property<string>("LinkText")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
                     b.Property<Guid>("OrganisationId")
                         .HasColumnType("uuid");
 

@@ -1,0 +1,13 @@
+// The mocks' .breadcrumb sits 16px under the top bar and the .page-header 24px under its text; the
+// breadcrumb row is the 24px minimum target, 3px taller than its text, so the header takes 20px.
+:host {
+  display: block;
+}
+
+ft-breadcrumb {
+  padding-block-start: var(--space-4);
+}
+
+ft-page-header {
+  margin-block: var(--space-5) var(--space-6);
+}

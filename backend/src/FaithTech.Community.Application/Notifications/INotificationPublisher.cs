@@ -13,7 +13,12 @@ public record NotificationEmail(string Subject, string Body);
 public interface INotificationPublisher
 {
     /// <summary>Adds one in-app notification, with no email.</summary>
-    void Publish(Guid recipientProfileId, NotificationKind kind, string title, string linkPath);
+    /// <remarks>
+    /// <paramref name="linkText"/> is the phrase of the title that names the item, and <paramref name="actorId"/> the
+    /// member whose action raised it, shown on the notice (L2-027 AC7).
+    /// </remarks>
+    void Publish(
+        Guid recipientProfileId, NotificationKind kind, string title, string linkPath, string? linkText = null, Guid? actorId = null);
 
     /// <summary>Adds an in-app notification for each recipient and queues the emails; returns how many were queued.</summary>
     Task<int> PublishAsync(
@@ -23,5 +28,6 @@ public interface INotificationPublisher
         string linkPath,
         Guid? actorId,
         Func<Guid, NotificationEmail?>? email,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string? linkText = null);
 }

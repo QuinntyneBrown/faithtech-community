@@ -63,6 +63,24 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
         Assert.All(UrlInText().Matches(sent.Body).Select(m => m.Value), link => Assert.StartsWith("https://", link));
     }
 
+    // The footer says which emails can be turned off (L2-028 AC3, docs/mocks/notifications/email/success.html).
+    [Fact]
+    public async Task The_html_footer_names_the_organisation_and_says_only_announcement_emails_can_be_turned_off()
+    {
+        var app = OutboxApp();
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var address = await EmailOfAsync(grace);
+
+        await PublishAsync(app, grace, NotificationKind.RoleChanged,
+            new NotificationEmail("Your roles changed", "You are now a Volunteer."), "/people/me");
+        await DispatchAsync(app);
+
+        var html = Assert.Single(_transport.Delivered, m => m.To == address).HtmlBody!;
+        Assert.Matches(
+            "<p class=\"email__footer\"[^>]*>FaithTech Community · You can turn off announcement emails in Settings; account and activity emails are always sent.</p>",
+            html);
+    }
+
     [Fact]
     public async Task Text_from_members_is_escaped_in_the_html_part()
     {

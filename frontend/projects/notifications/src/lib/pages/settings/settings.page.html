@@ -2,7 +2,7 @@
 
 <ft-stack width="md">
   <ft-card heading="Appearance">
-    <ft-stack gap="3">
+    <ft-stack>
       <ft-radio-group
         legend="Theme"
         name="theme"
@@ -19,12 +19,15 @@
     </ft-stack>
   </ft-card>
   <ft-card heading="Email me when">
-    <ft-stack gap="3">
+    <ft-stack>
       <ft-switch [formControl]="emailAnnouncements">Email me announcements</ft-switch>
       <p class="caption">You’ll always get account emails like password resets.</p>
-      <div role="status">
+      <!-- A live region from the start, so the alert that appears in it is announced. -->
+      <div class="status" aria-live="polite">
         @if (save() === 'saved') {
-          <p class="caption">Saved. It applies from the next announcement.</p>
+          <ft-alert status="success" heading="Settings saved">
+            It applies from the next announcement.
+          </ft-alert>
         }
       </div>
       @if (save() === 'failed') {

@@ -156,7 +156,7 @@ public class SaveEventHandler(
             details.Format, details.Venue, details.OnlineLink, command.Capacity, details.Visibility);
         foreach (var member in existing.Rsvps.Select(r => r.ProfileId).OfType<Guid>().Where(p => p != actor))
         {
-            notifications.Publish(member, NotificationKind.EventChanged, $"{existing.Title} changed. Check the new details.", $"/events/{existing.Id}");
+            notifications.Publish(member, NotificationKind.EventChanged, $"{existing.Title} changed. Check the new details.", $"/events/{existing.Id}", existing.Title, actor);
         }
 
         if (permissions.IsAdminOverride)

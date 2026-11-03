@@ -64,7 +64,8 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
             $"/resources/{resource.Id}",
             actor,
             recipient => new NotificationEmail(title, Body(resource, owner, Via(resource, recipient, roles, heldRoles))),
-            cancellationToken);
+            cancellationToken,
+            resource.Title);
     }
 
     private static string Via(Resource resource, Guid recipient, IReadOnlyList<Guid> roles, Dictionary<Guid, List<HeldShareRole>> held)

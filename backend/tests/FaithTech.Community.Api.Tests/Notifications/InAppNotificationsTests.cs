@@ -1,8 +1,10 @@
 // Traces to: L2-027
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Notifications;
@@ -10,7 +12,8 @@ namespace FaithTech.Community.Api.Tests.Notifications;
 public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     public sealed record NotificationItem(
-        Guid Id, string Kind, string Title, string LinkPath, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt, Guid? ActorId, string? ActorName);
+        Guid Id, string Kind, string Title, string LinkPath, DateTimeOffset CreatedAt, DateTimeOffset? ReadAt, Guid? ActorId, string? ActorName,
+        string? ActorPhotoUrl, string? LinkText);
 
     public sealed record NotificationPage(
         NotificationItem[] Items, int Page, int PageSize, int TotalCount, int UnreadCount, bool HasMore);
@@ -37,6 +40,46 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
         Assert.Equal((other.ProfileId, "Marcus Lee"), (page.Items[0].ActorId, page.Items[0].ActorName));
         Assert.Null(page.Items[1].ActorName);
         Assert.Equal(new UnreadCount(2), await factory.ClientFor(grace).GetFromJsonAsync<UnreadCount>("/api/notifications/unread-count"));
+    }
+
+    // The notice's avatar is the member who acted: their featured photo, else their initials (docs/mocks/notifications/bell).
+    [Fact]
+    public async Task Each_notification_carries_the_featured_photo_of_the_member_who_acted()
+    {
+        // Given notices raised by a member with a featured photo, by one without, and by no member
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var tomas = await factory.AddMemberAsync("Tomás Ortega", p =>
+            p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/featured.jpg", "Tomás smiling", DateTimeOffset.UtcNow)));
+        var ruth = await factory.AddMemberAsync("Ruth Alvarez");
+        var start = factory.Time.GetUtcNow();
+        await AddAsync(grace, "Your roles changed", start.AddMinutes(-30));
+        await AddAsync(grace, "Ruth Alvarez accepted your invite", start.AddMinutes(-10), actor: ruth);
+        await AddAsync(grace, "Tomás Ortega just joined FaithTech", start.AddMinutes(-5), actor: tomas);
+
+        // When Grace lists them
+        var page = await ListAsync(factory.ClientFor(grace));
+
+        // Then only the notice from the member with a photo carries it
+        Assert.Equal(
+            [$"{FakePhotoStorage.BaseUrl}profiles/{tomas.ProfileId}/featured.jpg", null, null],
+            page.Items.Select(n => n.ActorPhotoUrl));
+    }
+
+    // Only the item a notice names is its link (L2-027 AC7, docs/mocks/notifications/bell/unread).
+    [Fact]
+    public async Task Each_notification_carries_the_phrase_that_links_to_its_item()
+    {
+        // Given a notice that names an event and one that names no item
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var start = factory.Time.GetUtcNow();
+        await AddAsync(grace, "Your roles changed", start.AddMinutes(-10));
+        await AddAsync(grace, "Austin Faith & AI Panel was cancelled", start.AddMinutes(-5), linkText: "Austin Faith & AI Panel");
+
+        // When Grace lists them
+        var page = await ListAsync(factory.ClientFor(grace));
+
+        // Then the event's notice links its title, and the other links the whole sentence
+        Assert.Equal(["Austin Faith & AI Panel", null], page.Items.Select(n => n.LinkText));
     }
 
     [Fact]
@@ -143,10 +186,11 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
         (await client.GetFromJsonAsync<NotificationPage>($"/api/notifications{query}"))!;
 
     private Task<Guid> AddAsync(
-        ProfileClients.Member recipient, string title, DateTimeOffset at, string link = "/people/me", ProfileClients.Member? actor = null) =>
+        ProfileClients.Member recipient, string title, DateTimeOffset at, string link = "/people/me", ProfileClients.Member? actor = null,
+        string? linkText = null) =>
         factory.WithDbAsync(async db =>
         {
-            var notification = new Notification(recipient.ProfileId, NotificationKind.RoleChanged, title, link, at, actor?.ProfileId);
+            var notification = new Notification(recipient.ProfileId, NotificationKind.RoleChanged, title, link, at, actor?.ProfileId, linkText);
             db.Notifications.Add(notification);
             await db.SaveChangesAsync();
             return notification.Id;

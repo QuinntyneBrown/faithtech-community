@@ -1,5 +1,6 @@
 import { expect, test } from '../../../e2e/fixtures/app';
 import { ComposeAnnouncementPage } from '../../../e2e/pages/compose-announcement.page';
+import { featuredPhoto } from '../photos';
 import { Presenter, typeInto } from '../presenter';
 
 // Journey: send an announcement (docs/detailed-designs/announcements/send-announcement, L2-029).
@@ -19,6 +20,15 @@ test('send-announcement', async ({ page, api }) => {
   });
   api.addAccount({ email: 'ruth@example.org', name: 'Ruth Alvarez', roles: ['Volunteer'] });
   api.announcements.optedOut.add(samuel.profileId);
+  // Hannah's photo and three unread notices, as the top bar of the compose mocks shows.
+  api.profiles.get(hannah.profileId)!.photos.push(featuredPhoto('hannah-kim'));
+  for (const [title, minutesAgo] of [
+    ['Ruth Alvarez accepted your invite', 30],
+    ['Samuel Mensah accepted your invite', 90],
+    ['Your roles changed', 300],
+  ] as const) {
+    api.notifications.add({ recipientId: hannah.profileId, title }, minutesAgo);
+  }
 
   await show.card(
     'opening',

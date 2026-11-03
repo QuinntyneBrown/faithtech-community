@@ -558,6 +558,7 @@ export class MockResources {
       recipientId: ownerId,
       kind: 'ResourceOwnershipTransferred',
       title: `${caller.name} made you the owner of ${resource.title}`,
+      linkText: resource.title,
       linkPath: `/resources/${resource.id}`,
       actorId: caller.profileId,
       actorName: caller.name,
@@ -639,6 +640,7 @@ export class MockResources {
         recipientId: recipient,
         kind: 'ResourceShared',
         title: `${owner} shared ${r.title} with you`,
+        linkText: r.title,
         linkPath: `/resources/${r.id}`,
         actorId: caller.profileId,
         actorName: caller.name,
@@ -665,7 +667,8 @@ export class MockResources {
   hubFileBody(id: string, thumbnail: boolean): { body: Buffer; contentType: string } | undefined {
     const r = this.resources.find((x) => x.id === id && !x.archivedAt && !!x.fileName);
     if (!r) return undefined;
-    if (thumbnail) return this.hasThumbnail(r) ? { body: THUMBNAIL, contentType: 'image/png' } : undefined;
+    if (thumbnail)
+      return this.hasThumbnail(r) ? { body: THUMBNAIL, contentType: 'image/png' } : undefined;
     const ext = extensionOf(r.fileName!);
     const contentType =
       ext === 'pdf' ? 'application/pdf' : ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;

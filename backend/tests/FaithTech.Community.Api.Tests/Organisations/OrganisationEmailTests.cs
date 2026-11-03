@@ -33,7 +33,7 @@ public partial class OrganisationEmailTests(CommunityApiFactory factory) : IClas
         Assert.DoesNotContain("FaithTech", message.Body + message.Subject + message.HtmlBody);
         AssertLinksOn(northside.Origin, message);
         Assert.Contains(">Open in northside</a>", message.HtmlBody);
-        Assert.Contains(">northside community</p>", message.HtmlBody);
+        Assert.Contains(">northside community · You can turn off announcement emails", message.HtmlBody);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public partial class OrganisationEmailTests(CommunityApiFactory factory) : IClas
         Assert.Equal("Grace Okonkwo invited you to FaithTech Community", message.Subject);
         AssertLinksOn(CommunityApiFactory.WebAppOrigin, message);
         Assert.Contains(">Open in FaithTech</a>", message.HtmlBody);
-        Assert.Contains(">FaithTech Community</p>", message.HtmlBody);
+        Assert.Contains(">FaithTech Community · You can turn off announcement emails", message.HtmlBody);
     }
 
     [Fact]

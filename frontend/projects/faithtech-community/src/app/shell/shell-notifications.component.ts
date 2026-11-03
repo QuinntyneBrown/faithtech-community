@@ -16,6 +16,7 @@ import {
 } from '@faithtech-community/api';
 import {
   Notice,
+  noticeSentence,
   NotificationBellComponent,
   NotificationPanelComponent,
   avatarColorFor,
@@ -107,8 +108,8 @@ function toNotice(n: NotificationDto, organisation: string): Notice {
     id: n.id,
     name: n.actorName ?? organisation,
     color: avatarColorFor(n.actorId),
-    text: '',
-    linkText: n.title,
+    photo: n.actorPhotoUrl,
+    ...noticeSentence(n.title, n.linkText),
     href: n.linkPath,
     meta: formatFeedTime(n.createdAt),
     unread: !n.readAt,

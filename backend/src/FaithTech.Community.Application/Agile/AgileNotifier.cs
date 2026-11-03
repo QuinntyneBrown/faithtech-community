@@ -14,14 +14,20 @@ public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, ICurren
 {
     private readonly List<(Guid Recipient, string Subject, string Body)> _emails = [];
 
-    public void Notify(Guid actor, Guid recipient, NotificationKind kind, string title, string linkPath, string subject, string body)
+    /// <remarks>
+    /// <paramref name="actor"/> is <see cref="Guid.Empty"/> when no member acted. <paramref name="linkText"/> is the
+    /// phrase of the title that names the item (L2-027 AC7).
+    /// </remarks>
+    public void Notify(
+        Guid actor, Guid recipient, NotificationKind kind, string title, string linkPath, string subject, string body, string? linkText = null)
     {
         if (recipient == actor)
         {
             return;
         }
 
-        db.Notifications.Add(new Notification(recipient, kind, title, linkPath, time.GetUtcNow()));
+        db.Notifications.Add(new Notification(
+            recipient, kind, title, linkPath, time.GetUtcNow(), actor == Guid.Empty ? null : actor, linkText));
         _emails.Add((recipient, subject, $"{body}\n\n{organisation.Origin}{linkPath}"));
     }
 

@@ -1,6 +1,7 @@
+// The design system's .bell-panel: 24rem, never wider than the viewport inside the page margins.
 :host {
   display: block;
-  inline-size: min(24rem, 100%);
+  inline-size: min(24rem, calc(100vw - 2 * var(--layout-margin)));
 }
 
 .ft-notification-panel {
@@ -21,6 +22,7 @@
 }
 
 .ft-notification-panel__header {
+  padding-block: var(--space-3);
   border-block-end: var(--border-width-hairline) solid var(--color-border-default);
 }
 

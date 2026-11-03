@@ -62,7 +62,8 @@ public class TransferOwnershipHandler(
             $"/resources/{resource.Id}",
             caller,
             _ => new NotificationEmail(title, $"{admin} made you the owner of “{resource.Title}”. You can now edit, share or archive it."),
-            cancellationToken);
+            cancellationToken,
+            resource.Title);
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), await views.DetailAsync(resource, caller, cancellationToken));
     }

@@ -12,8 +12,9 @@ namespace FaithTech.Community.Application.Notifications;
 public class NotificationPublisher(IApplicationDbContext db, IEmailQueue emails, ICurrentOrganisation organisation, TimeProvider time)
     : INotificationPublisher
 {
-    public void Publish(Guid recipientProfileId, NotificationKind kind, string title, string linkPath) =>
-        db.Notifications.Add(new Notification(recipientProfileId, kind, title, linkPath, time.GetUtcNow()));
+    public void Publish(
+        Guid recipientProfileId, NotificationKind kind, string title, string linkPath, string? linkText = null, Guid? actorId = null) =>
+        db.Notifications.Add(new Notification(recipientProfileId, kind, title, linkPath, time.GetUtcNow(), actorId, linkText));
 
     public async Task<int> PublishAsync(
         IReadOnlyCollection<Guid> recipientIds,
@@ -22,13 +23,14 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailQueue emails,
         string linkPath,
         Guid? actorId,
         Func<Guid, NotificationEmail?>? email,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string? linkText = null)
     {
         var now = time.GetUtcNow();
         var recipients = recipientIds.Distinct().ToList();
         foreach (var recipient in recipients)
         {
-            db.Notifications.Add(new Notification(recipient, kind, title, linkPath, now, actorId));
+            db.Notifications.Add(new Notification(recipient, kind, title, linkPath, now, actorId, linkText));
         }
 
         if (email is null || recipients.Count == 0)

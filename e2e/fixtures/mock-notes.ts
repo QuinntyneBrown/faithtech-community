@@ -398,6 +398,7 @@ export class MockNotes {
         recipientId: recipient,
         kind: 'NotePageShared',
         title: `${owner} shared ${n.title || 'Untitled'} with you`,
+        linkText: n.title || 'Untitled',
         linkPath: `/notes/${n.id}`,
         actorId: caller.profileId,
         actorName: caller.name,

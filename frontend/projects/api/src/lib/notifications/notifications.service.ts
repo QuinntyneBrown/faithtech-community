@@ -28,6 +28,10 @@ export interface NotificationDto {
   /** The member whose action raised it, when there is one (ADR 0016). */
   actorId: string | null;
   actorName: string | null;
+  /** The actor's featured photo for the notice's avatar; null shows their initials. */
+  actorPhotoUrl: string | null;
+  /** The phrase of the title that links to the item; null links the whole title (L2-027 AC7). */
+  linkText: string | null;
 }
 
 /** The caller's notifications, newest first, 50 to a page (L2-027). */

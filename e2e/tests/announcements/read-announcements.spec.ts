@@ -64,7 +64,9 @@ test.describe('Read announcements and opt out', () => {
     await expect(settings.emailAnnouncements).toBeChecked();
     await settings.emailAnnouncements.click();
 
-    await expect(settings.saved).toContainText('Saved');
+    // Given-When-Then: the switch saves straight away and a success alert confirms it (docs/mocks/pages/settings/success).
+    await expect(settings.saved).toContainText('Settings saved');
+    await expect(settings.saved).toContainText('It applies from the next announcement.');
     expect(api.announcements.optedOut.has(ruth.profileId)).toBe(true);
     await axe.check();
 

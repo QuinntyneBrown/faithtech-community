@@ -16,6 +16,8 @@ function notification(overrides: Partial<NotificationDto>): NotificationDto {
     readAt: null,
     actorId: 'p9',
     actorName: 'Tomás Ortega',
+    actorPhotoUrl: null,
+    linkText: null,
     ...overrides,
   };
 }
@@ -85,6 +87,8 @@ describe('ShellNotificationsComponent', () => {
         id: 'n2',
         title: 'Older',
         actorName: null,
+        actorPhotoUrl: null,
+        linkText: null,
         actorId: null,
         readAt: '2026-10-01',
       }),

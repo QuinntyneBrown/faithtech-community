@@ -2,10 +2,14 @@
   display: block;
 }
 
+// The design system's .choice: a 24px minimum row with 4px above and below.
 .choice {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
+  box-sizing: border-box;
+  min-block-size: var(--target-min);
+  padding-block: var(--space-1);
   font: var(--text-body);
   color: var(--color-fg-default);
   cursor: pointer;
@@ -18,7 +22,7 @@ input {
   place-content: center;
   inline-size: var(--size-icon-md);
   block-size: var(--size-icon-md);
-  margin: 0;
+  margin: var(--space-0-5) 0 0;
   background: var(--color-bg-surface);
   border: var(--border-width-hairline) solid var(--color-border-strong);
   border-radius: var(--radius-xs);

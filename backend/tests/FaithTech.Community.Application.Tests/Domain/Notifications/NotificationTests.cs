@@ -29,6 +29,24 @@ public class NotificationTests
         Assert.Throws<ArgumentException>(() => new Notification(Recipient, NotificationKind.Invite, title, linkPath, Now));
     }
 
+    // The item a notice names is its link; the rest of the sentence is plain text (L2-027 AC7).
+    [Fact]
+    public void A_notification_can_name_the_phrase_of_its_title_that_links_to_the_item()
+    {
+        var notification = new Notification(
+            Recipient, NotificationKind.EventCancelled, "Builders night was cancelled", "/events/42", Now, linkText: "Builders night");
+
+        Assert.Equal("Builders night", notification.LinkText);
+        Assert.Null(NewNotification().LinkText);
+    }
+
+    [Fact]
+    public void The_link_phrase_must_be_part_of_the_title()
+    {
+        Assert.Throws<ArgumentException>(() => new Notification(
+            Recipient, NotificationKind.EventCancelled, "Builders night was cancelled", "/events/42", Now, linkText: "Open it"));
+    }
+
     [Fact]
     public void Marking_read_records_when_it_was_read()
     {

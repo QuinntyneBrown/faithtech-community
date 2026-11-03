@@ -6,10 +6,10 @@
 
 @if (sent(); as result) {
   <ft-stack width="md">
-    <ft-card variant="success" [heading]="sentHeading()">
+    <ft-card variant="success" headingIcon="success" [heading]="sentHeading()">
       <ft-stack gap="3">
         <p>It’s in their notifications now.{{ emailLine() }}</p>
-        <ft-cluster gap="2">
+        <ft-cluster>
           <ft-button variant="primary" href="/announcements">Back to announcements</ft-button>
           <ft-button variant="ghost" (click)="writeAnother()">Write another</ft-button>
         </ft-cluster>
