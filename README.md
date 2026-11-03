@@ -5,7 +5,7 @@
 # FaithTech Community
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: in development](https://img.shields.io/badge/status-in%20development-orange.svg)](#project-status)
+[![Status: in development](https://img.shields.io/badge/status-in%20development-orange.svg)](docs/estimates/README.md)
 [![Accessibility: WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG%202.2%20AA-green.svg)](#accessibility)
 
 FaithTech Community is an open-source, multi-tenant community platform. One deployment hosts many
