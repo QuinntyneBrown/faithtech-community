@@ -13,6 +13,8 @@ test('manage-profile-photos', async ({ page, api }) => {
   const edit = new EditProfilePage(page);
   const dialog = new DeletePhotoDialog(page);
   const leah = api.addAccount({ name: 'Leah Thompson', email: 'leah@example.org' });
+  api.profiles.get(leah.profileId)!.joinedAtUtc = '2024-03-12T10:00:00Z';
+  api.profiles.get(leah.profileId)!.chapterId = api.chapters.named('Toronto').id;
   const portrait = loadPicture('leah-thompson');
   const city = loadPicture('city');
   const pictures = new Map([portrait, city].map((p) => [p.name, p.dataUrl]));
@@ -42,6 +44,9 @@ test('manage-profile-photos', async ({ page, api }) => {
     await edit.save.click();
     await expect(edit.summary).toContainText('Describe this photo');
     expect(api.callsTo('POST', `/api/profiles/${leah.profileId}/photos`)).toHaveLength(0);
+    // Show the photo that needs describing, with its own error under it.
+    await page.waitForTimeout(800);
+    await edit.photosGroup.evaluate((group) => group.scrollIntoView({ block: 'center' }));
   });
 
   await show.step(
@@ -75,15 +80,15 @@ test('manage-profile-photos', async ({ page, api }) => {
       const other = (await edit.photo(0).textContent())?.includes('Featured') ? 1 : 0;
       await edit.remove(other).click();
       await expect(dialog.dialog).toBeVisible();
-      await page.waitForTimeout(2500);
-      await dialog.confirm.click();
-      await expect(dialog.dialog).toBeHidden();
-      await expect(edit.photoItems).toHaveCount(1);
     },
     { position: 'top' },
   );
 
   await show.step('profile', async () => {
+    await dialog.confirm.click();
+    await expect(dialog.dialog).toBeHidden();
+    await expect(edit.photoItems).toHaveCount(1);
+    await page.waitForTimeout(1500);
     await profile.open('me');
     await expect(profile.heading).toHaveText('Leah Thompson');
     await expect(profile.photos).toHaveCount(1);

@@ -14,6 +14,11 @@
   font: var(--text-h4);
 }
 
+// The title and count on the left, Add photos at the row's end (the mock's cluster--between).
+.ft-picture-list__add {
+  margin-inline-start: auto;
+}
+
 .ft-picture-list__note {
   margin: var(--space-2) 0 0;
   color: var(--color-fg-muted);
@@ -47,6 +52,11 @@
   inline-size: 100%;
 }
 
+// Inside a photo the item's gap already spaces its notes.
+.ft-picture-list__item .ft-picture-list__note {
+  margin: 0;
+}
+
 // The Featured badge overlays the thumbnail's top-left corner, as in the mock, so it never
 // pushes the description below it out of line with the other photos.
 // Inset by --space-1, as Remove is, so the two stay clear even on the narrowest thumbnails.
@@ -71,7 +81,7 @@
   inset-block-start: var(--space-1);
   inset-inline-end: var(--space-1);
   display: inline-flex;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
+  // The shadow follows the round button itself, so there is one ring, never a square halo.
+  border-radius: var(--radius-full);
   box-shadow: var(--shadow-1);
 }

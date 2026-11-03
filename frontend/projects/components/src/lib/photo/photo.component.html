@@ -1,6 +1,7 @@
 <div
   class="ft-photo"
   [class.ft-photo--featured]="featured()"
+  [class.ft-photo--borderless]="!bordered()"
   [class.ft-photo--failed]="state() === 'failed'"
   [class.ft-photo--uploading]="state() === 'uploading'"
   [attr.aria-busy]="state() === 'uploading' ? 'true' : null"

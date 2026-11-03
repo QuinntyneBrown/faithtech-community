@@ -9,7 +9,7 @@
 | [platform](platform.md) | 33 days | 84% | C+ |
 | [organisations](organisations.md) | 52 days | 95% | — |
 | [identity](identity.md) | 23 days | 98% | A- |
-| [profiles](profiles.md) | 13 days | 100% | B- |
+| [profiles](profiles.md) | 13 days | 100% | A- |
 | [admin](admin.md) | 17 days | 99% | B |
 | [invites](invites.md) | 14 days | 100% | A- |
 | [contacts](contacts.md) | 30 days | 100% | B |

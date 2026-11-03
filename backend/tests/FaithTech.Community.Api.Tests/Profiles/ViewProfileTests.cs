@@ -52,6 +52,21 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
     }
 
     [Fact]
+    public async Task Member_sees_when_another_member_joined()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var joined = new DateTime(2024, 3, 12, 15, 0, 0, DateTimeKind.Utc);
+        var samuel = await factory.AddMemberAsync("Samuel Mensah", joinedAtUtc: joined);
+        var older = await factory.AddMemberAsync("Jonah Bell");
+
+        var profile = await factory.ClientFor(grace).GetFromJsonAsync<ProfileResponse>($"/api/profiles/{samuel.ProfileId}");
+        var before = await factory.ClientFor(grace).GetFromJsonAsync<ProfileResponse>($"/api/profiles/{older.ProfileId}");
+
+        Assert.Equal(new DateTimeOffset(joined), profile!.JoinedAtUtc);
+        Assert.Null(before!.JoinedAtUtc);
+    }
+
+    [Fact]
     public async Task Member_reads_their_own_profile_through_me_and_may_edit_it()
     {
         var leah = await factory.AddMemberAsync("Leah Thompson");
@@ -107,7 +122,8 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         PhotoResponse[] Photos,
         HeldRole[] Roles,
         bool IsOwn,
-        bool CanEdit);
+        bool CanEdit,
+        DateTimeOffset? JoinedAtUtc = null);
 
     public sealed record HeldRole(Guid Id, string Name, Guid? ChapterId);
 }

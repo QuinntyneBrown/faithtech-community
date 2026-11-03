@@ -38,6 +38,7 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
             photos,
             ProfileRoleDto.Of(profile),
             isOwn,
-            canEdit);
+            canEdit,
+            profile.JoinedAtUtc is { } joined ? DateTime.SpecifyKind(joined, DateTimeKind.Utc) : null);
     }
 }

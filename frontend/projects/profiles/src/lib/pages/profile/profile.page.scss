@@ -1,8 +1,14 @@
 :host {
   display: block;
+}
+
+// The head card starts 24px below the top bar (the mocks' .page-start); a not-found or error
+// empty state sits straight under it, as in profile/not-found and profile/error.
+ft-profile-header {
   margin-block-start: var(--space-6);
 }
 
+// A page section after the card (the mocks' .section).
 .photos-empty {
-  margin-block-start: var(--space-6);
+  margin-block-start: var(--space-8);
 }

@@ -31,6 +31,8 @@ export interface ProfileDto {
   isOwn: boolean;
   /** The caller may change it: the owner, or a System Admin. */
   canEdit: boolean;
+  /** When the account was created (ISO, UTC); null for members from before join dates were recorded. */
+  joinedAtUtc?: string | null;
 }
 
 /** The details a member edits on their own profile (L2-006). No home chapter, or a blank bio, clears it. */

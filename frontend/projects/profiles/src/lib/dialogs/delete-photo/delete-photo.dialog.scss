@@ -1,4 +1,7 @@
 .photo {
   inline-size: 7.5rem;
+}
+
+ft-alert + .photo {
   margin-block-start: var(--space-3);
 }

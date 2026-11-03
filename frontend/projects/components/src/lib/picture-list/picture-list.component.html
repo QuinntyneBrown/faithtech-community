@@ -4,6 +4,7 @@
     <ft-badge>{{ photos().length }} of {{ max() }}</ft-badge>
     <ft-button
       #addButton
+      class="ft-picture-list__add"
       [disabled]="full()"
       [describedBy]="full() ? noteId : null"
       (click)="openChooser()"

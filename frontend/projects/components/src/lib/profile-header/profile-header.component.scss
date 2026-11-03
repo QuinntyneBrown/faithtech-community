@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  padding: var(--space-5);
+  padding: var(--space-6);
   border: var(--border-width-hairline) solid var(--color-border-default);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
@@ -58,11 +58,12 @@
 }
 
 .ft-profile-header__photos {
-  margin-block-start: var(--space-5);
+  // A page section after the card (the mocks' .section): 32px down, 16px to the strip.
+  margin-block-start: var(--space-8);
 }
 
 .ft-profile-header__photos-title {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
   /* The section-title role (docs/design-system/foundations/typography.html). */
   font: var(--text-h4);
 }
@@ -70,7 +71,7 @@
 .ft-profile-header__strip {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 7rem), 1fr));
-  gap: var(--space-3);
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;

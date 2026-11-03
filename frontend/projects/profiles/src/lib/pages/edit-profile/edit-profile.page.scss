@@ -1,5 +1,13 @@
 :host {
   display: block;
+  // The breadcrumb row starts 16px below the top bar (the mocks' .breadcrumb).
+  margin-block-start: var(--space-4);
+}
+
+// 24px above and below the header (the mocks' .page-header), so the error summary or the first
+// card never touches the subtitle.
+ft-page-header {
+  margin-block: var(--space-6);
 }
 
 .loading {

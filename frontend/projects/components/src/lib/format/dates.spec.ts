@@ -3,6 +3,7 @@ import {
   formatDayRange,
   formatFeedTime,
   formatMonth,
+  formatMonthYear,
   formatTime,
   formatTimeRange,
   formatTimestamp,
@@ -32,6 +33,11 @@ describe('date formats', () => {
   it('writes a short month as "Nov" for the date badge', () => {
     expect(formatMonth(new Date(2026, 10, 6))).toBe('Nov');
     expect(formatMonth(new Date(2026, 8, 6))).toBe('Sep');
+  });
+
+  it('formats a month and year in full, as in "Member since March 2024"', () => {
+    expect(formatMonthYear(new Date(2024, 2, 12))).toBe('March 2024');
+    expect(formatMonthYear(new Date(2026, 8, 1))).toBe('September 2026');
   });
 
   it('writes a day range as "Sat 14 – Sun 15 Nov", or one day when it ends that day', () => {

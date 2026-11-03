@@ -23,6 +23,27 @@ export function formatMonth(value: Date | string): string {
   return MONTHS[new Date(value).getMonth()];
 }
 
+const LONG_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/** "March 2024" in local time, as in a profile's "Member since March 2024". */
+export function formatMonthYear(value: Date | string): string {
+  const d = new Date(value);
+  return `${LONG_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 /** "6:30 pm" in local time, the mocks' time format. */
 export function formatTime(value: Date | string): string {
   const d = new Date(value);

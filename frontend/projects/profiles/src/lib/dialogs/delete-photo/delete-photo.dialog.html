@@ -12,7 +12,7 @@
     </ft-alert>
   }
   <div class="photo">
-    <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" />
+    <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" [bordered]="false" />
   </div>
   <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close(false)"
     >Cancel</ft-button

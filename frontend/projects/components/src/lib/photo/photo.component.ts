@@ -20,6 +20,8 @@ export class PhotoComponent {
   readonly src = input<string | null>(null);
   readonly alt = input('');
   readonly featured = input(false);
+  /** False drops the hairline frame, for a strip of photos on a page (the mocks' .photo-strip). */
+  readonly bordered = input(true);
   readonly state = input<PhotoState | null>(null);
   /** Percentage 0-100, shown as a bar and in the status line while `state` is "uploading". */
   readonly progress = input<number | null>(null);

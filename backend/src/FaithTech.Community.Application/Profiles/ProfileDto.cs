@@ -29,7 +29,8 @@ public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId, string? Chap
 
 /// <summary>
 /// A profile as a signed-in member sees it (L2-005). Photos are newest first. The chapter is null when there is none or
-/// chapters are off (L2-141 AC1, L2-140 AC2).
+/// chapters are off (L2-141 AC1, L2-140 AC2). <c>JoinedAtUtc</c> is when the account was created, shown as "Member since
+/// {month year}"; null for profiles from before join dates were recorded (L2-005 AC2).
 /// </summary>
 public record ProfileDto(
     Guid Id,
@@ -41,4 +42,5 @@ public record ProfileDto(
     IReadOnlyList<PhotoDto> Photos,
     IReadOnlyList<ProfileRoleDto> Roles,
     bool IsOwn,
-    bool CanEdit);
+    bool CanEdit,
+    DateTime? JoinedAtUtc);

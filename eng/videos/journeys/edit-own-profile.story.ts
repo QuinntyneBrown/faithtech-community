@@ -9,6 +9,9 @@ test('edit-own-profile', async ({ page, api }) => {
   const profile = new ProfilePage(page);
   const edit = new EditProfilePage(page);
   const leah = api.addAccount({ name: 'Leah Thompson', email: 'leah@example.org' });
+  api.profiles.get(leah.profileId)!.joinedAtUtc = '2024-03-12T10:00:00Z';
+  api.chapters.named('Toronto');
+  api.chapters.named('Vancouver');
 
   await show.card(
     'opening',
@@ -39,7 +42,7 @@ test('edit-own-profile', async ({ page, api }) => {
     'fill',
     async () => {
       await typeInto(edit.name, 'Leah Thompson');
-      await typeInto(edit.homeCity, 'Vancouver');
+      await edit.chapter.selectOption({ label: 'Vancouver' });
       await typeInto(edit.bio, 'Designer and volunteer. Ask me about accessible forms.');
       await edit.save.click();
     },
