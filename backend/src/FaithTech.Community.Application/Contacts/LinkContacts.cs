@@ -36,7 +36,7 @@ public class ContactSignedUpHandler(
         foreach (var contact in matches)
         {
             db.Notifications.Add(new Notification(
-                contact.OwnerId, NotificationKind.ContactSignedUp, Title(contact.Name), $"/contacts/{contact.Id}", now));
+                contact.OwnerId, NotificationKind.ContactSignedUp, Title(contact.Name), $"/contacts/{contact.Id}", now, verified.ProfileId));
         }
 
         var owners = matches.Select(m => m.OwnerId).Distinct().ToList();

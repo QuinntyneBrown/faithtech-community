@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, capabilityGuard, notAMemberGuard } from './guards';
+import { authGuard, capabilityGuard, memberMatch, notAMemberGuard } from './guards';
 import {
   AuthCallbackPage,
   AuthContinuePage,
@@ -9,6 +9,7 @@ import {
   HomePage,
   NotAMemberPage,
   NotFoundPage,
+  OfflinePage,
   ResetPasswordPage,
   ServerErrorPage,
   SignInPage,
@@ -48,8 +49,6 @@ export const routes: Routes = [
   },
   // A signed-in account with no profile on this host sees only this page (L2-132 AC3).
   { path: 'not-a-member', component: NotAMemberPage, canActivate: [notAMemberGuard] },
-  { path: 'forbidden', component: ForbiddenPage },
-  { path: 'error', component: ServerErrorPage },
   {
     path: '',
     component: AppShellComponent,
@@ -151,5 +150,16 @@ export const routes: Routes = [
       },
     ],
   },
-  { path: '**', component: NotFoundPage },
+  // The system pages sit in the shell the visitor is in: the app shell for a member, else the public shell (L2-048).
+  { path: '', component: AppShellComponent, canMatch: [memberMatch], children: systemPages() },
+  { path: '', component: PublicShellComponent, children: systemPages() },
 ];
+
+function systemPages(): Routes {
+  return [
+    { path: 'forbidden', component: ForbiddenPage },
+    { path: 'error', component: ServerErrorPage },
+    { path: 'offline', component: OfflinePage },
+    { path: '**', component: NotFoundPage },
+  ];
+}

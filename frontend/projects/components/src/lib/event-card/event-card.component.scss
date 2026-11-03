@@ -1,23 +1,31 @@
+// Rows are divided by a hairline, as the mocks' .list__item.event-card.
 :host {
   display: block;
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+:host(:last-child) {
+  border-block-end: 0;
 }
 
 .ft-event-card {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-3);
+  align-items: flex-start;
+  gap: var(--space-4);
   padding: var(--space-3) var(--space-4);
 }
 
 .ft-event-card__date {
-  display: inline-flex;
+  display: grid;
   flex: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  place-items: center;
+  align-content: center;
   inline-size: var(--size-avatar-lg);
-  block-size: var(--size-avatar-lg);
+  min-block-size: var(--size-avatar-lg);
+  padding: var(--space-1);
+  box-sizing: border-box;
+  text-align: center;
   border-radius: var(--radius-md);
   background: var(--color-accent-subtle);
   color: var(--color-fg-accent);
@@ -26,11 +34,12 @@
 
 .ft-event-card__month {
   font: var(--text-overline);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
 }
 
 .ft-event-card__day {
-  font: var(--text-label);
-  font-weight: var(--font-weight-bold);
+  font: var(--text-h4);
 }
 
 .ft-event-card__date--cancelled {
@@ -70,5 +79,5 @@
 
 .ft-event-card__meta {
   color: var(--color-fg-muted);
-  font: var(--text-caption);
+  font: var(--text-body-sm);
 }

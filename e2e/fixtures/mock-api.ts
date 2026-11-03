@@ -835,6 +835,8 @@ export class MockApi {
       ...n,
       id: `event-notification-${i + 1}`,
       createdAt: this.now.toISOString(),
+      actorId: null,
+      actorName: null,
     }));
     const items = [...this.notifications.notifications, ...recorded]
       .filter((n) => n.recipientId === caller.profileId)
@@ -846,6 +848,12 @@ export class MockApi {
         text: n.title,
         linkPath: n.linkPath,
         occurredAt: n.createdAt,
+        actorId: n.actorId,
+        actorName: n.actorId ? n.actorName : null,
+        actorPhotoUrl:
+          (n.actorId &&
+            this.profiles.get(n.actorId)?.photos.find((photo) => photo.isFeatured)?.url) ??
+          null,
       }));
     return route.fulfill({ status: 200, json: items });
   }

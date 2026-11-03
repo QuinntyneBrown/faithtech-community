@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { AUTH_SERVICE } from '@faithtech-community/api';
 
 /**
@@ -18,3 +18,12 @@ export const authGuard: CanActivateFn = (_route, state) => {
 /** The not-a-member page is only for an account /api/me refused; anyone else goes home. */
 export const notAMemberGuard: CanActivateFn = () =>
   inject(AUTH_SERVICE).notAMember() ? true : inject(Router).createUrlTree(['/']);
+
+/**
+ * Matches the system pages (not found, forbidden, server error, offline) inside the app shell for a member of this
+ * organisation; anyone else gets them inside the public shell (L2-048).
+ */
+export const memberMatch: CanMatchFn = () => {
+  const auth = inject(AUTH_SERVICE);
+  return auth.isAuthenticated() && !auth.notAMember();
+};

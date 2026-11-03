@@ -1,12 +1,12 @@
 :host {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
 }
 
 .ft-feed__skeleton-row {
   display: flex;
   gap: var(--space-3);
+  padding-block: var(--space-3);
   align-items: flex-start;
 }
 

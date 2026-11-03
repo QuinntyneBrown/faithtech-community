@@ -57,7 +57,7 @@
   align-items: center;
   min-block-size: var(--target-comfortable);
   padding-inline: var(--space-3);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   color: var(--color-fg-muted);
   font: var(--text-label);
   white-space: nowrap;
@@ -112,8 +112,9 @@
 
 a:focus-visible,
 .top-bar__more:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
+  // The one focus ring of the design system: 2px, 2px clear of the link (--focus-ring-width, --focus-ring-offset).
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
 }
 
 @include bp.up(md) {
@@ -124,6 +125,11 @@ a:focus-visible,
   // From 768px to 1535px More stands in for the hidden secondary links (L2-045 AC5).
   .top-bar__more {
     display: inline-flex;
+  }
+
+  // Up to 1023px the links take 8px sides, so six of them, the bell and the avatar fit in the capsule.
+  .top-bar__link {
+    padding-inline: var(--space-2);
   }
 }
 
@@ -136,6 +142,10 @@ a:focus-visible,
 
   .top-bar__nav {
     margin-inline-start: var(--space-4);
+  }
+
+  .top-bar__link {
+    padding-inline: var(--space-3);
   }
 
   .top-bar__actions {

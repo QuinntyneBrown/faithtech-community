@@ -27,6 +27,9 @@ describe('HttpActivityService', () => {
         text: 'Tomás Ortega just joined FaithTech',
         linkPath: '/contacts/c1',
         occurredAt: '2026-10-21T15:42:00Z',
+        actorId: 'p1',
+        actorName: 'Tomás Ortega',
+        actorPhotoUrl: null,
       },
     ];
     let result: ActivityItemDto[] | undefined;

@@ -18,8 +18,9 @@
   overflow: hidden;
 }
 
+// A flush card's title sits 16px in, level with the rows beneath it (design system .card--flush > .card__title).
 :host(.ft-card--flush) .ft-card__header {
-  padding: var(--space-6) var(--space-6) var(--space-2);
+  padding: var(--space-4) var(--space-4) 0;
 }
 
 :host(.ft-card--media) {

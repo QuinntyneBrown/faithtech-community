@@ -65,6 +65,23 @@ test.describe('App shell', () => {
     });
   }
 
+  // L2-045 AC2: nothing scrolls sideways or spills out at 768px, the narrowest width with the full top bar.
+  test('at md every part of the top bar fits inside the capsule', async ({ page, api }) => {
+    // Given a City Lead, who has the most primary sections, on a 768px screen
+    await page.setViewportSize(BREAKPOINTS.md);
+    const shell = new AppShell(page);
+
+    // When they sign in
+    await api.signInAs(
+      api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo', roles: ['CityLead'] }),
+    );
+    await expect(shell.moreLink).toBeVisible();
+
+    // Then the account menu, the bar's last part, sits inside the capsule
+    const { bar, account } = await shell.barAndAccount('Grace Okonkwo');
+    expect(account.x + account.width).toBeLessThanOrEqual(bar.x + bar.width);
+  });
+
   // One rule for every role (docs/adr/0009-shell-navigation-by-role.md); Reports for Staff and System Admin
   // only (L2-123 AC4, L2-045 AC4).
   const byRole: { roles: string[]; nav: string[]; tabs: string[] }[] = [

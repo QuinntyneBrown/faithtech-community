@@ -1,5 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AUTH_SERVICE } from '@faithtech-community/api';
@@ -23,6 +30,7 @@ import {
 import { filter, firstValueFrom, map } from 'rxjs';
 
 import { Section, sectionsFor, tabsFor } from './navigation';
+import { OfflineBannerComponent, ShellPresence } from './offline-banner.component';
 import { ShellNotificationsComponent } from './shell-notifications.component';
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
@@ -40,12 +48,17 @@ import { ShellNotificationsComponent } from './shell-notifications.component';
     ContainerComponent,
     MenuComponent,
     ShellNotificationsComponent,
+    OfflineBannerComponent,
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {
+  constructor() {
+    inject(ShellPresence).enter(inject(DestroyRef));
+  }
+
   private readonly auth = inject(AUTH_SERVICE);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointService);

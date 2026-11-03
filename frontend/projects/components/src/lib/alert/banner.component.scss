@@ -2,8 +2,10 @@
 
 @include alert.alert-styles;
 
+// Edge to edge under the top bar: only a hairline below it (design system .banner).
 .banner {
   border-radius: 0;
+  border-block-start-width: 0;
   border-inline-width: 0;
 
   @media (min-width: 40rem) {
@@ -17,7 +19,7 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: var(--space-2) var(--space-3);
+      gap: var(--space-1) var(--space-4);
     }
 
     .alert__actions {

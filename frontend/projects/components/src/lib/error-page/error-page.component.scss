@@ -1,3 +1,5 @@
+// The design system's .error-page > .empty: 48px under what comes before it, then the empty state's own
+// 48px / 24px padding, a 64px icon circle 8px above a 12px-gapped column, and only the text capped at 36ch.
 :host {
   display: block;
   padding-block-start: var(--space-12);
@@ -8,16 +10,16 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
-  margin-inline: auto;
-  max-inline-size: 36ch;
+  padding: var(--space-12) var(--space-6);
   text-align: center;
 }
 
 .error-page__icon {
   display: inline-grid;
   place-items: center;
-  inline-size: 4rem;
-  block-size: 4rem;
+  inline-size: var(--size-avatar-xl);
+  block-size: var(--size-avatar-xl);
+  margin-block-end: var(--space-2);
   border-radius: var(--radius-full);
   background: var(--color-accent-subtle);
   color: var(--color-fg-accent);
@@ -30,6 +32,7 @@
 }
 
 .error-page__text {
+  max-inline-size: 36ch;
   margin: 0;
   color: var(--color-fg-muted);
   font: var(--text-body);

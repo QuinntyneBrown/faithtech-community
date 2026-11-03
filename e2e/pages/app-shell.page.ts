@@ -57,6 +57,14 @@ export class AppShell {
     return { bar, column };
   }
 
+  /** The top bar's capsule and its last part, the account menu button, to check nothing spills out. */
+  async barAndAccount(name: string): Promise<{ bar: Box; account: Box }> {
+    const bar = await this.page.locator('header.top-bar').boundingBox();
+    const account = await this.accountMenu(name).boundingBox();
+    if (!bar || !account) throw new Error('The top bar or the account menu is not on screen');
+    return { bar, account };
+  }
+
   /**
    * Opens a section as a member does at the current width: its top-bar link when the bar shows it, otherwise
    * through the top bar's More (768px to 1535px, L2-045 AC5).

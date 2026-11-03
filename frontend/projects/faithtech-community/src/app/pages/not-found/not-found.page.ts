@@ -1,13 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {
-  ContainerComponent,
-  ErrorPageComponent,
-  SkipLinkComponent,
-} from '@faithtech-community/components';
+import { ErrorPageComponent } from '@faithtech-community/components';
 
+/** The wildcard route's page (L2-048 AC1), inside the app shell or, signed out, the public shell. */
 @Component({
   selector: 'ft-not-found-page',
-  imports: [SkipLinkComponent, ContainerComponent, ErrorPageComponent],
+  imports: [ErrorPageComponent],
   templateUrl: './not-found.page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

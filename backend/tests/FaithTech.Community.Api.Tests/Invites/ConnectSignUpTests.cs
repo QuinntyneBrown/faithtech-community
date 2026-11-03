@@ -48,8 +48,8 @@ public class ConnectSignUpTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal(("Tomás Ortega", email, profile.Id), (contact.Name, contact.Email, contact.LinkedProfileId));
         var notification = Assert.Single(await NotificationsForAsync(grace));
         Assert.Equal(
-            (NotificationKind.ContactSignedUp, "Tomás Ortega connected with you", $"/contacts/{contact.Id}"),
-            (notification.Kind, notification.Title, notification.LinkPath));
+            (NotificationKind.ContactSignedUp, "Tomás Ortega connected with you", $"/contacts/{contact.Id}", (Guid?)profile.Id),
+            (notification.Kind, notification.Title, notification.LinkPath, notification.ActorId));
         var message = Assert.Single(await factory.QueuedEmailsToAsync(await factory.EmailOfAsync(grace)));
         Assert.Equal("Tomás Ortega connected with you", message.Subject);
         Assert.Contains($"{CommunityApiFactory.WebAppOrigin}/contacts/{contact.Id}", message.Body);

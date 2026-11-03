@@ -1,12 +1,13 @@
 .nav-drawer {
   display: flex;
   flex-direction: column;
-  inline-size: min(20rem, 85vw);
+  // The design system's sidebar width, leaving 48px of the page in view on a phone.
+  inline-size: min(var(--layout-sidebar-width), calc(100vw - var(--space-12)));
   block-size: 100%;
   background: var(--color-bg-surface-raised);
   color: var(--color-fg-default);
   border-inline-end: var(--border-width-hairline) solid var(--color-border-default);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-4);
   animation: nav-drawer-in var(--duration-fast) ease-out;
 }
 

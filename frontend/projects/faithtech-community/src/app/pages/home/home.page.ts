@@ -14,6 +14,8 @@ import {
 } from '@faithtech-community/api';
 import {
   AlertComponent,
+  AvatarColor,
+  avatarColorFor,
   ButtonComponent,
   CardComponent,
   CardFooterComponent,
@@ -59,6 +61,10 @@ interface StatRow {
 
 interface FeedRow {
   id: string;
+  /** Whoever acted, or null when no member did and the organisation speaks. */
+  actor: string | null;
+  color: AvatarColor;
+  photo: string | null;
   text: string;
   href: string;
   meta: string;
@@ -113,8 +119,8 @@ export class HomePage {
   private readonly settings = inject(ORGANISATION_SERVICE);
   private readonly activity = inject(ACTIVITY_SERVICE);
 
-  /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
-  protected readonly actor = computed(() => this.organisation.name());
+  /** The organisation speaks for a notification no member acted on. */
+  protected readonly organisationName = computed(() => this.organisation.name());
   private readonly capabilities = this.auth.capabilities;
   private readonly heldRoles = computed(() => this.auth.currentUser()?.roles ?? []);
   private readonly firstName = computed(
@@ -279,6 +285,9 @@ function toRow(event: EventSummaryDto, chapter: string | null): EventRow {
 function toFeedRow(item: ActivityItemDto): FeedRow {
   return {
     id: item.id,
+    actor: item.actorName,
+    color: item.actorId ? avatarColorFor(item.actorId) : 'plain',
+    photo: item.actorPhotoUrl,
     text: item.text,
     href: item.linkPath,
     meta: formatFeedTime(item.occurredAt),

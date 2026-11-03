@@ -10,6 +10,11 @@ export interface ActivityItemDto {
   /** App route of the item the activity is about. */
   linkPath: string;
   occurredAt: string;
+  /** The member who acted, for the avatar; all three are null when no member acted. */
+  actorId: string | null;
+  actorName: string | null;
+  /** The actor's featured photo, or null for their initials. */
+  actorPhotoUrl: string | null;
 }
 
 /**

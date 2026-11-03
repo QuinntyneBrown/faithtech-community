@@ -1,9 +1,13 @@
+// The page header sits 24px under the top bar and 24px above the content, as the mocks' .page-header.
 :host {
   display: block;
-  margin-block-start: var(--space-4);
+  margin-block-start: var(--space-6);
 }
 
-ft-page-header,
+ft-page-header {
+  margin-block-end: var(--space-6);
+}
+
 .staff {
   margin-block-end: var(--space-4);
 }

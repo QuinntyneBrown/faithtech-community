@@ -10,13 +10,10 @@
   <div class="error-page__actions">
     @if (copy().retry) {
       <ft-button variant="primary" [loading]="retrying()" (click)="onRetry()">
-        <ft-icon name="try-again" size="sm" /> Try again
+        <ft-icon name="try-again" /> Try again
       </ft-button>
     } @else {
-      <ft-button variant="primary" [href]="homeHref()">Go home</ft-button>
-      @if (kind() === 'not-found') {
-        <ft-button [href]="searchHref()">Search</ft-button>
-      }
+      <ft-button variant="primary" [href]="homeHref()"><ft-icon name="home" /> Go home</ft-button>
     }
   </div>
 </div>

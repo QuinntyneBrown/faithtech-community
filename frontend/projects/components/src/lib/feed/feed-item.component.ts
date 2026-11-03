@@ -19,6 +19,8 @@ export class FeedItemComponent {
   /** Full name of whoever acted; shown as initials. */
   readonly actor = input.required<string>();
   readonly color = input<AvatarColor>('plain');
+  /** The actor's featured photo; their initials show without one. */
+  readonly src = input<string | null>(null);
   readonly meta = input<string | null>(null);
   /** Icon name for the entry's type (`call`, `email`, `merge`...); replaces the avatar. */
   readonly icon = input<string | null>(null);

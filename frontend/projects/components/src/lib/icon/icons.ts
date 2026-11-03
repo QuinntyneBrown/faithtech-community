@@ -64,7 +64,8 @@ export const ICONS: Readonly<Record<string, string>> = {
   switch: "<path d='M7 7h13l-3-3M17 17H4l3 3'/>",
   organisation:
     "<path d='M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4'/>",
-  resources: "<path d='M4 4h6l2 2h8v14H4z'/><path d='M8 12h8M8 16h5'/>",
+  resources:
+    "<path d='M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/>",
   notes: "<path d='M5 3h10l4 4v14H5z'/><path d='M9 9h6M9 13h6M9 17h4'/>",
   deck: "<rect x='3' y='4' width='18' height='12' rx='1'/><path d='M12 16v4M8 20h8'/>",
   logo: "<circle cx='12' cy='12' r='9'/><path d='M12 7v10M8 10h8'/>",
