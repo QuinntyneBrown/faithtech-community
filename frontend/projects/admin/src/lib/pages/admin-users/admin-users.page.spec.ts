@@ -20,6 +20,7 @@ const grace: AdminUserSummary = {
   email: 'grace@example.org',
   roles: ['CityLead'],
   status: 'Active',
+  photoUrl: null,
 };
 const victor: AdminUserSummary = {
   id: 'p2',
@@ -27,6 +28,7 @@ const victor: AdminUserSummary = {
   email: 'victor@example.org',
   roles: [],
   status: 'Suspended',
+  photoUrl: null,
 };
 
 function page(items: AdminUserSummary[], totalCount = items.length): PagedResult<AdminUserSummary> {

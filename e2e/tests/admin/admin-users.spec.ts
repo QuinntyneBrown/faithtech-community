@@ -1,5 +1,6 @@
 // Traces to: L2-040, L2-039 (docs/detailed-designs/admin/admin-users-and-override, suspend-users)
 import { expect, test } from '../../fixtures/app';
+import { photoUrl } from '../../fixtures/mock-api';
 import { AdminUsersPage } from '../../pages/admin-users.page';
 import { AppShell } from '../../pages/app-shell.page';
 import { SuspendUserDialog } from '../../pages/suspend-user.dialog';
@@ -36,6 +37,32 @@ test.describe('Admin users', () => {
     await axe.check();
     await users.clearSearch.click();
     await expect(users.rows).toHaveCount(4);
+  });
+
+  // Traces to: L2-040 AC1
+  test('a System Admin sees each member’s featured photo, and initials without one', async ({
+    page,
+    api,
+  }) => {
+    const priya = api.addAccount({
+      email: 'priya@example.org',
+      name: 'Priya Shah',
+      roles: ['SystemAdmin'],
+    });
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    api.profiles.get(grace.profileId)!.photos.push({
+      id: 'photo-1',
+      url: photoUrl('#0b7285'),
+      altText: 'Grace at Builders Night',
+      isFeatured: true,
+      uploadedAt: '2026-10-01T09:00:00Z',
+    });
+    const users = new AdminUsersPage(page);
+    await api.signInAs(priya, '/admin/users');
+
+    await expect(users.photo('Grace Okonkwo')).toBeVisible();
+    await expect(users.photo('Priya Shah')).toHaveCount(0);
+    await expect(users.row('Priya Shah')).toContainText('PS');
   });
 
   test('a System Admin suspends a user with a reason and reinstates them', async ({

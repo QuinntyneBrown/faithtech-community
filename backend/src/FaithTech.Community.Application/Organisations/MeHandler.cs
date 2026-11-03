@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Organisations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,10 @@ public sealed record MembershipDto(string Name, string Host);
 /// </summary>
 public sealed record HeldRoleDto(Guid Id, string Key, string Name, Guid? ChapterId, bool IsOversight);
 
-/// <summary>GET /api/me for a member of the host's organisation (L2-133 AC1).</summary>
+/// <summary>
+/// GET /api/me for a member of the host's organisation (L2-133 AC1). <see cref="PhotoUrl"/> is the featured photo the
+/// top bar's avatar shows, or null for initials (L2-003 AC9).
+/// </summary>
 public sealed record MeDto(
     Guid Id,
     Guid ProfileId,
@@ -29,7 +33,8 @@ public sealed record MeDto(
     IReadOnlyCollection<string> Capabilities,
     IReadOnlyCollection<Guid> GrantableRoleIds,
     ChapterOptionDto? Chapter,
-    IReadOnlyCollection<Guid>? GrantChapterIds = null);
+    IReadOnlyCollection<Guid>? GrantChapterIds = null,
+    string? PhotoUrl = null);
 
 public sealed record NotAMemberOrganisationDto(string Name);
 
@@ -45,7 +50,8 @@ public sealed record NotAMemberDto(string Reason, NotAMemberOrganisationDto Orga
 /// the account's other active memberships (ADR 0032).
 /// </summary>
 public class MeHandler(
-    IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, UserManager<CommunityUser> users, RoleGrantPolicy grants)
+    IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, UserManager<CommunityUser> users, RoleGrantPolicy grants,
+    IPhotoStorage storage)
 {
     public async Task<(MeDto? Me, NotAMemberDto? NotAMember)> HandleAsync(CancellationToken cancellationToken = default)
     {
@@ -59,7 +65,12 @@ public class MeHandler(
 
         // The caller's home chapter, or none, and none while chapters are off (L2-133 AC1, L2-140 AC2).
         var profile = await db.Profiles.Where(p => p.Id == membership.ProfileId)
-            .Select(p => new { p.Name, Chapter = p.Chapter == null ? null : new ChapterOptionDto(p.Chapter.Id, p.Chapter.Name) })
+            .Select(p => new
+            {
+                p.Name,
+                Chapter = p.Chapter == null ? null : new ChapterOptionDto(p.Chapter.Id, p.Chapter.Name),
+                Featured = p.Photos.Where(photo => photo.IsFeatured).Select(photo => photo.BlobName).FirstOrDefault(),
+            })
             .SingleAsync(cancellationToken);
         return (new MeDto(
             userId,
@@ -75,7 +86,8 @@ public class MeHandler(
             [.. await grants.GrantableAsync(cancellationToken)],
             profile.Chapter,
             // The chapters a scoped grantor may tag a grant with; null when the caller is never scoped (L2-143).
-            await grants.GrantChapterIdsAsync(cancellationToken)), null);
+            await grants.GrantChapterIdsAsync(cancellationToken),
+            profile.Featured is null ? null : storage.GetReadUrl(profile.Featured)), null);
     }
 
     /// <summary>The account's active, unsuspended profiles in other active organisations, by name and host.</summary>

@@ -21,6 +21,8 @@ export interface CurrentUser {
   name: string | null;
   email: string | null;
   emailVerified: boolean;
+  /** The featured photo the top bar's avatar shows; initials show without one (L2-003 AC9). */
+  photoUrl?: string | null;
   /** The roles held here, named by the organisation (L2-133 AC1). */
   roles: HeldRole[];
   /** What the roles allow, computed by the server on every request (L2-135 AC2). */

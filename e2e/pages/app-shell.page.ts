@@ -134,6 +134,11 @@ export class AppShell {
     return this.accountMenu(name).locator('.ft-avatar');
   }
 
+  /** Your featured photo on the top bar's account menu button; absent when you have none. */
+  yourPhoto(name: string): Locator {
+    return this.accountMenu(name).locator('img');
+  }
+
   /** The tab bar's labels, in order. */
   async tabLabels(): Promise<string[]> {
     return (await this.tabBar.getByRole('link').allTextContents()).map((t) => t.trim());

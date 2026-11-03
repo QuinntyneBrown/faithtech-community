@@ -12,3 +12,10 @@ main.with-tab-bar {
   align-items: center;
   gap: var(--space-2);
 }
+
+// From lg (1024px) the bell and the avatar stand 16px apart, as the top bar's parts do.
+@media (min-width: 64rem) {
+  .actions {
+    gap: var(--space-4);
+  }
+}

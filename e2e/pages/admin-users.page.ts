@@ -55,6 +55,10 @@ export class AdminUsersPage {
     return this.page.getByRole('button', { name: `Reinstate ${name}` });
   }
 
+  photo(name: string): Locator {
+    return this.row(name).locator('img');
+  }
+
   profileLink(name: string): Locator {
     return this.row(name).getByRole('link', { name });
   }

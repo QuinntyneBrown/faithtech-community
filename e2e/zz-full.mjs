@@ -1,0 +1,10 @@
+import { chromium } from '@playwright/test';
+const [out, m, y] = process.argv.slice(2);
+const b = await chromium.launch();
+const p = await b.newPage({ viewport: { width: 1280, height: 720 } });
+await p.goto(`file:///C:/projects/faithtech-community/docs/mocks/${m}.html?chrome=0`);
+await p.waitForTimeout(300);
+await p.evaluate((y) => window.scrollTo(0, Number(y)), y);
+await p.waitForTimeout(200);
+await p.screenshot({ path: out });
+await b.close();

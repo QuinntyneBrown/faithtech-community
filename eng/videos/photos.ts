@@ -6,11 +6,23 @@ import { join } from 'node:path';
  * in CREDITS.md there). Portraits are AI-generated, so no real person stands in for a member.
  */
 export type Scene =
-  'leah-thompson' | 'samuel-mensah' | 'city' | 'hackathon-pairing' | 'whiteboard-talk';
+  | 'leah-thompson'
+  | 'samuel-mensah'
+  | 'grace-okonkwo'
+  | 'priya-shah'
+  | 'victor-kane'
+  | 'esther-nakamura'
+  | 'city'
+  | 'hackathon-pairing'
+  | 'whiteboard-talk';
 
 const FILES: Record<Scene, string> = {
   'leah-thompson': 'people/leah-thompson.jpg',
   'samuel-mensah': 'people/samuel-mensah.jpg',
+  'grace-okonkwo': 'people/grace-okonkwo.jpg',
+  'priya-shah': 'people/priya-shah.jpg',
+  'victor-kane': 'people/victor-kane.jpg',
+  'esther-nakamura': 'people/esther-nakamura.jpg',
   city: 'city.jpg',
   'hackathon-pairing': 'hackathon-pairing.jpg',
   'whiteboard-talk': 'whiteboard-talk.jpg',
@@ -19,6 +31,10 @@ const FILES: Record<Scene, string> = {
 export const SCENE_ALT: Record<Scene, string> = {
   'leah-thompson': 'Leah smiling, in a head-and-shoulders portrait',
   'samuel-mensah': 'Samuel in a dark jacket against a brick wall',
+  'grace-okonkwo': 'Grace smiling, in a head-and-shoulders portrait',
+  'priya-shah': 'Priya in a head-and-shoulders portrait',
+  'victor-kane': 'Victor in a head-and-shoulders portrait',
+  'esther-nakamura': 'Esther in a head-and-shoulders portrait',
   city: 'The Toronto skyline at dusk from the waterfront',
   'hackathon-pairing': 'Samuel helping two hackathon teammates debug their prototype on laptops',
   'whiteboard-talk': 'Samuel walking the Toronto team through an API sketch on the whiteboard',

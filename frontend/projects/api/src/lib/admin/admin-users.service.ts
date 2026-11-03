@@ -12,6 +12,8 @@ export interface AdminUserSummary {
   email: string;
   roles: Role[];
   status: UserStatus;
+  /** The featured photo; initials show without one. */
+  photoUrl: string | null;
 }
 
 /**

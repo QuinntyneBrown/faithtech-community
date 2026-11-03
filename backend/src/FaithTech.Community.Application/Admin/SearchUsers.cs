@@ -1,5 +1,6 @@
 using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,14 @@ public enum UserStatus
     Unverified,
 }
 
-/// <summary>One account on the admin users page (L2-040 AC1). <see cref="Id"/> is the profile id.</summary>
-public record AdminUserSummary(Guid Id, string Name, string Email, IReadOnlyList<string> Roles, string Status);
+/// <summary>
+/// One account on the admin users page (L2-040 AC1). <see cref="Id"/> is the profile id; <see cref="PhotoUrl"/> is the
+/// featured photo, or null for initials.
+/// </summary>
+public record AdminUserSummary(Guid Id, string Name, string Email, IReadOnlyList<string> Roles, string Status, string? PhotoUrl);
 
 /// <summary>Searches every account by name or email; System Admin only.</summary>
-public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
+public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current, IPhotoStorage storage)
 {
     public const int PageSize = 25;
 
@@ -49,6 +53,7 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
                 Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
                 a.profile.IsSuspended,
                 a.user.EmailConfirmed,
+                Featured = a.profile.Photos.Where(p => p.IsFeatured).Select(p => p.BlobName).FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -57,7 +62,8 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
             r.Name,
             r.Email ?? string.Empty,
             [.. r.Roles.Order().Select(role => role.ToString())],
-            (r.IsSuspended ? UserStatus.Suspended : r.EmailConfirmed ? UserStatus.Active : UserStatus.Unverified).ToString())).ToList();
+            (r.IsSuspended ? UserStatus.Suspended : r.EmailConfirmed ? UserStatus.Active : UserStatus.Unverified).ToString(),
+            r.Featured is null ? null : storage.GetReadUrl(r.Featured))).ToList();
         return new PagedResult<AdminUserSummary>(items, request.Page, request.PageSize, total);
     }
 }

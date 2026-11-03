@@ -3,6 +3,11 @@
   margin-block-start: var(--space-6);
 }
 
+/* The mocks' .page-header keeps --space-6 above the tab row. */
+ft-page-header {
+  margin-block-end: var(--space-6);
+}
+
 .search {
   display: block;
   margin-block-end: var(--space-4);
