@@ -23,6 +23,8 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/account/resend-verification",
         "api/account/forgot-password",
         "api/account/reset-password",
+        // An email change is confirmed from the link sent to the new address (L2-052 AC1); its token proves the request.
+        "api/account/confirm-email-change",
         "connect/authorize",
         "connect/token",
         "connect/logout",

@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — change the email
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Community web app (notifications library and api)" #E0F2FE
+  participant "SettingsPage" as page
+  participant "AccountService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "AccountSettingsHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "UserManager / email sender" as um
+end box
+actor -> page : Changes Email, chooses Save settings
+page -> client : updateAccount({ email })
+client -> ep : PUT /api/account
+ep -> h : UpdateAsync(command)
+h -> um : FindByEmailAsync(new email)
+alt address used by another account
+  h --> ep : Invalid(Email, "Another account uses that email.")
+  ep --> page : 400, field error
+else address free
+  h -> um : GenerateChangeEmailTokenAsync(user, new email)
+  h -> um : Send link {origin}/verify-email?userId&email&token to the new address
+  h --> ep : AccountUpdated(PendingEmail)
+  ep --> page : 200
+  page --> actor : "Settings saved" — we sent a link to the new address
+end
+actor -> page : Opens the link (VerifyEmailPage)
+page -> client : confirmEmailChange(userId, email, token)
+client -> ep : POST /api/account/confirm-email-change
+ep -> h : ConfirmEmailChangeAsync(command)
+h -> um : ChangeEmailAsync + SetUserNameAsync
+alt valid token
+  ep --> page : 204, success state
+else expired or used
+  ep --> page : 400, error state
+end
+@enduml

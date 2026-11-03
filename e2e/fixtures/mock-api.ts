@@ -156,6 +156,8 @@ type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | 
  */
 export class MockApi {
   readonly accounts = new Map<string, MockAccount>();
+  /** AccountSettingsHandler (L2-052 AC1): the link last sent to each new address, as a path and query. */
+  readonly emailChangeLinks = new Map<string, string>();
   readonly profiles = new Map<string, MockProfile>();
   readonly invites: MockInvite[] = [];
   readonly audit: MockAuditEntry[] = [];
@@ -689,6 +691,12 @@ export class MockApi {
         return route.fulfill({ status: 200, json: {} });
       case 'POST /api/account/reset-password':
         return route.fulfill({ status: 200, json: {} });
+      case 'GET /api/account':
+      case 'PUT /api/account':
+      case 'POST /api/account/sign-out-everywhere':
+        return this.accountSettings(route, method, url.pathname, body, authorization);
+      case 'POST /api/account/confirm-email-change':
+        return this.confirmEmailChange(route, body);
       default:
         this.unrecognised.push(`${method} ${url.pathname}`);
         return route.abort('failed');
@@ -823,6 +831,78 @@ export class MockApi {
       !account.organisations ||
       account.organisations.some((o) => o.slug === this.host.organisation.slug)
     );
+  }
+
+  /**
+   * AccountSettingsEndpoints (L2-052): the caller's sign-in email; a save that sends a link to a new address and
+   * changes the password with the current one; and sign out everywhere, which ends every session.
+   */
+  private accountSettings(
+    route: Route,
+    method: string,
+    path: string,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (path === '/api/account/sign-out-everywhere') {
+      this.signedIn = null;
+      this.session = null;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'GET') {
+      return route.fulfill({ status: 200, json: { email: caller.email, hasPassword: true } });
+    }
+
+    const email = String(body['email'] ?? '').trim();
+    const currentPassword = String(body['currentPassword'] ?? '');
+    const newPassword = String(body['newPassword'] ?? '');
+    if (!email) return validationProblem(route, 'Email', 'Enter your email address.');
+    if (!/^[^@\s]+@[^@\s]+$/.test(email))
+      return validationProblem(route, 'Email', 'Enter an email address like name@example.com.');
+    if (newPassword && newPassword.length < 12)
+      return validationProblem(route, 'NewPassword', 'Use at least 12 characters.');
+    const changesEmail = email.toLowerCase() !== caller.email.toLowerCase();
+    if (changesEmail && this.accounts.has(email.toLowerCase()))
+      return validationProblem(route, 'Email', 'Another account uses that email.');
+    if (newPassword && !currentPassword)
+      return validationProblem(
+        route,
+        'CurrentPassword',
+        'Enter your current password to change it.',
+      );
+    if (newPassword && currentPassword !== caller.password)
+      return validationProblem(route, 'CurrentPassword', 'Your current password is incorrect.');
+
+    if (newPassword) caller.password = newPassword;
+    if (changesEmail) {
+      const query = new URLSearchParams({
+        userId: `user-${caller.profileId}`,
+        email,
+        token: `change-email-${caller.profileId}`,
+      });
+      this.emailChangeLinks.set(email.toLowerCase(), `/verify-email?${query}`);
+    }
+    return route.fulfill({
+      status: 200,
+      json: { pendingEmail: changesEmail ? email : null, passwordChanged: !!newPassword },
+    });
+  }
+
+  /** AccountSettingsHandler.ConfirmEmailChangeAsync: the new address becomes the sign-in email; a link works once. */
+  private confirmEmailChange(route: Route, body: Record<string, unknown>) {
+    const email = String(body['email'] ?? '');
+    const profileId = String(body['userId'] ?? '').replace(/^user-/, '');
+    const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
+    const link = this.emailChangeLinks.get(email.toLowerCase());
+    if (!account || !link || body['token'] !== `change-email-${profileId}`)
+      return validationProblem(route, 'Token', 'This link has expired or has already been used.');
+    this.emailChangeLinks.delete(email.toLowerCase());
+    this.accounts.delete(account.email.toLowerCase());
+    account.email = email;
+    this.accounts.set(email.toLowerCase(), account);
+    return route.fulfill({ status: 204 });
   }
 
   /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */

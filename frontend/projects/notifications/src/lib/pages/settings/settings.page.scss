@@ -17,3 +17,8 @@ ft-page-header {
 .status:empty {
   position: absolute;
 }
+
+// The mock danger zone sits a section of space below the form (docs/mocks/pages/settings).
+.danger {
+  margin-block-start: var(--space-8);
+}

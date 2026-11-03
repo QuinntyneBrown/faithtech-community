@@ -110,6 +110,7 @@ test('read-announcements-and-opt-out', async ({ page, api }) => {
   await show.step('settings', async () => {
     await shell.accountMenu('Ruth Alvarez').click();
     await shell.menuItem('Settings').click();
+    await expect(settings.email).not.toHaveValue('');
     await expect(settings.emailAnnouncements).toBeChecked();
   });
 

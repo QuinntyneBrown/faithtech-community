@@ -1,0 +1,34 @@
+@startuml
+title UML sequence behaviour — sign out everywhere
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — Community web app (notifications library and api)" #E0F2FE
+  participant "SettingsPage" as page
+  participant "SignOutEverywhereDialog" as dlg
+  participant "AccountService / AuthService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Infrastructure" #ECFDF3
+  participant "AccountSettingsHandler" as h
+  participant "ITokenRevocation" as rv
+end box
+actor -> page : Chooses Sign out everywhere
+page -> dlg : open (Cancel has focus)
+alt Cancel
+  dlg --> page : closed, still signed in
+else confirms
+  dlg -> client : signOutEverywhere()
+  client -> ep : POST /api/account/sign-out-everywhere
+  ep -> h : SignOutEverywhereAsync()
+  h -> rv : RevokeAllAsync(user)
+  ep --> client : 204
+  client -> client : signOut() — clears this browser's tokens
+  dlg --> actor : sign-in page
+end
+@enduml

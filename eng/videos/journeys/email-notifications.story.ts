@@ -72,6 +72,7 @@ test('email-notifications', async ({ page, api }) => {
       await shell.menuItem('Settings').click();
       await expect(settings.heading).toBeVisible();
       await expect(settings.emailCard).toBeVisible();
+      await expect(settings.email).not.toHaveValue('');
       await expect(settings.emailAnnouncements).toBeChecked();
     },
     { poster: true },

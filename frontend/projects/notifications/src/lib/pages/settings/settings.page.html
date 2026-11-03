@@ -1,38 +1,104 @@
 <ft-page-header title="Settings" />
 
-<ft-stack width="md">
-  <ft-card heading="Appearance">
-    <ft-stack>
-      <ft-radio-group
-        legend="Theme"
-        name="theme"
-        [ngModel]="preference()"
-        (ngModelChange)="choose($event)"
-      >
-        <ft-radio value="light">Light</ft-radio>
-        <ft-radio value="dark">Dark</ft-radio>
-        <ft-radio value="system" description="Follows your device’s light or dark setting">
-          Match my device
-        </ft-radio>
-      </ft-radio-group>
-      <p class="caption">Changes straight away and is remembered on this device.</p>
-    </ft-stack>
-  </ft-card>
-  <ft-card heading="Email me when">
-    <ft-stack>
-      <ft-switch [formControl]="emailAnnouncements">Email me announcements</ft-switch>
-      <p class="caption">You’ll always get account emails like password resets.</p>
-      <!-- A live region from the start, so the alert that appears in it is announced. -->
-      <div class="status" aria-live="polite">
-        @if (save() === 'saved') {
-          <ft-alert status="success" heading="Settings saved">
-            It applies from the next announcement.
-          </ft-alert>
-        }
-      </div>
-      @if (save() === 'failed') {
-        <ft-inline-message>We couldn’t save that. Try again.</ft-inline-message>
+<form [formGroup]="account" (ngSubmit)="saveAccount()" ftFormErrorFocus novalidate>
+  <ft-stack width="md">
+    <ft-error-summary [errors]="summary()" action="save" />
+    <!-- A live region from the start, so the alert that appears in it is announced. -->
+    <div class="status" aria-live="polite">
+      @if (accountSaved(); as saved) {
+        <ft-alert status="success" heading="Settings saved">{{ saved }}</ft-alert>
       }
-    </ft-stack>
-  </ft-card>
+    </div>
+    @if (accountFailed()) {
+      <ft-alert status="danger" heading="Settings not saved">
+        We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
+      </ft-alert>
+    }
+    <ft-card heading="Account">
+      <ft-stack>
+        <ft-form-field
+          #emailField
+          label="Email"
+          help="Changing it sends a verification link to the new address."
+          [error]="error('email')"
+        >
+          <ft-text-field formControlName="email" type="email" autocomplete="email" />
+        </ft-form-field>
+        <ft-form-field
+          #currentField
+          label="Current password"
+          [optional]="!error('currentPassword')"
+          [error]="error('currentPassword')"
+        >
+          <ft-text-field
+            formControlName="currentPassword"
+            type="password"
+            autocomplete="current-password"
+          />
+        </ft-form-field>
+        <ft-form-field
+          #newField
+          label="New password"
+          [optional]="true"
+          help="At least 12 characters."
+          [error]="error('newPassword')"
+        >
+          <ft-text-field
+            formControlName="newPassword"
+            type="password"
+            autocomplete="new-password"
+          />
+        </ft-form-field>
+      </ft-stack>
+    </ft-card>
+    <ft-card heading="Appearance">
+      <ft-stack>
+        <ft-radio-group
+          legend="Theme"
+          name="theme"
+          [ngModel]="preference()"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="choose($event)"
+        >
+          <ft-radio value="light">Light</ft-radio>
+          <ft-radio value="dark">Dark</ft-radio>
+          <ft-radio value="system" description="Follows your device’s light or dark setting">
+            Match my device
+          </ft-radio>
+        </ft-radio-group>
+        <p class="caption">Changes straight away and is remembered on this device.</p>
+      </ft-stack>
+    </ft-card>
+    <ft-card heading="Email me when">
+      <ft-stack>
+        <ft-switch [formControl]="emailAnnouncements">Email me announcements</ft-switch>
+        <p class="caption">You’ll always get account emails like password resets.</p>
+        <!-- A live region from the start, so the alert that appears in it is announced. -->
+        <div class="status" aria-live="polite">
+          @if (save() === 'saved') {
+            <ft-alert status="success" heading="Settings saved">
+              It applies from the next announcement.
+            </ft-alert>
+          }
+        </div>
+        @if (save() === 'failed') {
+          <ft-inline-message>We couldn’t save that. Try again.</ft-inline-message>
+        }
+      </ft-stack>
+    </ft-card>
+    <ft-form-actions>
+      <ft-button type="submit" variant="primary" [loading]="busy()">
+        {{ busy() ? 'Saving…' : 'Save settings' }}
+      </ft-button>
+    </ft-form-actions>
+  </ft-stack>
+</form>
+
+<ft-stack class="danger" width="md">
+  <ft-danger-zone heading="Sign out everywhere">
+    Ends every session on every device, including this one.
+    <ft-button ftDangerAction variant="danger" (click)="signOutEverywhere()">
+      <ft-icon name="sign-out" /> Sign out everywhere
+    </ft-button>
+  </ft-danger-zone>
 </ft-stack>

@@ -7,3 +7,4 @@
 | sign-in-and-sign-out | 5 days | 100% | A- |
 | sign-up | 4 days | 100% | A- |
 | google-sign-in | 6 days | 100% | n/a |
+| account-settings | 4 days | 100% | n/a |

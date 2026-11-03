@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<GoogleSignInHandler>();
         services.AddScoped<RequestPasswordResetHandler>();
         services.AddScoped<ResetPasswordHandler>();
+        services.AddScoped<AccountSettingsHandler>();
         services.AddScoped<ProfileAccess>();
         services.AddScoped<ListActivityHandler>();
         services.AddScoped<GetProfileHandler>();
